@@ -19,8 +19,87 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .clip-hide {
+    clip-path: circle(5%);
+  }
+
+  .clip-show {
+    clip-path: circle(71%);
+  }
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 1s ease forwards;
+  }
+}
+
+/* Swiper pagination styled like in the CodePen */
+.swiper-pagination {
+  position: absolute !important;
+  right: 30px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  z-index: 20 !important;
+}
+
+.swiper-pagination-bullet {
+  width: 14px !important;
+  height: 14px !important;
+  background-color: #a3a6a3 !important;
+  border-radius: 50% !important;
+  transition: all 0.6s ease-in-out !important;
+  opacity: 1 !important;
+}
+
+.swiper-pagination-bullet-active {
+  height: 32px !important;
+  background-image: linear-gradient(
+    180deg,
+    #f09819 0%,
+    #ff512f 100%
+  ) !important;
+  border-radius: 14px !important;
+}
+
+.collor:hover {
+  background: linear-gradient(180deg, #f09819 0%, #ff512f 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+@media (max-width: 600px) {
+  .swiper-pagination {
+    flex-direction: row;
+    right: 50%;
+    top: unset;
+    bottom: 40px;
+    transform: translateX(50%);
+    gap: 8px;
+  }
+
+  .swiper-pagination-bullet {
+    width: 12px;
+    height: 12px;
+  }
+
+  .swiper-pagination-bullet-active {
+    width: 28px;
+    height: 12px;
+    border-radius: 8px;
+  }
 }
