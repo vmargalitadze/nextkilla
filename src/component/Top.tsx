@@ -1,5 +1,7 @@
+"use client";
 import React from 'react'
 import Image from 'next/image'
+import { useTranslations } from "next-intl";
 
 const destinations = [
   {
@@ -23,15 +25,16 @@ const destinations = [
 ]
 
 const Top = () => {
+    const t = useTranslations("top");
     return (
         <div className="container mx-auto pt-20 pb-20  relative">
            <div className="max-w-7xl mx-auto">
             
            
             <div className="mb-7 text-center">
-                <h5 className="text-red-600 font-semibold">Top Selling</h5>
-                <h3 className="text-4xl md:text-5xl font-cursive font-bold capitalize">
-                    Top Destinations
+                <h5 className="text-primary font-semibold">{t("topSelling")}</h5>
+                <h3 className="text-[30px] sm:text-[35px] md:text-[48px] xl:text-[56px] font-black leading-[40px] sm:leading-[45px] md:leading-[58px] xl:leading-[68px]">
+                    {t("topDestinations")}
                 </h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 z-10 relative">
@@ -48,7 +51,7 @@ const Top = () => {
                         </div>
                         <div className="p-6 flex flex-col flex-1">
                             <div className="flex flex-col lg:flex-row justify-between mb-3">
-                                <h4 className="text-red-600 font-semibold text-lg">
+                                <h4 className="text-primary font-semibold text-lg">
                                     <a href="#!" className="hover:underline">
                                         {dest.name}
                                     </a>

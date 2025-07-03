@@ -1,3 +1,5 @@
+"use client";
+import { useTranslations } from "next-intl";
 import Image from 'next/image'
 import React from 'react'
 
@@ -22,7 +24,7 @@ const categories = [
         image: "/category/photo-1532254497630-c74966e79621.jpg",
         name: "Beach",
     },
- 
+
 
 
 
@@ -31,18 +33,20 @@ const categories = [
 
 
 const Category = () => {
+    const t = useTranslations("category");
     return (
         <>
-            <div className="container mx-auto">
+            <div className="container mx-auto py-10">
+
                 <div className="max-w-7xl pt-20  mx-auto">
-                    <div className="flex  justify-center lg:justify-start items-center lg:items-start flex-col gap-[5px] sm:gap-[8px] md:gap-[15px]">
-                        <div className="flex  flex-col gap-[9px]">
+                    <div className="flex justify-center items-center text-center flex-col gap-[5px] sm:gap-[8px] md:gap-[15px] ">
+                        <div className="flex justify-center items-center text-center flex-col gap-[9px]">
                             <h1 className="text-[30px] sm:text-[35px] md:text-[48px] xl:text-[56px] font-black leading-[40px] sm:leading-[45px] md:leading-[58px] xl:leading-[68px]">
-                                Categories
+                                {t("title")}
                             </h1>
                         </div>
-                      
                     </div>
+
                     <div className="grid mt-10  grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {categories.map((category) => (
                             <div key={category.id} className="group text-center p-4  transition duration-300">
@@ -56,7 +60,7 @@ const Category = () => {
                                     />
                                     <div>
                                         <h2 className="text-[20px] font-bold bg-bodyColor py-[5px] px-[26px] rounded-r-[30px] text-primary absolute bottom-15 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in">
-                                            Beach
+                                            {category.name}
                                         </h2>
                                     </div>
                                 </div>

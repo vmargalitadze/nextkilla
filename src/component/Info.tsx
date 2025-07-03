@@ -1,7 +1,10 @@
+"use client";
 import Image from 'next/image'
+import { useTranslations } from "next-intl";
 import React from 'react'
 
 const Info = () => {
+    const t = useTranslations("info");
     return (
         <>
             <div className="container pt-20  mx-auto">
@@ -15,22 +18,16 @@ const Info = () => {
                                 <div className="flex items-center gap-2">
                                     <i className="text-[18px] text-primary font-bold leading-5 ri-earth-line"></i>
                                     <h3 className="text-[18px] text-primary font-bold leading-5">
-                                        We Are Kila Travel
+                                        {t("we_are")}
                                     </h3>
                                 </div>
                                 <div>
                                     <h1 className="text-center lg:text-left text-[30px] sm:text-[35px] md:text-[48px] xl:text-[56px] font-black leading-tight">
-                                        Exploring the World, One Destination at a Time with Us
+                                        {t("explore_title")}
                                     </h1>
-                                    <span className="block w-32 border-t-[1.5px] border-red-900 relative mx-auto lg:mx-0">
-                                        <span className="lg:hidden absolute -left-2 -top-1 w-2 h-2 bg-red-900 rounded-full"></span>
-                                        <span className="absolute -right-2 -top-1 w-2 h-2 bg-red-900 rounded-full"></span>
-                                    </span>
+                                    
                                 </div>
-                                <p className="text-center lg:text-left text-paragraphColor font-normal leading-[24px]">
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-                                    tempor incididunt ut labore et dolore magna aliqua.
-                                </p>
+                                
                             </div>
                         </div>
                     </div>

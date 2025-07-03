@@ -2,39 +2,41 @@
 import React, { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Mousewheel, EffectFade, Autoplay } from "swiper/modules";
+import { useTranslations } from "next-intl";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
-const slides = [
-  {
-    title: "Hallstatt, Austria",
-    text: "Visit Hallstatt, Austria, a beautiful village by a clear lake, surrounded by tall mountains.",
-    bg: "https://upload.wikimedia.org/wikipedia/commons/b/b0/Hallstatt_-_Zentrum_.JPG",
-    key: "one",
-  },
-  {
-    title: "Paris, France",
-    text: "Explore Paris, the City of Light, known for its romance and famous landmarks like the Eiffel Tower.",
-    bg: "https://avianet.ge/storage/app/media/cropped-images/PARIS-0-0-0-0-1624280981.jpeg",
-    key: "two",
-  },
-  {
-    title: "Amsterdam, Netherlands",
-    text: "Discover Amsterdam, a city full of canals, bicycles, and culture.",
-    bg: "https://www.holland.com/upload_mm/2/4/4/80160_fullimage_rondvaartboot%20vaart%20onder%20brug%20door%20met%20mooie%20wolkenlucht%20%C2%A9%20illusion-x%20via%20pixabay_1150x663_438x353.jpg",
-    key: "three",
-  },
-  {
-    title: "Kyoto, Japan",
-    text: "Travel to Kyoto, Japan, a city rich in tradition and beauty.",
-    bg: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Kiyomizu-dera_in_Kyoto.jpg/800px-Kiyomizu-dera_in_Kyoto.jpg",
-    key: "four",
-  },
-];
-
 export default function Hero() {
+  const t = useTranslations("hero");
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const slides = [
+    {
+      title: t("hallstatt_title"),
+      text: t("hallstatt_text"),
+      bg: "https://upload.wikimedia.org/wikipedia/commons/b/b0/Hallstatt_-_Zentrum_.JPG",
+      key: "one",
+    },
+    {
+      title: t("paris_title"),
+      text: t("paris_text"),
+      bg: "https://avianet.ge/storage/app/media/cropped-images/PARIS-0-0-0-0-1624280981.jpeg",
+      key: "two",
+    },
+    {
+      title: t("amsterdam_title"),
+      text: t("amsterdam_text"),
+      bg: "https://www.holland.com/upload_mm/2/4/4/80160_fullimage_rondvaartboot%20vaart%20onder%20brug%20door%20met%20mooie%20wolkenlucht%20%C2%A9%20illusion-x%20via%20pixabay_1150x663_438x353.jpg",
+      key: "three",
+    },
+    {
+      title: t("kyoto_title"),
+      text: t("kyoto_text"),
+      bg: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Kiyomizu-dera_in_Kyoto.jpg/800px-Kiyomizu-dera_in_Kyoto.jpg",
+      key: "four",
+    },
+  ];
 
   return (
     <div className="relative min-h-screen bg-[#232328] font-[Quicksand,sans-serif]">

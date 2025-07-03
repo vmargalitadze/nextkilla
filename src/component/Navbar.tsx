@@ -2,12 +2,15 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
+import LocaleSwitcher from "./switcher";
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
   const [scrolled, setScrolled] = useState(false);
+  const t = useTranslations("navbar");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,10 +22,10 @@ export default function Navbar() {
   }, []);
   // Navigation items array
   const navItems = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "News", href: "/news" },
-    { name: "Contact", href: "/contact" },
+    { name: t("home"), href: "/" },
+    { name: t("about"), href: "/about" },
+    { name: t("news"), href: "/news" },
+    { name: t("contact"), href: "/contact" },
   ];
 
   return (
@@ -113,6 +116,7 @@ export default function Navbar() {
                 </li>
               ))}
             </ul>
+            
           </div>
 
           {/* Desktop Menu */}
@@ -128,7 +132,7 @@ export default function Navbar() {
                   </Link>
                 </li>
               ))}
-              <li></li>
+              <li><LocaleSwitcher /></li>
             </ul>
           </div>
         </div>

@@ -1,5 +1,60 @@
 {
+  "navbar": {
+    "home": "Home",
+    "about": "About",
+    "news": "News",
+    "contact": "Contact"
+  },
+  "top": {
+    "title": "Top Destinations",
+    "subtitle": "Top Selling",
+    "rome": "Rome, Italy",
+    "london": "London, UK",
+    "europe": "Full Europe",
+    "price_rome": "$5.42k",
+    "price_london": "$4.2k",
+    "price_europe": "$15k",
+    "days_rome": "10 Days Trip",
+    "days_london": "12 Days Trip",
+    "days_europe": "28 Days Trip",
+    "topSelling": "Top Selling",
+    "topDestinations": "Top Destinations"
+  },
+  "booking": {
+    "easy_fast": "Easy and Fast",
+    "title": "Book your next trip in 3 easy steps",
+    "step1_title": "Choose Destination",
+    "step1_desc": "Choose your favourite place.",
+    "step2_title": "Make Payment",
+    "step2_desc": " make your payment easily and securely.",
+    "step3_title": "Reach Airport on Selected Date",
+    "step3_desc": " you have to arrive at the airport on time and enjoy the vacation.",
+    "trip_greece": "Trip To Greece",
+    "trip_dates": "14-29 June ",
+    "ongoing": "Ongoing",
+    "trip_rome": "Trip to Rome",
+    "completed": "completed",
+    "people_going": "24 people going"
+  },
+  "info": {
+    "we_are": "We Are Kila Travel",
+    "explore_title": "Explore the World with Us",
+    "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  },
+  "hero": {
+    "hallstatt_title": "Hallstatt, Austria",
+    "hallstatt_text": "Visit Hallstatt, Austria, a beautiful village by a clear lake, surrounded by tall mountains.",
+    "paris_title": "Paris, France",
+    "paris_text": "Explore Paris, the City of Light, known for its romance and famous landmarks like the Eiffel Tower.",
+    "amsterdam_title": "Amsterdam, Netherlands",
+    "amsterdam_text": "Discover Amsterdam, a city full of canals, bicycles, and culture.",
+    "kyoto_title": "Kyoto, Japan",
+    "kyoto_text": "Travel to Kyoto, Japan, a city rich in tradition and beauty."
+  },
   "common": {
     "welcome": "Welcome"
+  },
+  "category": {
+    "title": "Categories"
   }
 }
