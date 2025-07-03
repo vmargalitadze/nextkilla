@@ -61,10 +61,10 @@ export default function Hero() {
               className={`absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center w-[90%] max-w-2xl text-[#f2f2f2] text-center p-6 z-20 transition-opacity duration-500 ease-in-out
   ${activeIndex === index ? "opacity-100 animate-fadeIn" : "opacity-0"}`}
             >
-              <h1 className="font-[Salsa,cursive] text-4xl md:text-6xl mb-5">
+              <h1 className="font-[Salsa,cursive] text-red-400 text-4xl md:text-6xl mb-5">
                 {slide.title}
               </h1>
-              <p className="text-lg font-medium leading-snug">{slide.text}</p>
+              <p className="text-lg  font-medium leading-snug">{slide.text}</p>
             </div>
 
             <div
@@ -80,7 +80,7 @@ export default function Hero() {
               }}
             >
               {/* შავი overlay ფენა */}
-              <div className="absolute inset-0 bg-black/30"></div>
+              <div className="absolute inset-0 bg-black/40"></div>
             </div>
           </SwiperSlide>
         ))}

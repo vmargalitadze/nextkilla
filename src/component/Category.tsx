@@ -12,6 +12,18 @@ const categories = [
         image: "/category/photo-1532254497630-c74966e79621.jpg",
         name: "Beach",
     },
+    {
+        id: 3,
+        image: "/category/photo-1532254497630-c74966e79621.jpg",
+        name: "Beach",
+    },
+    {
+        id: 4,
+        image: "/category/photo-1532254497630-c74966e79621.jpg",
+        name: "Beach",
+    },
+ 
+
 
 
 ]
@@ -22,8 +34,16 @@ const Category = () => {
     return (
         <>
             <div className="container mx-auto">
-                <div className="max-w-7xl mx-auto">
-                    <div className="grid mt-10 mb-10 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="max-w-7xl pt-20  mx-auto">
+                    <div className="flex  justify-center lg:justify-start items-center lg:items-start flex-col gap-[5px] sm:gap-[8px] md:gap-[15px]">
+                        <div className="flex  flex-col gap-[9px]">
+                            <h1 className="text-[30px] sm:text-[35px] md:text-[48px] xl:text-[56px] font-black leading-[40px] sm:leading-[45px] md:leading-[58px] xl:leading-[68px]">
+                                Categories
+                            </h1>
+                        </div>
+                      
+                    </div>
+                    <div className="grid mt-10  grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {categories.map((category) => (
                             <div key={category.id} className="group text-center p-4  transition duration-300">
                                 <div className="relative group overflow-hidden rounded-t-xl">
@@ -32,12 +52,12 @@ const Category = () => {
                                         alt={category.name}
                                         width={300}
                                         height={200}
-                                        className="object-cover rounded-t-[150px]  transition-transform duration-300"
+                                        className="object-cover rounded-full  transition-transform duration-300"
                                     />
                                     <div>
-                                    <h2 className="text-[20px] font-bold bg-bodyColor py-[5px] px-[26px] rounded-r-[30px] text-primary absolute bottom-5 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in">
-                                        Beach
-                                    </h2>
+                                        <h2 className="text-[20px] font-bold bg-bodyColor py-[5px] px-[26px] rounded-r-[30px] text-primary absolute bottom-15 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in">
+                                            Beach
+                                        </h2>
                                     </div>
                                 </div>
 

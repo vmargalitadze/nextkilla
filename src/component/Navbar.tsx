@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
+import Image from "next/image";
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const toggleMobileMenu = () => {
@@ -38,7 +39,7 @@ export default function Navbar() {
             href="/"
             className={`mr-4 block cursor-pointer py-1.5 font-bold text-2xl transition-colors duration-300 ${scrolled ? "text-white" : "text-red-400"}`}
           >
-            NEXTNEWS
+          <Image src="/logo.jpg" alt="logo" className="rounded-full" width={50} height={50} />
           </Link>
 
           <div className="lg:hidden">
@@ -65,56 +66,52 @@ export default function Navbar() {
             </button>
           </div>
 
+          {/* Overlay */}
+          {isMobileMenuOpen && (
+            <div
+              className="fixed inset-0 z-40 bg-black bg-opacity-80 transition-opacity duration-300 lg:hidden"
+              onClick={toggleMobileMenu}
+            />
+          )}
+
           {/* Mobile Menu */}
           <div
-            className={` fixed z-50 w-full text-white ${
-              isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:hidden z-50`}
+            className={`fixed inset-0 z-50 w-full h-full text-white transform transition-transform duration-300
+              flex flex-col items-center justify-center
+              ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+              lg:hidden`}
           >
-            <div className="flex flex-row items-center border-b pb-4">
-              <Link
-                href="/"
-                className="cursor-pointer font-bold text-xl pt-4 ps-4 text-white"
+            <button
+              onClick={toggleMobileMenu}
+              className="absolute top-4 right-4 text-slate-300 hover:text-red-500"
+            >
+              {/* Close icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
               >
-                NEXTNEWS
-              </Link>
-              <button
-                onClick={toggleMobileMenu}
-                className="absolute top-4 right-4 text-slate-600 hover:text-red-500"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-8 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-            <ul className="flex  collor flex-col h-full gap-4 p-4">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <ul className="flex flex-col items-center gap-8">
               {navItems.map((item, index) => (
-                <li
-                  key={index}
-                  className="flex items-center  collor p-1 text-lg gap-x-2 transition-colors duration-300"
-                >
+                <li key={index}>
                   <Link
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                    }}
+                    onClick={() => setIsMobileMenuOpen(false)}
                     href={item.href}
-                    className="flex items-center collor"
+                    className="text-2xl font-bold"
                   >
                     {item.name}
                   </Link>
                 </li>
               ))}
-            
             </ul>
           </div>
 
