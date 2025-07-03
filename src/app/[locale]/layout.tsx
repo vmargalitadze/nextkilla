@@ -32,16 +32,17 @@ export default async function RootLayout({
   params,
 }: {
   children: ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const messages = await getMessages({ locale: params.locale });
+  const { locale } = await params;
+  const messages = await getMessages({ locale });
 
   return (
-    <html lang={params.locale}>
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NextIntlClientProvider messages={messages} locale={params.locale}>
+        <NextIntlClientProvider messages={messages} locale={locale}>
           <Navbar />
           {children}
         </NextIntlClientProvider>
