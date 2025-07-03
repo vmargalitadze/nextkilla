@@ -26,18 +26,14 @@ export function generateStaticParams() {
   return [{ locale: 'en' }, { locale: 'ge' }];
 }
 
-// ✅ Fix: Define correct props type
-interface RootLayoutProps {
-  children: ReactNode;
-  params: {
-    locale: string;
-  };
-}
 
 export default async function RootLayout({
   children,
   params,
-}: RootLayoutProps) {
+}: {
+  children: ReactNode;
+  params: { locale: string };
+}) {
   const messages = await getMessages({ locale: params.locale });
 
   return (
