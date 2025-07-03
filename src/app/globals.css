@@ -103,3 +103,22 @@
     border-radius: 8px;
   }
 }
+
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  width: 100%;
+  max-width: 1720px; /* Adjust based on your design needs */
+}
+.text-primary {
+  --tw-text-opacity: 1;
+  color: #f09819;
+  
+}
+
+.bg-bodyColor {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
