@@ -1,5 +1,5 @@
 import React from 'react'
-import { MapPin, Leaf, Send, Heart } from 'lucide-react'
+
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 const steps = [

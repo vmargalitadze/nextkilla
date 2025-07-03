@@ -26,13 +26,15 @@ export function generateStaticParams() {
   return [{ locale: "en" }, { locale: "ge" }];
 }
 
+type LayoutParams = { locale: string };
+
 // ✅ Next.js expects LayoutProps like this
 export default async function RootLayout({
   children,
   params,
 }: {
   children: ReactNode;
-  params: Promise<{ locale: string }>;
+  params: Promise<LayoutParams>;
 }) {
   const { locale } = await params;
   const messages = await getMessages({ locale });
