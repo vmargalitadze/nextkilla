@@ -16,21 +16,19 @@
     "price_europe": "$15k",
     "days_rome": "10 Days Trip",
     "days_london": "12 Days Trip",
-    "days_europe": "28 Days Trip",
-    "topSelling": "Top Selling",
-    "topDestinations": "Top Destinations"
+    "days_europe": "28 Days Trip"
   },
   "booking": {
     "easy_fast": "Easy and Fast",
     "title": "Book your next trip in 3 easy steps",
     "step1_title": "Choose Destination",
-    "step1_desc": "Choose your favourite place.",
+    "step1_desc": "Choose your favourite place. No matter where you travel inside the World.",
     "step2_title": "Make Payment",
-    "step2_desc": " make your payment easily and securely.",
+    "step2_desc": "After finding your perfect spot, make your payment easily and securely.",
     "step3_title": "Reach Airport on Selected Date",
-    "step3_desc": " you have to arrive at the airport on time and enjoy the vacation.",
+    "step3_desc": "Lastly, you have to arrive at the airport on time and enjoy the vacation.",
     "trip_greece": "Trip To Greece",
-    "trip_dates": "14-29 June ",
+    "trip_dates": "14-29 June | by Robbin Joseph",
     "ongoing": "Ongoing",
     "trip_rome": "Trip to Rome",
     "completed": "completed",
@@ -38,7 +36,7 @@
   },
   "info": {
     "we_are": "We Are Kila Travel",
-    "explore_title": "Explore the World with Us",
+    "explore_title": "Exploring the World, One Destination at a Time with Us",
     "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
   },
   "hero": {
@@ -50,6 +48,28 @@
     "amsterdam_text": "Discover Amsterdam, a city full of canals, bicycles, and culture.",
     "kyoto_title": "Kyoto, Japan",
     "kyoto_text": "Travel to Kyoto, Japan, a city rich in tradition and beauty."
+  },
+  "footer": {
+    "company_name": "Kila Travel",
+    "company_desc": "Discover the world with us. We create unforgettable travel experiences that connect you with amazing destinations and cultures.",
+    "quick_links": "Quick Links",
+    "home": "Home",
+    "about_us": "About Us",
+    "destinations": "Destinations",
+    "tours": "Tours",
+    "contact": "Contact",
+    "contact_info": "Contact Info",
+    "address": "2055 Niagara Falls Blvd, Amherst NY 14228, United States",
+    "phone": "+1 (555) 123-4567",
+    "email": "info@kilatravel.com",
+    "newsletter": "Newsletter",
+    "newsletter_desc": "Subscribe to our newsletter for travel tips and exclusive offers.",
+    "email_placeholder": "Enter your email",
+    "subscribe": "Subscribe",
+    "copyright": "© {year} Kila Travel. All rights reserved.",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Terms of Service",
+    "cookie_policy": "Cookie Policy"
   },
   "common": {
     "welcome": "Welcome"

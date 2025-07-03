@@ -32,9 +32,9 @@ const Top = () => {
 
 
                 <div className="mb-7 text-center">
-                    <h5 className="text-primary font-semibold">{t("topSelling")}</h5>
+                    <h5 className="text-primary font-semibold">{t("subtitle")}</h5>
                     <h3 className="text-[30px] sm:text-[35px] md:text-[48px] xl:text-[56px] font-black leading-[40px] sm:leading-[45px] md:leading-[58px] xl:leading-[68px]">
-                        {t("topDestinations")}
+                        {t("title")}
                     </h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 z-10 relative">
