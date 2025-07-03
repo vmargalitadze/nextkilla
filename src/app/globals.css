@@ -47,30 +47,38 @@
 /* Swiper pagination styled like in the CodePen */
 .swiper-pagination {
   position: absolute !important;
-  right: 30px !important;
-  top: 50% !important;
+  cursor: pointer !important;
+  top: 90% !important;
+ 
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: 5% !important;
+  margin-top: 30px !important;
+  display: flex !important;
   transform: translateY(-50%) !important;
   display: flex !important;
-  flex-direction: column !important;
+
+  flex-direction: row !important;
   align-items: center !important;
   gap: 12px !important;
   z-index: 20 !important;
 }
 
 .swiper-pagination-bullet {
-  background: #ddd;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  background: #ddd !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
   margin: 0 4px !important;
-  opacity: 0.6;
-  transition: all 0.3s ease;
+  opacity: 0.6 !important;
+  transition: all 0.3s ease !important;
 }
 
 .swiper-pagination-bullet-active {
   background: linear-gradient(180deg, #f09819 0%, #ff512f 100%) !important;
   opacity: 1 !important;
-  transform: scale(1.2);
+  transform: scale(1.2) !important;
 }
 
 .collor:hover {
@@ -133,10 +141,4 @@
   background: linear-gradient(180deg, #f09819 0%, #ff512f 100%) !important;
   opacity: 1 !important;
   transform: scale(1.2);
-}
-
-.swiper-pagination {
-  margin-top: 12px;
-  display: flex;
-  justify-content: center;
 }

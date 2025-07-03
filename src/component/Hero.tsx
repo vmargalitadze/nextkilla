@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Mousewheel, EffectFade, Autoplay } from "swiper/modules";
+import { Pagination, EffectFade, Autoplay } from "swiper/modules";
 import { useTranslations } from "next-intl";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -33,23 +33,21 @@ export default function Hero() {
     {
       title: t("kyoto_title"),
       text: t("kyoto_text"),
-      bg: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Kiyomizu-dera_in_Kyoto.jpg/800px-Kiyomizu-dera_in_Kyoto.jpg",
+      bg: "https://images.unsplash.com/photo-1578469645742-46cae010e5d4?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       key: "four",
     },
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#232328] font-[Quicksand,sans-serif]">
+    <div className="relative h-screen bg-[#232328] font-[Quicksand,sans-serif]">
       <Swiper
-        direction="vertical"
         effect="fade"
         speed={1000}
         loop={true}
         pagination={{ clickable: true }}
         autoplay={{ delay: 3000, disableOnInteraction: false }}
-        mousewheel={{ forceToAxis: false, thresholdDelta: 50, sensitivity: 1 }}
-        modules={[Pagination, Mousewheel, EffectFade, Autoplay]}
-        className="w-full h-screen swiper-container"
+        modules={[Pagination, EffectFade, Autoplay]}
+        className="w-full h-full swiper-container"
         onSlideChange={(swiper) => {
           setActiveIndex(swiper.realIndex);
         }}
@@ -57,23 +55,27 @@ export default function Hero() {
         {slides.map((slide, index) => (
           <SwiperSlide
             key={slide.key}
-            className="relative w-full h-screen swiper-slide"
+            className="relative w-full h-full swiper-slide"
           >
             <div
-              className={`absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center w-[90%] max-w-2xl text-[#f2f2f2] text-center p-6 z-20 transition-opacity duration-500 ease-in-out
-  ${activeIndex === index ? "opacity-100 animate-fadeIn" : "opacity-0"}`}
+              className={`absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center w-[90%] max-w-2xl text-[#f2f2f2] text-center p-6 z-20 transition-opacity duration-500 ease-in-out ${activeIndex === index
+                ? "opacity-100 animate-fadeIn"
+                : "opacity-0"
+              }`}
             >
               <h1 className="font-[Salsa,cursive] text-red-400 text-4xl md:text-6xl mb-5">
                 {slide.title}
               </h1>
-              <p className="text-lg  font-medium leading-snug">{slide.text}</p>
+              <p className="text-lg font-medium leading-snug mb-6">{slide.text}</p>
+              
+              {/* Pagination inline with text - clickable */}
+              <div className="swiper-pagination !static !flex-row !gap-2 !mt-4 !relative !z-30" />
             </div>
 
             <div
-              className={`background absolute inset-0 w-full h-full z-10 transition-all duration-[3000ms] ease-in-out ${
-                activeIndex === index
-                  ? "clip-show opacity-100"
-                  : "clip-hide opacity-0"
+              className={`background absolute inset-0 w-full h-full z-10 transition-all duration-[3000ms] ease-in-out ${activeIndex === index
+                ? "clip-show opacity-100"
+                : "clip-hide opacity-0"
               }`}
               style={{
                 backgroundImage: `url(${slide.bg})`,
@@ -86,7 +88,6 @@ export default function Hero() {
             </div>
           </SwiperSlide>
         ))}
-        <div className="swiper-pagination" />
       </Swiper>
     </div>
   );
