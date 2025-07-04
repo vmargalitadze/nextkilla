@@ -7,3 +7,112 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Company {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  logoUrl     String?
+  packages    Package[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  packages Package[]
+}
+
+model Location {
+  id       Int       @id @default(autoincrement())
+  name     String
+  country  String
+  packages Package[]
+}
+
+model Package {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+  price       Float
+  duration    String
+  maxPeople   Int
+
+  company    Company        @relation(fields: [companyId], references: [id])
+  companyId  Int
+  category   Category       @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  location   Location       @relation(fields: [locationId], references: [id])
+  locationId Int
+  gallery    GalleryImage[]
+  bookings   Booking[]
+
+  bus       Bus?
+  busId     Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GalleryImage {
+  id        Int     @id @default(autoincrement())
+  url       String
+  package   Package @relation(fields: [packageId], references: [id])
+  packageId Int
+}
+
+model Booking {
+  id           Int       @id @default(autoincrement())
+  package      Package   @relation(fields: [packageId], references: [id])
+  packageId    Int
+  name         String
+  email        String
+  phone        String?
+  adults       Int
+  children     Int
+  date         DateTime
+  totalPrice   Float
+  seatNumber   String? // Optional: the seat number chosen
+  seatSelected Boolean   @default(false) // Did the user select a seat?
+  seat         Seat?     @relation(fields: [seatId], references: [id])
+  seatId       Int?      @unique
+  payment      Payment?
+  discount     Discount? @relation(fields: [discountId], references: [id])
+  discountId   Int?
+  createdAt    DateTime  @default(now())
+}
+
+model Bus {
+  id        Int    @id @default(autoincrement())
+  name      String
+  seatCount Int
+  seats     Seat[]
+
+  package   Package @relation(fields: [packageId], references: [id])
+  packageId Int     @unique
+}
+
+model Seat {
+  id      Int      @id @default(autoincrement())
+  number  String
+  bus     Bus      @relation(fields: [busId], references: [id])
+  busId   Int
+  booking Booking? // Optional: link to booking if reserved
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  bookingId Int      @unique
+  amount    Float
+  status    String // e.g., 'pending', 'paid', 'failed'
+  createdAt DateTime @default(now())
+}
+
+model Discount {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique
+  amount    Float
+  expiresAt DateTime
+  bookings  Booking[]
+}

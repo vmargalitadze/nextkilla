@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Star, MapPin, Calendar, Users, Check, X } from "lucide-react";
+import {  MapPin, Calendar, Users, Check, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export default function PackageDetails() {
@@ -14,8 +14,7 @@ export default function PackageDetails() {
   const packageData = {
     title: "Cusco & Salkantay Trekking to Machu Picchu",
     price: 175,
-    rating: 4.8,
-    reviews: 20,
+  
     duration: "4 Days / 5 Night",
     maxPeople: 10,
     location: "North Transylvania",
@@ -151,23 +150,7 @@ export default function PackageDetails() {
                       <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
                         {packageData.title}
                       </h1>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-5 h-5 ${
-                                i < Math.floor(packageData.rating)
-                                  ? "text-yellow-400 fill-current"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-sm text-gray-600">
-                          ({packageData.reviews} {t("reviews")})
-                        </span>
-                      </div>
+                     
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6">
@@ -409,14 +392,15 @@ export default function PackageDetails() {
                         <span>+$10</span>
                       </div>
                       <div className="border-t pt-2 flex justify-between font-semibold">
-                        <span>{t("total")}: </span>
+                        <span>{t("total")}: </span> 
                         <span>${totalPrice}</span>
                       </div>
                     </div>
 
                     <div className="space-y-2 sm:space-y-3">
-                      <button className="w-full bg-gray-800 text-white py-2 sm:py-3 rounded-lg hover:bg-gray-900 transition-colors">
-                        {t("bookNow")}
+                      <button className="explore-btn">
+                        <span>{t("bookNow")}</span>
+                     
                       </button>
                     </div>
                   </div>

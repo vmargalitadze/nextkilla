@@ -15,7 +15,13 @@ const nextConfig: NextConfig = {
   },
   // Optimize images
   images: {
-    formats: ['image/webp', 'image/avif'],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "utfs.io",
+        pathname: "/f/**", // ეს ხაზს უსვამს რომ სურათები ამ path-ზეა
+      },
+    ],
   },
 };
  
