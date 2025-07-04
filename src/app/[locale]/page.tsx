@@ -2,6 +2,8 @@
 import Booking from "@/component/Booking";
 import Category from "@/component/Category";
 import Company from "@/component/Company";
+import CompanyFilter from "@/component/CompanyFilter";
+import Dest from "@/component/Dest";
 import Footer from "@/component/Footer";
 import Hero from "@/component/Hero";
 import Info from "@/component/Info";
@@ -11,7 +13,9 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <CompanyFilter />
       <Category />
+      <Dest />
       <Info />
       <Top />
       <Booking />
