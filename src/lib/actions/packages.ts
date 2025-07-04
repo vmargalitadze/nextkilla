@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { prisma } from "../prisma";
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 // Zod schemas for validation
@@ -11,7 +11,7 @@ const PackageSchema = z.object({
   price: z.number().positive("Price must be positive"),
   duration: z.string().min(1, "Duration is required"),
   maxPeople: z.number().positive("Max people must be positive"),
-  companyId: z.number().positive("Company is required"),
+
   categoryId: z.number().positive("Category is required"),
   locationId: z.number().positive("Location is required"),
   busId: z.number().optional(),
@@ -29,7 +29,6 @@ export async function createPackage(data: z.infer<typeof PackageSchema>) {
     const package_ = await prisma.package.create({
       data: validatedData,
       include: {
-        company: true,
         category: true,
         location: true,
         bus: true,
@@ -56,7 +55,6 @@ export async function updatePackage(data: z.infer<typeof PackageUpdateSchema>) {
       where: { id },
       data: updateData,
       include: {
-        company: true,
         category: true,
         location: true,
         bus: true,
@@ -93,12 +91,10 @@ export async function getAllPackages() {
   try {
     const packages = await prisma.package.findMany({
       include: {
-        company: true,
         category: true,
         location: true,
         bus: true,
         bookings: true,
-      
       },
       orderBy: { createdAt: "desc" },
     });
@@ -116,12 +112,10 @@ export async function getPackageById(id: number) {
     const package_ = await prisma.package.findUnique({
       where: { id },
       include: {
-        company: true,
         category: true,
         location: true,
         bus: true,
         bookings: true,
-      
         gallery: true,
       },
     });

@@ -8,15 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Company {
-  id          Int       @id @default(autoincrement())
-  name        String
-  description String?
-  logoUrl     String?
-  packages    Package[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-}
+
 
 model Category {
   id       Int       @id @default(autoincrement())
@@ -39,8 +31,7 @@ model Package {
   duration    String
   maxPeople   Int
 
-  company    Company        @relation(fields: [companyId], references: [id])
-  companyId  Int
+
   category   Category       @relation(fields: [categoryId], references: [id])
   categoryId Int
   location   Location       @relation(fields: [locationId], references: [id])

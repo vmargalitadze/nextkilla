@@ -1,16 +1,4 @@
 -- CreateTable
-CREATE TABLE "Company" (
-    "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT,
-    "logoUrl" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Company_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "Category" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -35,7 +23,6 @@ CREATE TABLE "Package" (
     "price" DOUBLE PRECISION NOT NULL,
     "duration" TEXT NOT NULL,
     "maxPeople" INTEGER NOT NULL,
-    "companyId" INTEGER NOT NULL,
     "categoryId" INTEGER NOT NULL,
     "locationId" INTEGER NOT NULL,
     "busId" INTEGER,
@@ -125,9 +112,6 @@ CREATE UNIQUE INDEX "Payment_bookingId_key" ON "Payment"("bookingId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Discount_code_key" ON "Discount"("code");
-
--- AddForeignKey
-ALTER TABLE "Package" ADD CONSTRAINT "Package_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Package" ADD CONSTRAINT "Package_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

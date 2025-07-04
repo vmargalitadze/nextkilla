@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "../prisma";
 import { revalidatePath } from "next/cache";
 
 // Zod schemas for validation
@@ -72,6 +72,7 @@ export async function deleteSeat(id: number) {
     revalidatePath("/admin");
     return { success: true };
   } catch (error) {
+    console.log(error);
     return { success: false, error: "Failed to delete seat" };
   }
 }
@@ -92,6 +93,7 @@ export async function getAllSeats() {
 
     return { success: true, data: seats };
   } catch (error) {
+    console.log(error);
     return { success: false, error: "Failed to fetch seats" };
   }
 }
@@ -110,6 +112,7 @@ export async function getSeatsByBusId(busId: number) {
 
     return { success: true, data: seats };
   } catch (error) {
+    console.log(error);
     return { success: false, error: "Failed to fetch seats" };
   }
 }
@@ -131,6 +134,7 @@ export async function getSeatById(id: number) {
 
     return { success: true, data: seat };
   } catch (error) {
+    console.log(error);
     return { success: false, error: "Failed to fetch seat" };
   }
 } 
