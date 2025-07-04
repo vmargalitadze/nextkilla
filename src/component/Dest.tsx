@@ -4,30 +4,35 @@ import Image from "next/image";
 
 const destinations = [
   {
+    id:1,
     name: "Kathmandu Nepal",
     tours: "04 Tours Place",
     image: "/category/photo-1532254497630-c74966e79621.jpg",
     href: "destination.html",
   },
   {
+    id:2,
     name: "Tours in Ethiopia!",
     tours: "21 Tours Place",
     image: "/category/photo-1532254497630-c74966e79621.jpg",
     href: "destination.html",
   },
   {
+    id:3,
     name: "The Colosseum, Rome.",
     tours: "34 Tours Place",
     image: "/category/photo-1532254497630-c74966e79621.jpg",
     href: "destination.html",
   },
   {
+    id:4,
     name: "The Colosseum, Rome.",
     tours: "34 Tours Place",
     image: "/category/photo-1532254497630-c74966e79621.jpg",
     href: "destination.html",
   },
   {
+    id:5,
     name: "The Colosseum, Rome.",
     tours: "34 Tours Place",
     image: "/category/photo-1532254497630-c74966e79621.jpg",
@@ -64,7 +69,7 @@ function Dest() {
                 </div>
                 <div className="bg-white text-gray-800 text-center py-5 px-4">
                   <h5 className="lg:text-xl text-lg font-bold leading-tight group-hover:text-red-400 transition-colors duration-300">
-                    <Link href={destination.href} className="">
+                    <Link href={`/product/${destination.id}`} className="">
                       {destination.name}
                     </Link>
                   </h5>

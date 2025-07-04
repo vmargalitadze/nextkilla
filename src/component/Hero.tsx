@@ -69,7 +69,7 @@ export default function Hero() {
               <p className="text-lg font-medium leading-snug mb-6">{slide.text}</p>
               
               {/* Pagination inline with text - clickable */}
-              <div className="swiper-pagination !static !flex-row !gap-2 !mt-4 !relative !z-30" />
+              <div className="swiper-pagination !static !flex-row !gap-2 !mt-4  !z-30" />
             </div>
 
             <div
