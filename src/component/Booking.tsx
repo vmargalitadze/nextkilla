@@ -30,7 +30,7 @@ const Booking = () => {
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12">
                 <div className="w-full lg:w-6/12">
                     <div className="mb-6">
-                        <h5 className="text-primary font-semibold">{t("easy_fast")}</h5>
+                        <h5 className="text-red-400 text-[18px] font-semibold">{t("easy_fast")}</h5>
                         <h3 className="capitalize text-[30px] sm:text-[35px] md:text-[48px] xl:text-[56px] font-bold leading-tight">
                             {t("title")}
                         </h3>
@@ -41,8 +41,8 @@ const Booking = () => {
                                 <Image src={step.icon} width={22} height={22} alt="step icon" />
                             </div>
                             <div className="ml-4 flex-1">
-                                <h5 className="text-gray-700 font-semibold">{t(step.title)}</h5>
-                                <p className="text-gray-500">{t(step.desc)}</p>
+                                <h5 className="text-gray-700 text-[18px] font-semibold">{t(step.title)}</h5>
+                                <p className="text-gray-500 text-[16px]">{t(step.desc)}</p>
                             </div>
                         </div>
                     ))}
@@ -60,7 +60,7 @@ const Booking = () => {
                             />
                             <div>
                                 <h5 className="font-semibold text-lg">{t("trip_greece")}</h5>
-                                <p className="text-gray-500 mb-3">{t("trip_dates")}</p>
+                                <p className="text-gray-500 text-[18px] mb-3">{t("trip_dates")}</p>
                                 <div className="flex gap-4 mb-4">
                                     <span className="inline-flex items-center justify-center p-2 bg-gray-100 rounded-full">
                                         <Image src="/leaf.svg" width={18} height={18} alt="" />

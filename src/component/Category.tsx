@@ -47,25 +47,41 @@ const Category = () => {
                         </div>
                     </div>
 
-                    <div className="grid mt-10  grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <div className="grid mt-16 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                         {categories.map((category) => (
-                            <div key={category.id} className="group text-center p-4  transition duration-300">
-                                <div className="relative group overflow-hidden rounded-full">
-                                    <div className="relative group overflow-hidden rounded-full aspect-square w-[200px]">
+                            <div key={category.id} className="group cursor-pointer">
+                                <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
+                                    {/* Image Container */}
+                                    <div className="relative aspect-square overflow-hidden">
                                         <Image
                                             src={category.image}
                                             alt={category.name}
                                             fill
-                                            className="object-cover w-[200px] h-[200px] rounded-full transition-transform duration-300"
+                                            className="object-cover transition-transform duration-700 group-hover:scale-110"
                                         />
+                                        {/* Gradient Overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                        
+                                        {/* Category Name Overlay */}
+                                        <div className="absolute inset-0 flex items-end p-6">
+                                           
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h2 className="text-[20px] font-bold bg-bodyColor py-[5px] px-[26px] rounded-r-[30px] text-primary absolute bottom-15 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in">
-                                            {category.name} 
-                                        </h2>
+                                    
+                                  
+                                    <div className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className="text-gray-800 font-semibold text-lg group-hover:text-primary transition-colors duration-300">
+                                                {category.name}
+                                            </h4>
+                                            <div className="w-10 h-10 bg-red-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                                </svg>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-
                             </div>
                         ))}
                     </div>

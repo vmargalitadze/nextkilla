@@ -67,8 +67,8 @@
 
 .swiper-pagination-bullet {
   background: #ddd !important;
-  width: 10px !important;
-  height: 10px !important;
+  width: 20px !important;
+  height: 20px !important;
   border-radius: 50% !important;
   margin: 0 4px !important;
   opacity: 0.6 !important;
@@ -76,7 +76,7 @@
 }
 
 .swiper-pagination-bullet-active {
-  background: linear-gradient(180deg, #f09819 0%, #ff512f 100%) !important;
+  background: #f87171 !important;
   opacity: 1 !important;
   transform: scale(1.2) !important;
 }
@@ -119,7 +119,7 @@
 }
 .text-primary {
   --tw-text-opacity: 1;
-  color: #f09819;
+  color: #f87171;
   
 }
 
@@ -141,4 +141,81 @@
   background: linear-gradient(180deg, #f09819 0%, #ff512f 100%) !important;
   opacity: 1 !important;
   transform: scale(1.2);
+}
+.explore-btn {
+  position: relative;
+  z-index: 1;
+  margin-top: 1.75rem;
+  display: flex
+;
+  height: 2.5rem;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: #f87171 !important;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 16px;
+  font-weight: 500;
+  --tw-text-opacity: 1;
+  color: #f87171 !important;
+  transition-duration: 300ms;
+}
+@media (min-width: 992px) {
+  .explore-btn {
+      height: 3rem;
+      font-size: 18px;
+  }
+}
+
+
+.explore-btn::after {
+  visibility: hidden;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: -1;
+  height: 100%;
+  width: 100%;
+  --tw-translate-x: -4%;
+  --tw-translate-y: 12%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  --tw-bg-opacity: 1;
+  background-color: #f87171 !important;
+  opacity: 0;
+  transition-duration: 300ms;
+  --tw-content: '';
+  content: var(--tw-content);
+}
+@media (min-width: 992px) {
+  .explore-btn {
+      height: 3rem;
+      font-size: 18px;
+  }
+}
+.explore-btn:hover span {
+  color: white !important;
+}
+
+.explore-btn svg {
+  transition: transform 0.3s ease, color 0.3s ease !important;
+}
+
+.explore-btn:hover svg {
+  color: white !important;
+  transform: translateX(4px) !important;
+}
+
+.explore-btn:hover::after {
+  visibility: visible !important;
+  --tw-translate-x: 0px !important;
+  --tw-translate-y: 0px !important;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)) !important;
+  content: var(--tw-content) !important;
+  color: white !important;
+  opacity: 1 !important;
 }

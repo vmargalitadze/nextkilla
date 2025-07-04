@@ -17,7 +17,7 @@ const partners = [
 
 export default function Company() {
     return (
-        <div className="relative pt-9 lg:pt-8 pb-6 lg:pb-8">
+        <div className="relative pt-20 lg:pt-8 pb-6 lg:pb-8">
             <div className="container mx-auto max-w-7xl">
                 {/* Desktop Grid */}
                 <div className="hidden lg:grid grid-cols-5 gap-6 justify-center items-center">
