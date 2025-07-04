@@ -76,5 +76,14 @@
   },
   "category": {
     "title": "კატეგორიები"
+  },
+  "companyFilter": {
+    "search": "ძიება",
+    "departureDate": "გამგზავრების თარიღი",
+    "returnDate": "დაბრუნების თარიღი",
+    "personCount": "პირთა რაოდენობა",
+    "searchPlaceholder": "მოძებნეთ მიმართულებები...",
+    "selectPersons": "აირჩიეთ პირები",
+    "searchButton": "ძიება"
   }
 }

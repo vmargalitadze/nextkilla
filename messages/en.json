@@ -76,5 +76,14 @@
   },
   "category": {
     "title": "Categories"
+  },
+  "companyFilter": {
+    "search": "Search",
+    "departureDate": "Departure Date",
+    "returnDate": "Return Date",
+    "personCount": "No. of person",
+    "searchPlaceholder": "Search destinations...",
+    "selectPersons": "Select persons",
+    "searchButton": "Search"
   }
 }

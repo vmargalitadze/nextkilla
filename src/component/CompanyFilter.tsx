@@ -1,7 +1,9 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 
 function CompanyFilter() {
+  const t = useTranslations("companyFilter");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,7 +19,7 @@ function CompanyFilter() {
                 <div className="grid lg:grid-cols-5 md:grid-cols-2 grid-cols-1 gap-4">
                   <div>
                     <label className="form-label font-medium text-slate-900 dark:text-white">
-                      Search:
+                      {t("search")}
                     </label>
                     <div className="relative mt-2">
                       <svg
@@ -40,16 +42,15 @@ function CompanyFilter() {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900 dark:text-slate-200 rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
-                        placeholder="Search destinations..."
+                        placeholder={t("searchPlaceholder")}
                       />
                     </div>
                   </div>
                   <div>
                     <label className="form-label font-medium text-slate-900 dark:text-white">
-                      Departure Date:
+                      {t("departureDate")}
                     </label>
                     <div className="relative mt-2">
-                     
                       <input
                         type="date"
                         value={startDate}
@@ -60,10 +61,9 @@ function CompanyFilter() {
                   </div>
                   <div>
                     <label className="form-label font-medium text-slate-900 dark:text-white">
-                      Return Date:
+                      {t("returnDate")}
                     </label>
                     <div className="relative mt-2">
-                     
                       <input
                         type="date"
                         value={endDate}
@@ -75,32 +75,15 @@ function CompanyFilter() {
 
                   <div>
                     <label className="form-label font-medium text-slate-900 dark:text-white">
-                      No. of person:
+                      {t("personCount")}
                     </label>
                     <div className="relative mt-2">
-                      <svg
-                        stroke="currentColor"
-                        fill="none"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="size-[18px] absolute top-[10px] start-3"
-                        height="1em"
-                        width="1em"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                      </svg>
                       <select 
                         value={personCount}
                         onChange={(e) => setPersonCount(e.target.value)}
                         className="form-select w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900 dark:text-slate-200 rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
                       >
-                        <option value="">Select persons</option>
+                        <option value="">{t("selectPersons")}</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -112,7 +95,7 @@ function CompanyFilter() {
 
                   <div className="">
                     <button className="explore-btn cursor-pointer group">
-                      <span>Search</span>
+                      <span>{t("searchButton")}</span>
                     </button>
                   </div>
                 </div>
