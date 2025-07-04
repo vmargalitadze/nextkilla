@@ -61,7 +61,7 @@ const Category = () => {
                                     </div>
                                     <div>
                                         <h2 className="text-[20px] font-bold bg-bodyColor py-[5px] px-[26px] rounded-r-[30px] text-primary absolute bottom-15 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in">
-                                            {category.name}
+                                            {category.name} 
                                         </h2>
                                     </div>
                                 </div>

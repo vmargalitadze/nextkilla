@@ -1,16 +1,16 @@
 "use client";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { Link } from "@/i18n/navigation";
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, Send } from "lucide-react";
+
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, } from "lucide-react";
 
 const Footer = () => {
     const t = useTranslations("footer");
 
-    const currentYear = new Date().getFullYear();
+  
 
     return (
-        <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+        <footer className="bg-black/80 backdrop-blur text-white">
             {/* Main Footer Content */}
             <div className="container mx-auto px-4 py-16">
                 <div className="flex justify-center items-center">

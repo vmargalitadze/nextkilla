@@ -24,7 +24,9 @@ export default function Company() {
                     {partners.map((partner, idx) => (
                         <div key={idx} className="flex justify-center">
                             <div className="rounded-xl flex items-center justify-center p-6 w-full">
-                                <img
+                                <Image
+                                    width={100}
+                                    height={100}
                                     src={partner.src}
                                     alt={partner.alt}
                                     className="h-16 w-auto mx-auto object-contain"
