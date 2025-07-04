@@ -104,11 +104,11 @@ export default function PackageDetails() {
 
   return (
     <>
-      <div className="w-full lg:py-36 py-20 relative overflow-hidden">
+      <div className="w-full lg:py-36 py-16 sm:py-20 relative overflow-hidden">
         <div className="jarallax absolute inset-0 z-minus" data-jarallax="">
-          <div className="relative w-full h-[400px] md:h-[600px] lg:h-[700px] overflow-hidden">
-            <div className="absolute w-full  inset-0 -z-10">
-              <div className="relative w-full h-[300px] sm:h-[400px] md:h-[550px] lg:h-[700px]">
+          <div className="relative w-full min-h-[200px] h-[220px] sm:h-[300px] md:h-[400px] lg:h-[600px] xl:h-[700px] overflow-hidden">
+            <div className="absolute w-full inset-0 -z-10">
+              <div className="relative w-full min-h-[200px] h-[220px] sm:h-[300px] md:h-[400px] lg:h-[600px] xl:h-[700px]">
                 <Image
                   src="/breadcrumb-bg.webp"
                   alt="placeholder"
@@ -116,7 +116,7 @@ export default function PackageDetails() {
                   className="object-cover pointer-events-none"
                   priority
                 />
-                <div className="absolute inset-0 bg-black/50" />
+                <div className="absolute inset-0 bg-black/30" />
               </div>
             </div>
           </div>
@@ -126,19 +126,19 @@ export default function PackageDetails() {
           alt="placeholder"
           width={100}
           height={100}
-          className="absolute top-[10%] right-[4%] z-1 w-[7.5%]"
+          className="absolute top-[10%] right-[4%] z-1 w-[16vw] max-w-[100px] min-w-[60px]"
         />
       </div>
 
-      <div className="pt-20 pb-16">
-        <div className="max-w-7xl mx-auto px-4">
+      <div className="pt-10 sm:pt-16 pb-10 sm:pb-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
           <div className="mb-8">
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {/* Main Content */}
-              <div className="lg:col-span-2">
+              <div className="md:col-span-2 lg:col-span-2 order-1 lg:order-1">
                 <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                  <div className="relative h-96">
+                  <div className="relative h-56 sm:h-80 md:h-96">
                     <Image
                       src="/category/photo-1532254497630-c74966e79621.jpg"
                       alt={packageData.title}
@@ -146,9 +146,9 @@ export default function PackageDetails() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h1 className="text-3xl font-bold text-gray-800">
+                  <div className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+                      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
                         {packageData.title}
                       </h1>
                       <div className="flex items-center gap-2">
@@ -170,7 +170,7 @@ export default function PackageDetails() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-6 mb-6">
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-5 h-5 text-red-400" />
                         <span className="text-gray-600">
@@ -191,7 +191,7 @@ export default function PackageDetails() {
                       </div>
                     </div>
 
-                    <p className="text-gray-700 mb-6">
+                    <p className="text-gray-700 mb-4 sm:mb-6">
                       {packageData.description}
                     </p>
                     <p className="text-gray-600">
@@ -201,9 +201,9 @@ export default function PackageDetails() {
                 </div>
 
                 {/* Tabs Section */}
-                <div className="bg-white rounded-lg shadow-lg mt-8">
-                  <div className="border-b border-gray-200">
-                    <nav className="flex space-x-8 px-6">
+                <div className="bg-white rounded-lg shadow-lg mt-6 sm:mt-8">
+                  <div className="border-b border-gray-200 overflow-x-auto">
+                    <nav className="flex space-x-4 sm:space-x-8 px-4 sm:px-6">
                       {[
                         { id: "overview", label: t("overview") },
                         { id: "tour-plan", label: t("tourPlan") },
@@ -212,7 +212,7 @@ export default function PackageDetails() {
                         <button
                           key={tab.id}
                           onClick={() => setActiveTab(tab.id)}
-                          className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                          className={`py-3 px-2 sm:py-4 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                             activeTab === tab.id
                               ? "border-red-400 text-red-400"
                               : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -224,9 +224,9 @@ export default function PackageDetails() {
                     </nav>
                   </div>
 
-                  <div className="p-6">
+                  <div className="p-4 sm:p-6">
                     {activeTab === "overview" && (
-                      <div className="grid md:grid-cols-2 gap-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         <div>
                           <h3 className="text-lg font-semibold mb-4">
                             {t("priceIncludes")}
@@ -265,15 +265,15 @@ export default function PackageDetails() {
                     {activeTab === "tour-plan" && (
                       <div className="space-y-6">
                         {packageData.tourPlan.map((day, index) => (
-                          <div key={index} className="flex gap-4">
-                            <div className="flex-shrink-0 w-12 h-12 bg-red-400 text-white rounded-full flex items-center justify-center font-bold">
+                          <div key={index} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                            <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-red-400 text-white rounded-full flex items-center justify-center font-bold">
                               {day.day}
                             </div>
                             <div className="flex-1">
-                              <h4 className="text-lg font-semibold mb-2">
+                              <h4 className="text-base sm:text-lg font-semibold mb-2">
                                 {t("day")} {day.day} : {day.title}
                               </h4>
-                              <p className="text-gray-600 mb-3">
+                              <p className="text-gray-600 mb-2 sm:mb-3">
                                 {day.description}
                               </p>
                               {day.features && (
@@ -298,11 +298,11 @@ export default function PackageDetails() {
                     )}
 
                     {activeTab === "gallery" && (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                         {packageData.gallery.map((image, index) => (
                           <div
                             key={index}
-                            className="relative h-48 rounded-lg overflow-hidden"
+                            className="relative h-32 sm:h-48 rounded-lg overflow-hidden"
                           >
                             <Image
                               src={image}
@@ -319,20 +319,20 @@ export default function PackageDetails() {
               </div>
 
               {/* Sidebar */}
-              <div className="lg:col-span-1">
+              <div className="order-2 lg:order-2 mb-8 md:mb-0">
                 <div className="sticky top-4 space-y-6">
                   {/* Price Card */}
-                  <div className="bg-white rounded-lg shadow-lg p-6">
-                    <div className="text-center mb-6">
-                      <h3 className="text-2xl font-bold text-gray-800">
+                  <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+                    <div className="text-center mb-4 sm:mb-6">
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-800">
                         ${packageData.price}
                       </h3>
                       <p className="text-gray-600">{t("perPerson")}</p>
                     </div>
 
-                    <div className="space-y-4 mb-6">
+                    <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                           {t("date")}
                         </label>
                         <input
@@ -342,14 +342,14 @@ export default function PackageDetails() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                           {t("numberOfTravelers")}
                         </label>
-                        <div className="text-sm text-gray-600 mb-2">
+                        <div className="text-sm text-gray-600 mb-1 sm:mb-2">
                           {adults} {t("adults")} - {children} {t("children")}
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-1 sm:space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-sm">{t("adult")}</span>
                             <div className="flex items-center gap-2">
@@ -399,7 +399,7 @@ export default function PackageDetails() {
                       </div>
                     </div>
 
-                    <div className="space-y-2 mb-6">
+                    <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
                       <div className="flex justify-between text-sm">
                         <span>{t("addServicePerBooking")}</span>
                         <span>+$30</span>
@@ -409,27 +409,27 @@ export default function PackageDetails() {
                         <span>+$10</span>
                       </div>
                       <div className="border-t pt-2 flex justify-between font-semibold">
-                        <span>{t("total")}:</span>
+                        <span>{t("total")}: </span>
                         <span>${totalPrice}</span>
                       </div>
                     </div>
 
-                    <div className="space-y-3">
-                      <button className="w-full bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-900 transition-colors">
+                    <div className="space-y-2 sm:space-y-3">
+                      <button className="w-full bg-gray-800 text-white py-2 sm:py-3 rounded-lg hover:bg-gray-900 transition-colors">
                         {t("bookNow")}
                       </button>
                     </div>
                   </div>
 
                   {/* Related Packages */}
-                  <div className="bg-white rounded-lg shadow-lg p-6">
-                    <h3 className="text-lg font-semibold mb-4">
+                  <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+                    <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
                       {t("offerPackages")}
                     </h3>
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       {packageData.relatedPackages.map((pkg, index) => (
-                        <div key={index} className="flex gap-3">
-                          <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                        <div key={index} className="flex gap-2 sm:gap-3">
+                          <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden">
                             <Image
                               src={pkg.image}
                               alt={pkg.title}
@@ -438,7 +438,7 @@ export default function PackageDetails() {
                             />
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-medium text-sm">{pkg.title}</h4>
+                            <h4 className="font-medium text-xs sm:text-sm">{pkg.title}</h4>
                             <p className="text-red-400 font-semibold">
                               {t("from")} ${pkg.price}.00
                             </p>
