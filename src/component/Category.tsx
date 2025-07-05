@@ -50,7 +50,7 @@ const Category = () => {
                     <div className="grid mt-16 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                         {categories.map((category) => (
                             <div key={category.id} className="group cursor-pointer">
-                                <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
+                                <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm  transition-all duration-500 transform hover:-translate-y-2">
                                     {/* Image Container */}
                                     <div className="relative aspect-square overflow-hidden">
                                         <Image
@@ -60,7 +60,7 @@ const Category = () => {
                                             className="object-cover transition-transform duration-700 group-hover:scale-110"
                                         />
                                         {/* Gradient Overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0  transition-opacity duration-500"></div>
                                         
                                         {/* Category Name Overlay */}
                                         <div className="absolute inset-0 flex items-end p-6">

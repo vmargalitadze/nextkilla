@@ -1,105 +1,118 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import {  MapPin, Calendar, Users, Check, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { MapPin, Calendar, Users, Check, X } from "lucide-react";
+
+import { useParams } from "next/navigation";
+import { getPackageById } from "@/lib/actions/packages";
+import { getIncludedItemsByPackage } from "@/lib/actions/includedItems";
+import { getNotIncludedItemsByPackage } from "@/lib/actions/notIncludedItems";
+import TourPlanDisplay from "@/component/TourPlanDisplay";
+
+interface PackageData {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  duration: string;
+  maxPeople: number;
+  category: string;
+  location?: { name: string; country: string };
+  locationId: number;
+  busId: number | null;
+  gallery?: Array<{ url: string }>;
+  tourPlan?: Array<{ dayNumber: number; title: string; activities: string[] }>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface IncludedItemData {
+  id: number;
+  text: string;
+}
+
+interface NotIncludedItemData {
+  id: number;
+  text: string;
+}
 
 export default function PackageDetails() {
-  const t = useTranslations("packageDetails");
+  const params = useParams();
   const [activeTab, setActiveTab] = useState("overview");
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
+  const [packageData, setPackageData] = useState<PackageData | null>(null);
+  const [includedItems, setIncludedItems] = useState<IncludedItemData[]>([]);
+  const [notIncludedItems, setNotIncludedItems] = useState<NotIncludedItemData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const packageData = {
-    title: "Cusco & Salkantay Trekking to Machu Picchu",
-    price: 175,
-  
-    duration: "4 Days / 5 Night",
-    maxPeople: 10,
-    location: "North Transylvania",
-    description:
-      "Lorem omnes impedit ius, vel et hinc agam fabulas. Ut audiam invenire iracundia vim. Tn eam dimo diam ea. Piber Korem sit amet.",
-    longDescription:
-      "Al elit omnes impedit ius, vel et hinc agam fabulas. Ut audiam invenire iracundia vim. En eam dico similique, ut sint posse sit, eum sumo diam ea. Liber consectetuer in mei, sea in imperdiet assueverit contentiones, an his cibo blandit tacimates. Iusto iudicabit similique id velex, in sea rebum deseruisse appellantur. Lorem ipsum Alienum phaedrum torquatos nec eu, vis detraxit pericu in mei, vix aperiri vix at,dolor sit amet.",
-    includes: [
-      "3 Nights Accommodation",
-      "Airport Transfers",
-      "2 Meals / day",
-      "Box Lunch, Dinner & Snacks",
-      "On Trip Transport",
-    ],
-    excludes: [
-      "Departure Taxes",
-      "Airport Transfers",
-      "Entry Fees",
-      "Box Lunch, Dinner & Snacks",
-    ],
-    tourPlan: [
-      {
-        day: "01",
-        title: t("welcomeTo") + " Edinburgh",
-        description:
-          "Qui ad idque soluta deterruisset, nec sale pertinax mandamus et. Eu mei soluta scriptorem dissentiet, sensibus cotidieque. Ne per malorum vivendum principes, congue imperdiet cu vel. Sit cu stet autem eligendi, eros reprimique mel id, no pri tation altera. At soluta fierent laboramus eum.",
-      },
-      {
-        day: "02",
-        title: t("adventureBegins"),
-        description:
-          "Qui ad idque soluta deterruisset, nec sale pertinax mandamus et. Eu mei soluta scriptorem dissentiet, sensibus cotidieque. Ne per malorum vivendum principes.",
-        features: [
-          t("professionalTourGuide"),
-          t("transportationCost"),
-          t("transportationCost"),
-        ],
-      },
-      {
-        day: "03",
-        title: t("historicalTour"),
-        description:
-          "Qui ad idque soluta deterruisset, nec sale pertinax mandamus et. Eu mei soluta scriptorem dissentiet, sensibus cotidieque. Ne per malorum vivendum principes.",
-        features: [
-          "3 " + t("nightsAccommodation"),
-          "2 " + t("mealsPerDay"),
-          t("breakfast"),
-        ],
-      },
-      {
-        day: "04",
-        title: t("return"),
-        description:
-          "Qui ad idque soluta deterruisset, nec sale pertinax mandamus et. Eu mei soluta scriptorem dissentiet, sensibus cotidieque. Ne per malorum vivendum principes, congue imperdiet cu vel. Sit cu stet autem eligendi, eros reprimique mel id, no pri tation altera. At soluta fierent laboramus eum.",
-      },
-    ],
-    gallery: [
-      "/category/photo-1532254497630-c74966e79621.jpg",
-      "/category/photo-1532254497630-c74966e79621.jpg",
-      "/category/photo-1532254497630-c74966e79621.jpg",
-      "/category/photo-1532254497630-c74966e79621.jpg",
-      "/category/photo-1532254497630-c74966e79621.jpg",
-      "/category/photo-1532254497630-c74966e79621.jpg",
-    ],
-    relatedPackages: [
-      {
-        title: "The Great Wall, Chaina",
-        price: 140,
-        image: "/category/photo-1532254497630-c74966e79621.jpg",
-      },
-      {
-        title: "Longest Sea Beach, Cox's Bazar",
-        price: 140,
-        image: "/category/photo-1532254497630-c74966e79621.jpg",
-      },
-      {
-        title: "Long Trail Mountain, Napal",
-        price: 140,
-        image: "/category/photo-1532254497630-c74966e79621.jpg",
-      },
-    ],
-  };
+  useEffect(() => {
+    const loadPackage = async () => {
+      if (!params.id) return;
 
-  const totalPrice =
-    packageData.price * adults + packageData.price * 0.5 * children;
+      try {
+        setLoading(true);
+        const packageId = Number(params.id);
+
+        const [packageResult, includedResult, notIncludedResult] = await Promise.all([
+          getPackageById(packageId),
+          getIncludedItemsByPackage(packageId),
+          getNotIncludedItemsByPackage(packageId)
+        ]);
+
+        if (packageResult.success && packageResult.data) {
+          setPackageData(packageResult.data);
+        } else {
+          setError("Package not found");
+        }
+
+        if (includedResult.success && includedResult.data) {
+          setIncludedItems(includedResult.data);
+        }
+
+        if (notIncludedResult.success && notIncludedResult.data) {
+          setNotIncludedItems(notIncludedResult.data);
+        }
+      } catch {
+        setError("Failed to load package");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPackage();
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <div className="w-full lg:py-36 py-16 sm:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !packageData) {
+    return (
+      <div className="w-full lg:py-36 py-16 sm:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Package Not Found</h1>
+            <p className="text-gray-600">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const totalPrice = packageData.price * adults + packageData.price * 0.5 * children;
 
   return (
     <>
@@ -150,7 +163,6 @@ export default function PackageDetails() {
                       <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
                         {packageData.title}
                       </h1>
-                     
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6">
@@ -163,22 +175,24 @@ export default function PackageDetails() {
                       <div className="flex items-center gap-2">
                         <Users className="w-5 h-5 text-red-400" />
                         <span className="text-gray-600">
-                          {t("maxPeople")}: {packageData.maxPeople}
+                          Max People: {packageData.maxPeople}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <MapPin className="w-5 h-5 text-red-400" />
                         <span className="text-gray-600">
-                          {packageData.location}
+                          {packageData.location?.name} - {packageData.location?.country}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-600">
+                          {packageData.category}
                         </span>
                       </div>
                     </div>
 
                     <p className="text-gray-700 mb-4 sm:mb-6">
                       {packageData.description}
-                    </p>
-                    <p className="text-gray-600">
-                      {packageData.longDescription}
                     </p>
                   </div>
                 </div>
@@ -188,18 +202,17 @@ export default function PackageDetails() {
                   <div className="border-b border-gray-200 overflow-x-auto">
                     <nav className="flex space-x-4 sm:space-x-8 px-4 sm:px-6">
                       {[
-                        { id: "overview", label: t("overview") },
-                        { id: "tour-plan", label: t("tourPlan") },
-                        { id: "gallery", label: t("gallery") },
+                        { id: "overview", label: "Overview" },
+                        { id: "tour-plan", label: "Tour Plan" },
+                        { id: "gallery", label: "Gallery" },
                       ].map((tab) => (
                         <button
                           key={tab.id}
                           onClick={() => setActiveTab(tab.id)}
-                          className={`py-3 px-2 sm:py-4 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                            activeTab === tab.id
+                          className={`py-3 px-2 sm:py-4 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
                               ? "border-red-400 text-red-400"
                               : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                          }`}
+                            }`}
                         >
                           {tab.label}
                         </button>
@@ -212,89 +225,50 @@ export default function PackageDetails() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         <div>
                           <h3 className="text-lg font-semibold mb-4">
-                            {t("priceIncludes")}
+                            What&apos;s Included
                           </h3>
-                          <ul className="space-y-2">
-                            {packageData.includes.map((item, index) => (
-                              <li
-                                key={index}
-                                className="flex items-center gap-2"
-                              >
-                                <Check className="w-4 h-4 text-green-500" />
-                                <span className="text-gray-600">{item}</span>
-                              </li>
-                            ))}
-                          </ul>
+                          {includedItems.length > 0 ? (
+                            <ul className="space-y-2">
+                              {includedItems.map((item) => (
+                                <li key={item.id} className="flex items-center gap-2">
+                                  <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                  <span className="text-gray-700">{item.text}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-gray-500">No included items listed</p>
+                          )}
                         </div>
                         <div>
                           <h3 className="text-lg font-semibold mb-4">
-                            {t("priceExcludes")}
+                            What&apos;s Not Included
                           </h3>
-                          <ul className="space-y-2">
-                            {packageData.excludes.map((item, index) => (
-                              <li
-                                key={index}
-                                className="flex items-center gap-2"
-                              >
-                                <X className="w-4 h-4 text-red-500" />
-                                <span className="text-gray-600">{item}</span>
-                              </li>
-                            ))}
-                          </ul>
+                          {notIncludedItems.length > 0 ? (
+                            <ul className="space-y-2">
+                              {notIncludedItems.map((item) => (
+                                <li key={item.id} className="flex items-center gap-2">
+                                  <X className="w-4 h-4 text-red-500 flex-shrink-0" />
+                                  <span className="text-gray-700">{item.text}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-gray-500">No excluded items listed</p>
+                          )}
                         </div>
                       </div>
                     )}
 
                     {activeTab === "tour-plan" && (
-                      <div className="space-y-6">
-                        {packageData.tourPlan.map((day, index) => (
-                          <div key={index} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                            <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-red-400 text-white rounded-full flex items-center justify-center font-bold">
-                              {day.day}
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="text-base sm:text-lg font-semibold mb-2">
-                                {t("day")} {day.day} : {day.title}
-                              </h4>
-                              <p className="text-gray-600 mb-2 sm:mb-3">
-                                {day.description}
-                              </p>
-                              {day.features && (
-                                <ul className="space-y-1">
-                                  {day.features.map((feature, idx) => (
-                                    <li
-                                      key={idx}
-                                      className="flex items-center gap-2"
-                                    >
-                                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                                      <span className="text-gray-600">
-                                        {feature}
-                                      </span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <TourPlanDisplay packageId={packageData.id} />
                     )}
 
                     {activeTab === "gallery" && (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                        {packageData.gallery.map((image, index) => (
-                          <div
-                            key={index}
-                            className="relative h-32 sm:h-48 rounded-lg overflow-hidden"
-                          >
-                            <Image
-                              src={image}
-                              alt={`Gallery ${index + 1}`}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        ))}
+                        <div className="col-span-full text-center py-8">
+                          <p className="text-gray-500">Gallery images will be available soon</p>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -310,13 +284,13 @@ export default function PackageDetails() {
                       <h3 className="text-xl sm:text-2xl font-bold text-gray-800">
                         ${packageData.price}
                       </h3>
-                      <p className="text-gray-600">{t("perPerson")}</p>
+                      <p className="text-gray-600">per person</p>
                     </div>
 
                     <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
-                          {t("date")}
+                          Date
                         </label>
                         <input
                           type="date"
@@ -326,109 +300,92 @@ export default function PackageDetails() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
-                          {t("numberOfTravelers")}
+                          Number of Travelers
                         </label>
                         <div className="text-sm text-gray-600 mb-1 sm:mb-2">
-                          {adults} {t("adults")} - {children} {t("children")}
+                          {adults} adults - {children} children
                         </div>
-
                         <div className="space-y-1 sm:space-y-2">
+                          {/* Adults */}
                           <div className="flex items-center justify-between">
-                            <span className="text-sm">{t("adult")}</span>
+                            <span className="text-sm">Adult</span>
                             <div className="flex items-center gap-2">
                               <button
-                                onClick={() =>
-                                  setAdults(Math.max(1, adults - 1))
-                                }
-                                className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center"
+                                onClick={() => setAdults(Math.max(1, adults - 1))}
+                                className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-center text-[14px] leading-tight"
                               >
-                                -
+                                −
                               </button>
                               <span className="w-8 text-center">{adults}</span>
                               <button
                                 onClick={() => setAdults(adults + 1)}
-                                className="w-6 h-6 bg-red-400 text-white rounded-full flex items-center justify-center"
+                                className="w-6 h-6 bg-red-400 text-white rounded-full flex items-center justify-center text-[14px] leading-tight"
                               >
                                 +
                               </button>
                             </div>
                           </div>
 
+                          {/* Children */}
                           <div className="flex items-center justify-between">
-                            <span className="text-sm">
-                              {t("childrenLabel")}
-                            </span>
+                            <span className="text-sm">Children</span>
                             <div className="flex items-center gap-2">
                               <button
-                                onClick={() =>
-                                  setChildren(Math.max(0, children - 1))
-                                }
-                                className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center"
+                                onClick={() => setChildren(Math.max(0, children - 1))}
+                                className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-center text-[14px] leading-tight"
                               >
-                                -
+                                −
                               </button>
-                              <span className="w-8 text-center">
-                                {children}
-                              </span>
+                              <span className="w-8 text-center">{children}</span>
                               <button
                                 onClick={() => setChildren(children + 1)}
-                                className="w-6 h-6 bg-red-400 text-white rounded-full flex items-center justify-center"
+                                className="w-6 h-6 bg-red-400 text-white rounded-full flex items-center justify-center text-[14px] leading-tight"
                               >
                                 +
                               </button>
                             </div>
                           </div>
                         </div>
+
                       </div>
                     </div>
 
                     <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
-                      <div className="flex justify-between text-sm">
-                        <span>{t("addServicePerBooking")}</span>
-                        <span>+$30</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>{t("addServicePerDay")}</span>
-                        <span>+$10</span>
-                      </div>
                       <div className="border-t pt-2 flex justify-between font-semibold">
-                        <span>{t("total")}: </span> 
+                        <span>Total: </span>
                         <span>${totalPrice}</span>
                       </div>
                     </div>
 
                     <div className="space-y-2 sm:space-y-3">
                       <button className="explore-btn">
-                        <span>{t("bookNow")}</span>
-                     
+                        <span>Book Now</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* Related Packages */}
+                  {/* Package Info */}
                   <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
                     <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
-                      {t("offerPackages")}
+                      Package Information
                     </h3>
                     <div className="space-y-3 sm:space-y-4">
-                      {packageData.relatedPackages.map((pkg, index) => (
-                        <div key={index} className="flex gap-2 sm:gap-3">
-                          <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden">
-                            <Image
-                              src={pkg.image}
-                              alt={pkg.title}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium text-xs sm:text-sm">{pkg.title}</h4>
-                            <p className="text-red-400 font-semibold">
-                              {t("from")} ${pkg.price}.00
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Category:</span>
+                        <span className="text-sm font-medium">{packageData.category}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Location:</span>
+                        <span className="text-sm font-medium">{packageData.location?.name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Duration:</span>
+                        <span className="text-sm font-medium">{packageData.duration}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Max People:</span>
+                        <span className="text-sm font-medium">{packageData.maxPeople}</span>
+                      </div>
                     </div>
                   </div>
                 </div>

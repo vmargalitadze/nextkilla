@@ -1,113 +1,63 @@
 "use server";
 
-import { z } from "zod";
+
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
 
-// Zod schemas for validation
-const CategorySchema = z.object({
-  name: z.string().min(1, "Category name is required"),
-});
+import { CATEGORIES } from "../Validation";
 
-const CategoryUpdateSchema = CategorySchema.partial().extend({
-  id: z.number().positive("ID is required"),
-});
+// Category enum values from schema
 
-// Create a new category
-export async function createCategory(data: z.infer<typeof CategorySchema>) {
-  try {
-    const validatedData = CategorySchema.parse(data);
-    
-    const category = await prisma.category.create({
-      data: validatedData,
-      include: {
-        packages: true,
-      },
-    });
 
-    revalidatePath("/admin");
-    return { success: true, data: category };
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return { success: false, error: error.errors[0].message };
-    }
-    return { success: false, error: "Failed to create category" };
-  }
-}
+export type Category = typeof CATEGORIES[number];
 
-// Update an existing category
-export async function updateCategory(data: z.infer<typeof CategoryUpdateSchema>) {
-  try {
-    const validatedData = CategoryUpdateSchema.parse(data);
-    const { id, ...updateData } = validatedData;
-
-    const category = await prisma.category.update({
-      where: { id },
-      data: updateData,
-      include: {
-        packages: true,
-      },
-    });
-
-    revalidatePath("/admin");
-    return { success: true, data: category };
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return { success: false, error: error.errors[0].message };
-    }
-    return { success: false, error: "Failed to update category" };
-  }
-}
-
-// Delete a category
-export async function deleteCategory(id: number) {
-  try {
-    await prisma.category.delete({
-      where: { id },
-    });
-
-    revalidatePath("/admin");
-    return { success: true };
-  } catch (error) {
-    console.log(error);
-    return { success: false, error: "Failed to delete category" };
-  }
-}
-
-// Get all categories
+// Get all categories (returns the enum values)
 export async function getAllCategories() {
   try {
-    const categories = await prisma.category.findMany({
-      include: {
-        packages: true,
-      },
-      orderBy: { name: "asc" },
-    });
-
-    return { success: true, data: categories };
+    return { success: true, data: CATEGORIES };
   } catch (error) {
     console.log(error);
     return { success: false, error: "Failed to fetch categories" };
   }
 }
 
-// Get a single category by ID
-export async function getCategoryById(id: number) {
+// Get packages by category
+export async function getPackagesByCategory(category: Category) {
   try {
-    const category = await prisma.category.findUnique({
-      where: { id },
+    const packages = await prisma.package.findMany({
+      where: { category },
       include: {
-        packages: true,
+        location: true,
+        gallery: true,
+        tourPlan: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return { success: true, data: packages };
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: "Failed to fetch packages by category" };
+  }
+}
+
+// Get category statistics (count of packages per category)
+export async function getCategoryStats() {
+  try {
+    const stats = await prisma.package.groupBy({
+      by: ['category'],
+      _count: {
+        category: true,
       },
     });
 
-    if (!category) {
-      return { success: false, error: "Category not found" };
-    }
+    const formattedStats = stats.map(stat => ({
+      category: stat.category,
+      count: stat._count.category,
+    }));
 
-    return { success: true, data: category };
+    return { success: true, data: formattedStats };
   } catch (error) {
     console.log(error);
-    return { success: false, error: "Failed to fetch category" };
+    return { success: false, error: "Failed to fetch category statistics" };
   }
 } 

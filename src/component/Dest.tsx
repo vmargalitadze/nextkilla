@@ -1,54 +1,20 @@
 import { Link } from "@/i18n/navigation";
 import React from "react";
 import Image from "next/image";
+import { getAllPackages } from "@/lib/actions/packages";
 
-const destinations = [
-  {
-    id:1,
-    name: "Kathmandu Nepal",
-    tours: "04 Tours Place",
-    image: "/category/photo-1532254497630-c74966e79621.jpg",
-    href: "destination.html",
-  },
-  {
-    id:2,
-    name: "Tours in Ethiopia!",
-    tours: "21 Tours Place",
-    image: "/category/photo-1532254497630-c74966e79621.jpg",
-    href: "destination.html",
-  },
-  {
-    id:3,
-    name: "The Colosseum, Rome.",
-    tours: "34 Tours Place",
-    image: "/category/photo-1532254497630-c74966e79621.jpg",
-    href: "destination.html",
-  },
-  {
-    id:4,
-    name: "The Colosseum, Rome.",
-    tours: "34 Tours Place",
-    image: "/category/photo-1532254497630-c74966e79621.jpg",
-    href: "destination.html",
-  },
-  {
-    id:5,
-    name: "The Colosseum, Rome.",
-    tours: "34 Tours Place",
-    image: "/category/photo-1532254497630-c74966e79621.jpg",
-    href: "destination.html",
-  },
-];
+async function Dest() {
+  const packagesResult = await getAllPackages();
+  const packages = packagesResult.success ? packagesResult.data || [] : [];
 
-function Dest() {
   return (
     <>
       <div className="pt-20 z-10">
         <div className="max-w-[1690px] px-3 mx-auto">
           <div className="grid lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-6 mb-12">
-            {destinations.map((destination, index) => (
+            {packages.map((package_, index) => (
               <div
-                key={index}
+                key={package_.id}
                 className="destination-card group bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
                 style={{
                   animationDelay: `${index * 0.1}s`,
@@ -60,8 +26,8 @@ function Dest() {
                 <div className="overflow-hidden">
                   <div className="relative w-full h-[300px]">
                     <Image
-                      src={destination.image}
-                      alt={destination.name}
+                      src="/category/photo-1532254497630-c74966e79621.jpg"
+                      alt={package_.title}
                       fill
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -69,12 +35,15 @@ function Dest() {
                 </div>
                 <div className="bg-white text-gray-800 text-center py-5 px-4">
                   <h5 className="lg:text-xl text-lg font-bold leading-tight group-hover:text-red-400 transition-colors duration-300">
-                    <Link href={`/product/${destination.id}`} className="">
-                      {destination.name}
+                    <Link href={`/product/${package_.id}`} className="">
+                      {package_.title}
                     </Link>
                   </h5>
                   <p className="font-medium text-base mt-2 leading-relaxed text-gray-600">
-                    {destination.tours}
+                    {package_.duration} • ${package_.price}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {package_.location?.name} • {package_.category}
                   </p>
                 </div>
               </div>

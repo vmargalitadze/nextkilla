@@ -8,8 +8,6 @@ import { revalidatePath } from "next/cache";
 const LocationSchema = z.object({
   name: z.string().min(1, "Location name is required"),
   country: z.string().min(1, "Country is required"),
-  city: z.string().min(1, "City is required"),
-  description: z.string().optional(),
 });
 
 const LocationUpdateSchema = LocationSchema.partial().extend({

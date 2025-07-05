@@ -69,7 +69,7 @@
   align-items: center !important;
   width: 100% !important;
   height: 5% !important;
-  margin-top: 30px !important;
+ 
   display: flex !important;
   transform: translateY(-50%) !important;
   display: flex !important;
@@ -85,8 +85,11 @@
   width: 20px !important;
   height: 20px !important;
   border-radius: 50% !important;
-  margin: 0 4px !important;
+  
+  margin: 0 2px !important;
   opacity: 0.6 !important;
+  margin-bottom: 10px !important;
+  margin-top: 40px !important;
   transition: all 0.3s ease !important;
 }
 

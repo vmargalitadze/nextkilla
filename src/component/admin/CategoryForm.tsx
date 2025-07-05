@@ -1,50 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 
-import React, { useState } from "react";
-import { createCategory, updateCategory } from "@/lib/actions/categories";
-import { X, Save, Loader2, Tag } from "lucide-react";
+import React from "react";
+import { CATEGORIES } from "@/lib/Validation";
+import { X, Tag } from "lucide-react";
 
 interface CategoryFormProps {
-  category?: any;
-  onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export default function CategoryForm({ category: categoryData, onSuccess, onCancel }: CategoryFormProps) {
-  const [formData, setFormData] = useState({
-    name: categoryData?.name || "",
-  });
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const result = categoryData?.id 
-        ? await updateCategory({ ...formData, id: categoryData.id })
-        : await createCategory(formData);
-
-      if (result.success) {
-        onSuccess?.();
-      } else {
-        setError(result.error || "Failed to save category");
-      }
-    } catch {
-      setError("An unexpected error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
+export default function CategoryForm({ onCancel }: CategoryFormProps) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
@@ -55,7 +20,7 @@ export default function CategoryForm({ category: categoryData, onSuccess, onCanc
               <Tag className="w-6 h-6 text-purple-600" />
             </div>
             <h2 className="text-2xl font-bold text-gray-800">
-              {categoryData?.id ? "Edit Category" : "Create New Category"}
+              Available Categories
             </h2>
           </div>
           <button
@@ -66,57 +31,34 @@ export default function CategoryForm({ category: categoryData, onSuccess, onCanc
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
-            </div>
-          )}
-
-          {/* Category Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category Name *
-            </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              placeholder="e.g., Adventure, Cultural, Beach"
-              required
-            />
+        {/* Categories List */}
+        <div className="p-6">
+          <p className="text-gray-600 mb-4">
+            Categories are predefined and cannot be modified. When creating packages, you can select from these available categories:
+          </p>
+          
+          <div className="grid grid-cols-2 gap-3">
+            {CATEGORIES.map((category) => (
+              <div
+                key={category}
+                className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-center font-medium text-gray-700"
+              >
+                {category}
+              </div>
+            ))}
           </div>
+        </div>
 
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-4 pt-6 border-t">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  {categoryData?.id ? "Update Category" : "Create Category"}
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-4 p-6 border-t">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+          >
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );

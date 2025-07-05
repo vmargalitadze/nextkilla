@@ -58,7 +58,7 @@ export default function Hero() {
             className="relative w-full h-full swiper-slide"
           >
             <div
-              className={`absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center w-[90%] max-w-2xl text-[#f2f2f2] text-center p-6 z-20 transition-opacity duration-500 ease-in-out ${activeIndex === index
+              className={`absolute bottom-12 mb-10 left-1/2 -translate-x-1/2 flex flex-col items-center w-[90%] max-w-2xl text-[#f2f2f2] text-center  z-20 transition-opacity duration-500 ease-in-out ${activeIndex === index
                 ? "opacity-100 animate-fadeIn"
                 : "opacity-0"
               }`}
@@ -69,7 +69,7 @@ export default function Hero() {
               <p className="text-lg font-medium leading-snug mb-6">{slide.text}</p>
               
               {/* Pagination inline with text - clickable */}
-              <div className="swiper-pagination !static !flex-row !gap-2 !mt-4  !z-30" />
+              <div className="swiper-pagination pb-10" />
             </div>
 
             <div

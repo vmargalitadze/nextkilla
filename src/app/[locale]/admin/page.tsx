@@ -2,11 +2,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getAllPackages } from "@/lib/actions/packages";
-import { getAllBuses } from "@/lib/actions/buses";
-import { getAllBookings } from "@/lib/actions/bookings";
+import { getAllPackages, deletePackage } from "@/lib/actions/packages";
+import { getAllBuses, deleteBus } from "@/lib/actions/buses";
+import { getAllBookings, deleteBooking } from "@/lib/actions/bookings";
 import { getAllCategories } from "@/lib/actions/categories";
-import { getAllLocations } from "@/lib/actions/locations";
+import { getAllLocations, deleteLocation } from "@/lib/actions/locations";
 import PackageForm from "@/component/admin/PackageForm";
 import BookingForm from "@/component/admin/BookingForm";
 import BusForm from "@/component/admin/BusForm";
@@ -57,7 +57,7 @@ export default function AdminPage() {
       const packages = packagesRes.success ? packagesRes.data || [] : [];
       const bookings = bookingsRes.success ? bookingsRes.data || [] : [];
       const buses = busesRes.success ? busesRes.data || [] : [];
-      const categories = categoriesRes.success ? categoriesRes.data || [] : [];
+      const categories = categoriesRes.success ? [...(categoriesRes.data || [])] : [];
       const locations = locationsRes.success ? locationsRes.data || [] : [];
 
       setData({ packages, bookings, buses, categories, locations });
@@ -90,9 +90,42 @@ export default function AdminPage() {
 
   const handleDelete = async (type: string, id: number) => {
     if (confirm(`Are you sure you want to delete this ${type.slice(0, -1)}?`)) {
-      // Add delete functionality here
-      console.log(`Delete ${type} with id:`, id);
-      loadData();
+      try {
+        let result;
+        
+        switch (type) {
+          case "packages":
+            result = await deletePackage(id);
+            break;
+          case "bookings":
+            result = await deleteBooking(id);
+            break;
+          case "buses":
+            result = await deleteBus(id);
+            break;
+          case "categories":
+            // Categories cannot be deleted as they are predefined enum values
+            console.log("Categories cannot be deleted");
+            return;
+          case "locations":
+            result = await deleteLocation(id);
+            break;
+          default:
+            console.error("Unknown type:", type);
+            return;
+        }
+
+        if (result.success) {
+          console.log(`Successfully deleted ${type} with id:`, id);
+          loadData(); // Reload data to reflect changes
+        } else {
+          console.error(`Failed to delete ${type}:`, result.error);
+          alert(`Failed to delete ${type.slice(0, -1)}: ${result.error}`);
+        }
+      } catch (error) {
+        console.error(`Error deleting ${type}:`, error);
+        alert(`Error deleting ${type.slice(0, -1)}. Please try again.`);
+      }
     }
   };
 
@@ -410,8 +443,8 @@ export default function AdminPage() {
                     onClick={() => setShowForm({ type: "category" })}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
                   >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Category</span>
+                    <Tag className="w-4 h-4" />
+                    <span>View Categories</span>
                   </button>
                 </div>
                 <div className="overflow-x-auto">
@@ -420,33 +453,22 @@ export default function AdminPage() {
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category Name</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Packages</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {data.categories.map((category: any) => (
-                        <tr key={category.id} className="hover:bg-gray-50">
+                      {data.categories.map((category: string) => (
+                        <tr key={category} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{category.name}</div>
+                            <div className="text-sm font-medium text-gray-900">{category}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {category.packages?.length || 0} packages
+                            {data.packages.filter((pkg: any) => pkg.category === category).length} packages
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex justify-end space-x-2">
-                              <button
-                                onClick={() => setShowForm({ type: "category", data: category })}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDelete("categories", category.id)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
+                          <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Available
+                            </span>
                           </td>
                         </tr>
                       ))}
@@ -475,7 +497,6 @@ export default function AdminPage() {
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Packages</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
@@ -484,16 +505,10 @@ export default function AdminPage() {
                       {data.locations.map((location: any) => (
                         <tr key={location.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">{location.name}</div>
-                              <div className="text-sm text-gray-500">{location.description?.substring(0, 50)}...</div>
-                            </div>
+                            <div className="text-sm font-medium text-gray-900">{location.name}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {location.country}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {location.city}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {location.packages?.length || 0} packages
@@ -551,8 +566,6 @@ export default function AdminPage() {
           )}
           {showForm.type === "category" && (
             <CategoryForm
-              category={showForm.data}
-              onSuccess={handleFormSuccess}
               onCancel={() => setShowForm(null)}
             />
           )}

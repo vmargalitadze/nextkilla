@@ -1,10 +1,5 @@
--- CreateTable
-CREATE TABLE "Category" (
-    "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-
-    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
-);
+-- CreateEnum
+CREATE TYPE "Category" AS ENUM ('Cultural', 'Adventure', 'Historical', 'Culinary', 'Beach', 'Ski', 'Eco', 'Religious', 'Shopping', 'Wellness', 'Photography', 'Weekend', 'International', 'Domestic');
 
 -- CreateTable
 CREATE TABLE "Location" (
@@ -23,7 +18,7 @@ CREATE TABLE "Package" (
     "price" DOUBLE PRECISION NOT NULL,
     "duration" TEXT NOT NULL,
     "maxPeople" INTEGER NOT NULL,
-    "categoryId" INTEGER NOT NULL,
+    "category" "Category" NOT NULL,
     "locationId" INTEGER NOT NULL,
     "busId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -101,6 +96,41 @@ CREATE TABLE "Discount" (
     CONSTRAINT "Discount_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "TourDay" (
+    "id" SERIAL NOT NULL,
+    "dayNumber" INTEGER NOT NULL,
+    "title" TEXT NOT NULL,
+    "activities" TEXT[],
+    "packageId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "TourDay_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "IncludedItem" (
+    "id" SERIAL NOT NULL,
+    "text" TEXT NOT NULL,
+    "packageId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "IncludedItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "NotIncludedItem" (
+    "id" SERIAL NOT NULL,
+    "text" TEXT NOT NULL,
+    "packageId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "NotIncludedItem_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Booking_seatId_key" ON "Booking"("seatId");
 
@@ -113,8 +143,8 @@ CREATE UNIQUE INDEX "Payment_bookingId_key" ON "Payment"("bookingId");
 -- CreateIndex
 CREATE UNIQUE INDEX "Discount_code_key" ON "Discount"("code");
 
--- AddForeignKey
-ALTER TABLE "Package" ADD CONSTRAINT "Package_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "TourDay_packageId_dayNumber_key" ON "TourDay"("packageId", "dayNumber");
 
 -- AddForeignKey
 ALTER TABLE "Package" ADD CONSTRAINT "Package_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "Location"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -139,3 +169,12 @@ ALTER TABLE "Seat" ADD CONSTRAINT "Seat_busId_fkey" FOREIGN KEY ("busId") REFERE
 
 -- AddForeignKey
 ALTER TABLE "Payment" ADD CONSTRAINT "Payment_bookingId_fkey" FOREIGN KEY ("bookingId") REFERENCES "Booking"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TourDay" ADD CONSTRAINT "TourDay_packageId_fkey" FOREIGN KEY ("packageId") REFERENCES "Package"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "IncludedItem" ADD CONSTRAINT "IncludedItem_packageId_fkey" FOREIGN KEY ("packageId") REFERENCES "Package"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "NotIncludedItem" ADD CONSTRAINT "NotIncludedItem_packageId_fkey" FOREIGN KEY ("packageId") REFERENCES "Package"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -4,6 +4,24 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
+// Predefined categories
+ const CATEGORIES = [
+  "Cultural",
+  "Adventure", 
+  "Historical",
+  "Culinary",
+  "Beach",
+  "Ski",
+  "Eco",
+  "Religious",
+  "Shopping",
+  "Wellness",
+  "Photography",
+  "Weekend",
+  "International",
+  "Domestic"
+] as const;
+
 // Zod schemas for validation
 const PackageSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -12,7 +30,7 @@ const PackageSchema = z.object({
   duration: z.string().min(1, "Duration is required"),
   maxPeople: z.number().positive("Max people must be positive"),
 
-  categoryId: z.number().positive("Category is required"),
+  category: z.enum(CATEGORIES),
   locationId: z.number().positive("Location is required"),
   busId: z.number().optional(),
 });
@@ -29,9 +47,9 @@ export async function createPackage(data: z.infer<typeof PackageSchema>) {
     const package_ = await prisma.package.create({
       data: validatedData,
       include: {
-        category: true,
         location: true,
         bus: true,
+        tourPlan: true,
       },
     });
 
@@ -55,9 +73,9 @@ export async function updatePackage(data: z.infer<typeof PackageUpdateSchema>) {
       where: { id },
       data: updateData,
       include: {
-        category: true,
         location: true,
         bus: true,
+        tourPlan: true,
       },
     });
 
@@ -91,10 +109,10 @@ export async function getAllPackages() {
   try {
     const packages = await prisma.package.findMany({
       include: {
-        category: true,
         location: true,
         bus: true,
         bookings: true,
+        tourPlan: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -112,12 +130,14 @@ export async function getPackageById(id: number) {
     const package_ = await prisma.package.findUnique({
       where: { id },
       include: {
-        category: true,
         location: true,
         bus: true,
         bookings: true,
         gallery: true,
-      },
+        tourPlan: true,
+        includedItems: true,
+        notIncludedItems: true,
+      } as Parameters<typeof prisma.package.findUnique>[0]['include'],
     });
 
     if (!package_) {

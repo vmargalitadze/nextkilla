@@ -8,13 +8,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
-model Category {
-  id       Int       @id @default(autoincrement())
-  name     String
-  packages Package[]
+enum Category {
+  Cultural
+  Adventure 
+  Historical
+  Culinary
+  Beach
+  Ski
+  Eco
+  Religious
+  Shopping
+  Wellness
+  Photography
+  Weekend
+  International
+  Domestic
 }
+
+
 
 model Location {
   id       Int       @id @default(autoincrement())
@@ -30,14 +41,16 @@ model Package {
   price       Float
   duration    String
   maxPeople   Int
+  category    Category      // Using enum instead of relation
 
-
-  category   Category       @relation(fields: [categoryId], references: [id])
-  categoryId Int
   location   Location       @relation(fields: [locationId], references: [id])
   locationId Int
   gallery    GalleryImage[]
   bookings   Booking[]
+  tourPlan   TourDay[]      // Tour plan/itinerary
+
+  includedItems    IncludedItem[]
+  notIncludedItems NotIncludedItem[]
 
   bus       Bus?
   busId     Int?
@@ -106,4 +119,35 @@ model Discount {
   amount    Float
   expiresAt DateTime
   bookings  Booking[]
+}
+
+model TourDay {
+  id          Int      @id @default(autoincrement())
+  dayNumber   Int      // Day number (1, 2, 3, etc.)
+  title       String   // Day title (e.g., "Arrival & Old City Exploration")
+  activities  String[] // Activities as array of strings
+  package     Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  packageId   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([packageId, dayNumber]) // Ensure unique day numbers per package
+}
+
+model IncludedItem {
+  id        Int      @id @default(autoincrement())
+  text      String
+  package   Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  packageId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NotIncludedItem {
+  id        Int      @id @default(autoincrement())
+  text      String
+  package   Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  packageId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -15,8 +15,6 @@ export default function LocationForm({ location: locationData, onSuccess, onCanc
   const [formData, setFormData] = useState({
     name: locationData?.name || "",
     country: locationData?.country || "",
-    city: locationData?.city || "",
-    description: locationData?.description || "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -92,48 +90,18 @@ export default function LocationForm({ location: locationData, onSuccess, onCanc
             />
           </div>
 
-          {/* Country and City */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Country *
-              </label>
-              <input
-                type="text"
-                value={formData.country}
-                onChange={(e) => handleInputChange("country", e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="e.g., Peru, China"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                City *
-              </label>
-              <input
-                type="text"
-                value={formData.city}
-                onChange={(e) => handleInputChange("city", e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="e.g., Cusco, Beijing"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Description */}
+          {/* Country */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description
+              Country *
             </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => handleInputChange("description", e.target.value)}
-              rows={4}
+            <input
+              type="text"
+              value={formData.country}
+              onChange={(e) => handleInputChange("country", e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Brief description of the location..."
+              placeholder="e.g., Peru, China"
+              required
             />
           </div>
 
