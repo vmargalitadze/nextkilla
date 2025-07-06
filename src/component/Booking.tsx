@@ -1,7 +1,9 @@
-import React from 'react'
-
+"use client";
+import React, { useState, useEffect } from 'react';
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { getAllPackages } from "@/lib/actions/packages";
+import DynamicPackageCard from "./DynamicPackageCard";
 const steps = [
   {
     icon: "/selection.svg",
@@ -25,6 +27,26 @@ const steps = [
 
 const Booking = () => {
     const t = useTranslations("booking");
+    const [packages, setPackages] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchPackages = async () => {
+            try {
+                const packagesResult = await getAllPackages();
+                if (packagesResult.success) {
+                    setPackages(packagesResult.data || []);
+                }
+            } catch (error) {
+                console.error("Error fetching packages:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPackages();
+    }, []);
+
     return (
         <div className="container mx-auto pt-15 pb-13">
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12">
@@ -47,45 +69,26 @@ const Booking = () => {
                         </div>
                     ))}
                 </div>
-                <div className="w-full lg:w-6/12 flex justify-center items-start">
-                    <div className="relative shadow-lg rounded-2xl bg-white max-w-xs w-full overflow-hidden">
-                       
-                        <div className="relative z-10 p-4">
-                            <Image
-                                className="mb-4 mt-2 rounded-2xl w-full object-cover"
-                                src="/booking-img.jpg"
-                                width={350}
-                                height={200}
-                                alt="booking"
-                            />
-                            <div>
-                                <h5 className="font-semibold text-lg">{t("trip_greece")}</h5>
-                                <p className="text-gray-500 text-[18px] mb-3">{t("trip_dates")}</p>
-                                <div className="flex gap-4 mb-4">
-                                    <span className="inline-flex items-center justify-center p-2 bg-gray-100 rounded-full">
-                                        <Image src="/leaf.svg" width={18} height={18} alt="" />
-                                    </span>
-                                    <span className="inline-flex items-center justify-center p-2 bg-gray-100 rounded-full">
-                                        <Image src="/map.svg" width={18} height={18} alt="" />
-                                    </span>
-                                    <span className="inline-flex items-center justify-center p-2 bg-gray-100 rounded-full">
-                                       <Image src="/send.svg" width={18} height={18} alt="" />
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className="inline-flex items-center justify-center p-2 bg-gray-100 rounded-full">
-                                        <Image src="/building.svg" width={18} height={18} alt="building" />
-                                        </div>
-                                        <span className="text-gray-600 text-sm">{t("people_going")}</span>
+                {loading ? (
+                    <div className="w-full lg:w-6/12 flex justify-center items-start">
+                        <div className="relative shadow-lg rounded-2xl bg-white max-w-xs w-full overflow-hidden">
+                            <div className="relative z-10 p-4">
+                                <div className="mb-4 mt-2 rounded-2xl w-full h-[200px] bg-gray-200 animate-pulse"></div>
+                                <div className="space-y-3">
+                                    <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
+                                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                                    <div className="flex gap-4">
+                                        <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+                                        <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+                                        <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
                                     </div>
-
                                 </div>
-                             
                             </div>
                         </div>
                     </div>
-                </div>
+                ) : (
+                    <DynamicPackageCard packages={packages} />
+                )}
             </div>
         </div>
     )

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -7,6 +7,7 @@ import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Link } from "@/i18n/navigation";
+import { getAllPackages } from "@/lib/actions/packages";
 
 const destinations = [
   {
@@ -55,6 +56,28 @@ const destinations = [
 
 const Top = () => {
   const t = useTranslations("top");
+  const [popularPackages, setPopularPackages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPopularPackages = async () => {
+      try {
+        const popularResult = await getAllPackages();
+        
+        if (popularResult.success) {
+          // Filter packages where popular is true
+          const popularOnly = popularResult.data?.filter((pkg: any) => pkg.popular === true) || [];
+          setPopularPackages(popularOnly);
+        }
+      } catch (error) {
+        console.error("Error fetching popular packages:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPopularPackages();
+  }, []);
 
   useEffect(() => {
     // Cleanup function to prevent memory leaks
@@ -94,13 +117,35 @@ const Top = () => {
             modules={[Pagination]}
             className="partner-swiper"
           >
-            {destinations.map((dest, idx) => (
+            {loading ? (
+              // Loading skeleton
+              [...Array(4)].map((_, idx) => (
+                <SwiperSlide key={idx}>
+                  <div className="bg-white mb-24 rounded-lg shadow-lg overflow-hidden flex flex-col">
+                    <div className="relative w-full h-[500px]">
+                      <div className="w-full h-full bg-gray-200 animate-pulse"></div>
+                    </div>
+                    <div className="p-6 flex rounded-lg flex-col flex-1">
+                      <div className="flex flex-col lg:flex-row justify-between mb-3">
+                        <div className="h-6 bg-gray-200 rounded animate-pulse w-24"></div>
+                        <div className="h-6 bg-gray-200 rounded animate-pulse w-16"></div>
+                      </div>
+                      <div className="flex gap-3 items-center mt-auto">
+                        <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+                      </div>
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))
+            ) : (
+              popularPackages.map((pkg, idx) => (
               <SwiperSlide key={idx}>
-                <div className="bg-white mb-24 rounded-lg shadow-lg overflow-hidden flex flex-col">
+                <div className="bg-white hover:shadow-xl hover:-translate-y-1 mb-24 rounded-lg shadow-lg overflow-hidden flex flex-col">
                   <div className="relative w-full h-[500px]">
                     <Image
-                      src={dest.img}
-                      alt={dest.name}
+                      src={pkg.gallery[0]?.url || "/category/photo-1532254497630-c74966e79621.jpg"}
+                      alt={pkg.title}
                       fill
                       className="object-cover rounded-t-lg"
                     />
@@ -109,14 +154,13 @@ const Top = () => {
                     <div className="flex flex-col lg:flex-row justify-between mb-3">
                       <h4 className="text-red-400 font-semibold text-[18px]">
                         <Link
-                          href={`/product/${dest.id}`}
-                          className="hover:underline"
+                          href={`/product/${pkg.id}`}
                         >
-                          {dest.name}
+                          {pkg.title}
                         </Link>
                       </h4>
                       <span className="text-[18px] font-medium">
-                        {dest.price}
+                        ${pkg.price}
                       </span>
                     </div>
                     <div className="flex gap-3 items-center mt-auto">
@@ -124,11 +168,11 @@ const Top = () => {
                         <Image src="/send.svg" width={18} height={18} alt="" />
                       </span>
                       <span className="text-gray-700 text-[18px] font-medium">
-                        {dest.days}
+                        {pkg.duration}
                       </span>
                     </div>
                     <Link
-                      href={`/product/${dest.id}`}
+                      href={`/product/${pkg.id}`}
                       className="explore-btn gap-3 group"
                     >
                       <span>Explore Now</span>
@@ -159,7 +203,8 @@ const Top = () => {
                   </div>
                 </div>
               </SwiperSlide>
-            ))}
+            ))
+            )}
           </Swiper>
         </div>
       </div>

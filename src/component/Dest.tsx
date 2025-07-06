@@ -96,7 +96,7 @@ function Dest() {
                 animationFillMode: "both",
               }}
             >
-              <div className="relative w-full h-[500px]">
+              <div className="relative hover:shadow-xl hover:-translate-y-1 w-full h-[500px]">
                 {package_.gallery[0]?.url ? (
                   <Image
                     src={package_.gallery[0].url}
@@ -128,7 +128,7 @@ function Dest() {
                   <h4 className="text-red-400 font-semibold text-[18px]">
                     <Link
                       href={`/product/${package_.id}`}
-                      className="hover:underline"
+                     
                     >
                       {package_.title}
                     </Link>
@@ -147,7 +147,7 @@ function Dest() {
                 </div>
                 <Link
                   href={`/product/${package_.id}`}
-                  className="explore-btn gap-3 group mt-4 inline-flex items-center text-[#f09819] font-semibold hover:underline"
+                  className="explore-btn gap-3 group mt-4 inline-flex items-center text-[#f09819] font-semibold "
                 >
                   <span>Explore Now</span>
                   <div className="max-w-[24px]">

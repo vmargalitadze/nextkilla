@@ -151,4 +151,6 @@ export async function getPackageById(id: number) {
     console.log(error);
     return { success: false, error: "Failed to fetch package" };
   }
-} 
+}
+
+// Get popular packages

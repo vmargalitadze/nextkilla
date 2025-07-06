@@ -138,7 +138,7 @@ export default function PackageDetails() {
           alt="placeholder"
           width={100}
           height={100}
-          className="absolute top-[10%] right-[4%] z-1 w-[16vw] max-w-[100px] min-w-[60px]"
+          className="absolute top-[5%] right-[8%] z-1 w-[16vw] max-w-[100px] min-w-[60px]"
         />
       </div>
 
