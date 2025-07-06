@@ -41,7 +41,7 @@ function CompanyFilter() {
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
+                        className="w-full py-2 px-3 ps-10 h-10 bg-white  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
                         placeholder={t("searchPlaceholder")}
                       />
                     </div>
@@ -55,7 +55,7 @@ function CompanyFilter() {
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
+                        className="w-full py-2 px-3 ps-10 h-10 bg-white  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
                       />
                     </div>
                   </div>
@@ -68,7 +68,7 @@ function CompanyFilter() {
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
+                        className="w-full py-2 px-3 ps-10 h-10 bg-white  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
                       />
                     </div>
                   </div>
