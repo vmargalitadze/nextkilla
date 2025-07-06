@@ -81,7 +81,7 @@ function CompanyFilter() {
                       <select 
                         value={personCount}
                         onChange={(e) => setPersonCount(e.target.value)}
-                        className="form-select w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
+                        className="form-select w-full py-2 px-3 ps-10 h-10 bg-white  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
                       >
                         <option value="">{t("selectPersons")}</option>
                         <option value="1">1</option>
