@@ -12,6 +12,8 @@ import BookingForm from "@/component/admin/BookingForm";
 import BusForm from "@/component/admin/BusForm";
 import CategoryForm from "@/component/admin/CategoryForm";
 import LocationForm from "@/component/admin/LocationForm";
+import GalleryImageForm from "@/component/admin/GalleryImageForm";
+import DiscountForm from "@/component/admin/DiscountForm";
 import { 
   Package, 
   Calendar, 
@@ -21,7 +23,9 @@ import {
   Trash2, 
   Users, 
   Tag,
-  MapPin
+  MapPin,
+  Image,
+  Percent
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -32,7 +36,9 @@ export default function AdminPage() {
     bookings: [] as any[],
     buses: [] as any[],
     categories: [] as any[],
-    locations: [] as any[]
+    locations: [] as any[],
+    galleryImages: [] as any[],
+    discounts: [] as any[]
   });
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -46,12 +52,13 @@ export default function AdminPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [packagesRes, bookingsRes, busesRes, categoriesRes, locationsRes] = await Promise.all([
+      const [packagesRes, bookingsRes, busesRes, categoriesRes, locationsRes, discountsRes] = await Promise.all([
         getAllPackages(),
         getAllBookings(),
         getAllBuses(),
         getAllCategories(),
-        getAllLocations()
+        getAllLocations(),
+        fetch('/api/discounts').then(res => res.json())
       ]);
 
       const packages = packagesRes.success ? packagesRes.data || [] : [];
@@ -59,8 +66,9 @@ export default function AdminPage() {
       const buses = busesRes.success ? busesRes.data || [] : [];
       const categories = categoriesRes.success ? [...(categoriesRes.data || [])] : [];
       const locations = locationsRes.success ? locationsRes.data || [] : [];
+      const discounts = discountsRes.success ? discountsRes.data || [] : [];
 
-      setData({ packages, bookings, buses, categories, locations });
+      setData({ packages, bookings, buses, categories, locations, galleryImages: [], discounts });
 
       // Calculate stats
       const totalRevenue = bookings.reduce((sum: number, booking: any) => 
@@ -134,7 +142,9 @@ export default function AdminPage() {
     { id: "bookings", label: "Bookings", icon: Calendar, color: "green" },
     { id: "buses", label: "Buses", icon: Bus, color: "orange" },
     { id: "categories", label: "Categories", icon: Tag, color: "indigo" },
-    { id: "locations", label: "Locations", icon: MapPin, color: "teal" }
+    { id: "locations", label: "Locations", icon: MapPin, color: "teal" },
+    { id: "gallery", label: "Gallery Images", icon: Image, color: "purple" },
+    { id: "discounts", label: "Discounts", icon: Percent, color: "pink" }
   ];
 
   if (loading) {
@@ -239,7 +249,7 @@ export default function AdminPage() {
             {/* Packages Tab */}
             {activeTab === "packages" && (
               <div>
-                <div className="flex mt-24 justify-between items-center mb-6">
+                <div className="flex  justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">Travel Packages</h2>
                   <button
                     onClick={() => setShowForm({ type: "package" })}
@@ -255,6 +265,7 @@ export default function AdminPage() {
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sale Price</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Max People</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -271,6 +282,13 @@ export default function AdminPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             ${pkg.price}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {pkg.salePrice ? (
+                              <span className="text-green-600 font-medium">${pkg.salePrice}</span>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {pkg.duration}
@@ -536,6 +554,127 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
+
+            {/* Gallery Images Tab */}
+            {activeTab === "gallery" && (
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">Gallery Images</h2>
+                  <button
+                    onClick={() => setShowForm({ type: "gallery" })}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Image</span>
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gallery Images</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {data.packages.map((pkg: any) => (
+                        <tr key={pkg.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">{pkg.title}</div>
+                              <div className="text-sm text-gray-500">{pkg.category}</div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {pkg.gallery?.length || 0} images
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex justify-end space-x-2">
+                              <button
+                                onClick={() => setShowForm({ type: "gallery", data: pkg })}
+                                className="text-purple-600 hover:text-purple-900"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Discounts Tab */}
+            {activeTab === "discounts" && (
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">Discounts</h2>
+                  <button
+                    onClick={() => setShowForm({ type: "discount" })}
+                    className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Discount</span>
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {data.discounts.map((discount: any) => (
+                        <tr key={discount.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{discount.code}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${discount.amount}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {new Date(discount.expiresAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              new Date(discount.expiresAt) > new Date() 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {new Date(discount.expiresAt) > new Date() ? 'Active' : 'Expired'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex justify-end space-x-2">
+                              <button
+                                onClick={() => setShowForm({ type: "discount", data: discount })}
+                                className="text-blue-600 hover:text-blue-900"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete("discounts", discount.id)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -572,6 +711,19 @@ export default function AdminPage() {
           {showForm.type === "location" && (
             <LocationForm
               location={showForm.data}
+              onSuccess={handleFormSuccess}
+              onCancel={() => setShowForm(null)}
+            />
+          )}
+          {showForm.type === "gallery" && (
+            <GalleryImageForm
+              packageId={showForm.data?.id}
+              onSuccess={handleFormSuccess}
+              onCancel={() => setShowForm(null)}
+            />
+          )}
+          {showForm.type === "discount" && (
+            <DiscountForm
               onSuccess={handleFormSuccess}
               onCancel={() => setShowForm(null)}
             />

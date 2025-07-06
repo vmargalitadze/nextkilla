@@ -65,15 +65,15 @@ const Top = () => {
 
   return (
     <>
-      <div className="max-w-[1570px] mx-auto px-3">
-        <div className="pt-20">
+      <div className="max-w-7xl pt-15  mx-auto">
+        <div className="">
           <div className="mb-7 text-center">
-            <h5 className="text-red-400 font-semibold">{t("subtitle")}</h5>
-            <h3 className="text-[30px] sm:text-[35px] md:text-[48px] xl:text-[56px] font-black leading-[40px] sm:leading-[45px] md:leading-[58px] xl:leading-[68px]">
+            <h5 className="text-red-400 text-[22px] font-semibold">{t("subtitle")}</h5>
+            <h3 className="capitalize  font-[Salsa,cursive] text-[30px] md:text-[40px] md:text-6xl">
               {t("title")}
             </h3>
           </div>
-
+        
           <Swiper
             slidesPerView={1}
             spaceBetween={16}

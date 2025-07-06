@@ -36,12 +36,12 @@ const Category = () => {
     const t = useTranslations("category");
     return (
         <>
-            <div className="container mx-auto py-10">
+            <div className="container mx-auto ">
 
-                <div className="max-w-7xl pt-20  mx-auto">
+                <div className="max-w-7xl   mx-auto">
                     <div className="flex justify-center items-center text-center flex-col gap-[5px] sm:gap-[8px] md:gap-[15px] ">
                         <div className="flex justify-center items-center text-center flex-col gap-[9px]">
-                            <h1 className="text-[30px] sm:text-[35px] md:text-[48px] xl:text-[56px] font-black leading-[40px] sm:leading-[45px] md:leading-[58px] xl:leading-[68px]">
+                            <h1 className="capitalize font-[Salsa,cursive] text-[30px] md:text-[40px] ">
                                 {t("title")}
                             </h1>
                         </div>

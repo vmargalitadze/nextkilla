@@ -10,7 +10,7 @@ import { getTourDaysByPackage, deleteTourDay, createTourDay } from "@/lib/action
 import { getIncludedItemsByPackage, deleteIncludedItem, createIncludedItem } from "@/lib/actions/includedItems";
 import { getNotIncludedItemsByPackage, deleteNotIncludedItem, createNotIncludedItem } from "@/lib/actions/notIncludedItems";
 
-import ImageUpload from "../CloudinaryUploader";
+import CloudinaryUploader from "../CloudinaryUploader";
 import TourDayForm from "./TourDayForm";
 import IncludedItemForm from "./IncludedItemForm";
 import NotIncludedItemForm from "./NotIncludedItemForm";
@@ -27,9 +27,11 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
     title: packageData?.title || "",
     description: packageData?.description || "",
     price: packageData?.price || "",
+    salePrice: packageData?.salePrice || "",
     duration: packageData?.duration || "",
     maxPeople: packageData?.maxPeople || "",
     category: packageData?.category || "Cultural",
+    popular: packageData?.popular || false,
     locationId: packageData?.locationId || "",
     busId: packageData?.busId || "",
     gallery: packageData?.gallery?.map((img: any) => img.url) || [],
@@ -274,6 +276,7 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
       const submitData = {
         ...formData,
         price: Number(formData.price),
+        salePrice: formData.salePrice ? Number(formData.salePrice) : undefined,
         maxPeople: Number(formData.maxPeople),
         locationId: Number(formData.locationId),
         busId: formData.busId ? Number(formData.busId) : undefined,
@@ -326,7 +329,7 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white mt-15 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-800">
@@ -379,6 +382,24 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
                   min="0"
                   step="0.01"
                   required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Sale Price (Optional)
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-3 text-gray-500">$</span>
+                <input
+                  type="number"
+                  value={formData.salePrice}
+                  onChange={(e) => handleInputChange("salePrice", e.target.value)}
+                  className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
                 />
               </div>
             </div>
@@ -485,6 +506,20 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
                 ))}
               </select>
             </div>
+
+            <div>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.popular}
+                  onChange={(e) => handleInputChange("popular", e.target.checked)}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Mark as Popular Package
+                </span>
+              </label>
+            </div>
           </div>
 
           {/* Image Upload */}
@@ -492,9 +527,12 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Gallery Images
             </label>
-            <ImageUpload
+            <CloudinaryUploader
               value={formData.gallery}
-              onChange={(urls) => handleInputChange("gallery", urls)}
+              onChange={(urls: string[]) => handleInputChange("gallery", urls)}
+              maxFiles={10}
+              allowEdit={true}
+              allowDelete={true}
             />
           </div>
 

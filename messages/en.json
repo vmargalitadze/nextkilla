@@ -5,6 +5,9 @@
     "news": "News",
     "contact": "Contact"
   },
+  "newDest": {
+    "title": "New Destinations"
+  },
   "top": {
     "title": "Top Destinations",
     "subtitle": "Top Selling",

@@ -14,7 +14,7 @@ function CompanyFilter() {
       <div className="container relative -mt-8 z-1">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1">
-            <div className="p-6 bg-white dark:bg-slate-900 rounded-xl shadow dark:shadow-gray-700">
+            <div className="p-6 bg-white  rounded-xl shadow ">
               <div className="registration-form text-dark text-start">
                 <div className="grid lg:grid-cols-5 md:grid-cols-2 grid-cols-1 gap-4">
                   <div>

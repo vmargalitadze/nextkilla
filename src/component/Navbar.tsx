@@ -42,7 +42,7 @@ export default function Navbar() {
             href="/"
             className={`mr-4 block cursor-pointer py-1.5 font-bold text-2xl transition-colors duration-300 ${scrolled ? "text-white" : "text-red-400"}`}
           >
-          <Image src="/logo.jpg" alt="logo" className="rounded-full" width={50} height={50} />
+          <Image src="/logo.jpg" alt="logo" className="rounded-full" width={60} height={60} />
           </Link>
 
           <div className="lg:hidden">
@@ -72,21 +72,21 @@ export default function Navbar() {
           {/* Overlay */}
           {isMobileMenuOpen && (
             <div
-              className="fixed inset-0 z-40 bg-black bg-opacity-80 transition-opacity duration-300 lg:hidden"
+              className="fixed inset-0 z-40 bg-black bg-opacity-80 transition-opacity duration-300 lg:hidden min-h-screen"
               onClick={toggleMobileMenu}
             />
           )}
 
           {/* Mobile Menu */}
           <div
-            className={`fixed inset-0 z-50 w-full h-full text-white transform transition-transform duration-300
-              flex flex-col items-center justify-center
+            className={`fixed inset-0 z-50 w-full min-h-screen text-white transform transition-transform duration-300
+              flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm
               ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
               lg:hidden`}
           >
             <button
               onClick={toggleMobileMenu}
-              className="absolute top-4 right-4 text-slate-300 hover:text-red-500"
+              className="absolute top-6 right-6 text-slate-300 hover:text-red-500 z-10"
             >
               {/* Close icon */}
               <svg
@@ -103,19 +103,21 @@ export default function Navbar() {
                 />
               </svg>
             </button>
-            <ul className="flex flex-col items-center gap-8">
-              {navItems.map((item, index) => (
-                <li key={index}>
-                  <Link
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    href={item.href}
-                    className="text-2xl font-bold"
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <div className="flex flex-col items-center justify-center h-full w-full px-4">
+              <ul className="flex flex-col items-center gap-8">
+                {navItems.map((item, index) => (
+                  <li key={index}>
+                    <Link
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      href={item.href}
+                      className="text-2xl font-bold hover:text-red-400 transition-colors duration-300"
+                    >
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
             
           </div>
 

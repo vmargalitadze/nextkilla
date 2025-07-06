@@ -27,9 +27,10 @@ const PackageSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   price: z.number().positive("Price must be positive"),
+  salePrice: z.number().optional(),
   duration: z.string().min(1, "Duration is required"),
   maxPeople: z.number().positive("Max people must be positive"),
-
+  popular: z.boolean().default(false),
   category: z.enum(CATEGORIES),
   locationId: z.number().positive("Location is required"),
   busId: z.number().optional(),
@@ -113,6 +114,7 @@ export async function getAllPackages() {
         bus: true,
         bookings: true,
         tourPlan: true,
+        gallery: true,
       },
       orderBy: { createdAt: "desc" },
     });

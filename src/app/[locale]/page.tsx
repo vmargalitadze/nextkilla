@@ -6,7 +6,7 @@ import CompanyFilter from "@/component/CompanyFilter";
 import Dest from "@/component/Dest";
 import Footer from "@/component/Footer";
 import Hero from "@/component/Hero";
-import Info from "@/component/Info";
+
 import Top from "@/component/Top";
 
 export default function Home() {
@@ -14,11 +14,11 @@ export default function Home() {
     <>
       <Hero />
       <CompanyFilter />
-      <Category />
-      <Dest />
-      <Info />
-      <Top />
+      {/* <Info /> */}
       <Booking />
+      <Category />
+      <Top />
+      <Dest />
       <Company />
       <Footer />
     </>

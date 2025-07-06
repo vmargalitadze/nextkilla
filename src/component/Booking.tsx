@@ -26,12 +26,12 @@ const steps = [
 const Booking = () => {
     const t = useTranslations("booking");
     return (
-        <div className="container mx-auto pt-20 pb-20">
+        <div className="container mx-auto pt-15 pb-13">
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12">
                 <div className="w-full lg:w-6/12">
                     <div className="mb-6">
-                        <h5 className="text-red-400 text-[18px] font-semibold">{t("easy_fast")}</h5>
-                        <h3 className="capitalize text-[30px] sm:text-[35px] md:text-[48px] xl:text-[56px] font-bold leading-tight">
+                        <h5 className="text-red-400 text-[22px] font-semibold">{t("easy_fast")}</h5>
+                        <h3 className=" capitalize  font-[Salsa,cursive] text-[30px] md:text-[40px]">
                             {t("title")}
                         </h3>
                     </div>

@@ -105,6 +105,12 @@
   -webkit-text-fill-color: transparent !important;
 }
 
+.fonts{
+  font-weight: 500;
+  --tw-text-opacity: 1;
+  color: rgb(3 4 21 / var(--tw-text-opacity));
+}
+
 @media (max-width: 600px) {
   .swiper-pagination {
     flex-direction: row;

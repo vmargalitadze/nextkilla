@@ -39,9 +39,11 @@ model Package {
   title       String
   description String
   price       Float
+  salePrice   Float?        // Sale price (optional)
   duration    String
   maxPeople   Int
   category    Category      // Using enum instead of relation
+  popular     Boolean       @default(false)
 
   location   Location       @relation(fields: [locationId], references: [id])
   locationId Int
@@ -59,10 +61,12 @@ model Package {
 }
 
 model GalleryImage {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   url       String
-  package   Package @relation(fields: [packageId], references: [id])
+  package   Package  @relation(fields: [packageId], references: [id])
   packageId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Booking {
@@ -119,6 +123,8 @@ model Discount {
   amount    Float
   expiresAt DateTime
   bookings  Booking[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model TourDay {

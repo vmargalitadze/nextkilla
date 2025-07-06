@@ -49,7 +49,7 @@ export default function BusForm({ bus: busData, onSuccess, onCancel }: BusFormPr
         packageId: Number(formData.packageId),
       };
 
-      const result = busData?.id 
+      const result = busData?.id
         ? await updateBus({ ...submitData, id: busData.id })
         : await createBus(submitData);
 
@@ -60,7 +60,7 @@ export default function BusForm({ bus: busData, onSuccess, onCancel }: BusFormPr
       }
     } catch (err) {
       console.log(err);
-      
+
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);
@@ -162,16 +162,43 @@ export default function BusForm({ bus: busData, onSuccess, onCancel }: BusFormPr
           {formData.seatCount && (
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className="text-sm font-medium text-gray-700 mb-3">Bus Layout Preview</h3>
-              <div className="grid grid-cols-10 gap-1">
-                {Array.from({ length: Math.min(Number(formData.seatCount), 50) }, (_, i) => (
-                  <div
-                    key={i}
-                    className="w-6 h-6 bg-green-200 border border-green-300 rounded text-xs flex items-center justify-center text-green-700"
-                  >
-                    {i + 1}
+              <div className="space-y-2">
+                {Array.from({ length: Math.ceil(Math.min(Number(formData.seatCount), 50) / 4) }, (_, rowIndex) => (
+                  <div key={rowIndex} className="flex items-center gap-2">
+                    {/* Left side: 2 seats */}
+                    {Array.from({ length: 2 }, (_, seatIndex) => {
+                      const seatNumber = rowIndex * 4 + seatIndex + 1;
+                      if (seatNumber > formData.seatCount) return null;
+                      return (
+                        <div
+                          key={seatNumber}
+                          className="w-8 h-8 bg-green-200 border border-green-400 rounded flex items-center justify-center text-xs text-green-800"
+                        >
+                          {seatNumber}
+                        </div>
+                      );
+                    })}
+
+                    {/* Aisle */}
+                    <div className="w-6" />
+
+                    {/* Right side: 2 seats */}
+                    {Array.from({ length: 2 }, (_, seatIndex) => {
+                      const seatNumber = rowIndex * 4 + seatIndex + 3;
+                      if (seatNumber > formData.seatCount) return null;
+                      return (
+                        <div
+                          key={seatNumber}
+                          className="w-8 h-8 bg-green-200 border border-green-400 rounded flex items-center justify-center text-xs text-green-800"
+                        >
+                          {seatNumber}
+                        </div>
+                      );
+                    })}
                   </div>
                 ))}
               </div>
+
               {Number(formData.seatCount) > 50 && (
                 <p className="text-xs text-gray-500 mt-2">
                   Showing first 50 seats. Total: {formData.seatCount} seats
