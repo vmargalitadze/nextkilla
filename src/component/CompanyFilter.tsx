@@ -18,7 +18,7 @@ function CompanyFilter() {
               <div className="registration-form text-dark text-start">
                 <div className="grid lg:grid-cols-5 md:grid-cols-2 grid-cols-1 gap-4">
                   <div>
-                    <label className="form-label font-medium text-slate-900 dark:text-white">
+                    <label className="form-label font-medium text-slate-900 ">
                       {t("search")}
                     </label>
                     <div className="relative mt-2">
@@ -41,13 +41,13 @@ function CompanyFilter() {
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900 dark:text-slate-200 rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
+                        className="w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
                         placeholder={t("searchPlaceholder")}
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="form-label font-medium text-slate-900 dark:text-white">
+                    <label className="form-label font-medium text-slate-900 ">
                       {t("departureDate")}
                     </label>
                     <div className="relative mt-2">
@@ -55,12 +55,12 @@ function CompanyFilter() {
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900 dark:text-slate-200 rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
+                        className="w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="form-label font-medium text-slate-900 dark:text-white">
+                    <label className="form-label font-medium text-slate-900 ">
                       {t("returnDate")}
                     </label>
                     <div className="relative mt-2">
@@ -68,20 +68,20 @@ function CompanyFilter() {
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900 dark:text-slate-200 rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
+                        className="w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="form-label font-medium text-slate-900 dark:text-white">
+                    <label className="form-label font-medium text-slate-900 ">
                       {t("personCount")}
                     </label>
                     <div className="relative mt-2">
                       <select 
                         value={personCount}
                         onChange={(e) => setPersonCount(e.target.value)}
-                        className="form-select w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900 dark:text-slate-200 rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
+                        className="form-select w-full py-2 px-3 ps-10 h-10 bg-transparent dark:bg-slate-900  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
                       >
                         <option value="">{t("selectPersons")}</option>
                         <option value="1">1</option>
