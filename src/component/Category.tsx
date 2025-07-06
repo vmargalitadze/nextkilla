@@ -4,6 +4,11 @@ import Image from 'next/image'
 import React, { useState, useEffect } from 'react'
 import { getAllCategories, getCategoryStats } from "@/lib/actions/categories";
 
+interface CategoryStats {
+  category: string;
+  count: number;
+}
+
 import { Link } from "@/i18n/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
@@ -32,9 +37,9 @@ const categoryImages = {
 
 const Category = () => {
     const t = useTranslations("category");
-    const [categories, setCategories] = useState<any[]>([]);
-    const [categoryStats, setCategoryStats] = useState<any[]>([]);
-    const [ setPopularPackages] = useState<any[]>([]);
+    const [categories, setCategories] = useState<string[]>([]);
+    const [categoryStats, setCategoryStats] = useState<CategoryStats[]>([]);
+
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

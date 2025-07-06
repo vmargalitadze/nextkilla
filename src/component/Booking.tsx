@@ -4,6 +4,24 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { getAllPackages } from "@/lib/actions/packages";
 import DynamicPackageCard from "./DynamicPackageCard";
+
+interface Package {
+  id: number;
+  title: string;
+  price: number;
+  duration: string;
+  gallery: Array<{
+    id: number;
+    url: string;
+    packageId: number;
+  }>;
+  location?: {
+    id: number;
+    name: string;
+    country: string;
+  };
+}
+
 const steps = [
   {
     icon: "/selection.svg",
@@ -27,7 +45,7 @@ const steps = [
 
 const Booking = () => {
     const t = useTranslations("booking");
-    const [packages, setPackages] = useState<any[]>([]);
+    const [packages, setPackages] = useState<Package[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

@@ -9,54 +9,27 @@ import "swiper/css/pagination";
 import { Link } from "@/i18n/navigation";
 import { getAllPackages } from "@/lib/actions/packages";
 
-const destinations = [
-  {
-    id: 1,
-    name: "Rome, Italy",
-    price: "$5.42k",
-    days: "10 Days Trip",
-    img: "/category/photo-1532254497630-c74966e79621.jpg",
-  },
-  {
-    id: 2,
-    name: "London, UK",
-    price: "$4.2k",
-    days: "12 Days Trip",
-    img: "/category/photo-1532254497630-c74966e79621.jpg",
-  },
-  {
-    id: 3,
-    name: "Full Europe",
-    price: "$15k",
-    days: "28 Days Trip",
-    img: "/category/photo-1532254497630-c74966e79621.jpg",
-  },
-  {
-    id: 4,
-    name: "Full Europe",
-    price: "$15k",
-    days: "28 Days Trip",
-    img: "/category/photo-1532254497630-c74966e79621.jpg",
-  },
-  {
-    id: 5,
-    name: "Full Europe",
-    price: "$15k",
-    days: "28 Days Trip",
-    img: "/category/photo-1532254497630-c74966e79621.jpg",
-  },
-  {
-    id: 6,
-    name: "Full Europe",
-    price: "$15k",
-    days: "28 Days Trip",
-    img: "/category/photo-1532254497630-c74966e79621.jpg",
-  },
-];
+interface Package {
+  id: number;
+  title: string;
+  price: number;
+  duration: string;
+  popular?: boolean;
+  gallery: Array<{
+    id: number;
+    url: string;
+    packageId: number;
+  }>;
+  location?: {
+    id: number;
+    name: string;
+    country: string;
+  };
+}
 
 const Top = () => {
   const t = useTranslations("top");
-  const [popularPackages, setPopularPackages] = useState<any[]>([]);
+  const [popularPackages, setPopularPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -66,8 +39,8 @@ const Top = () => {
         
         if (popularResult.success) {
           // Filter packages where popular is true
-          const popularOnly = popularResult.data?.filter((pkg: any) => pkg.popular === true) || [];
-          setPopularPackages(popularOnly);
+          const popularOnly = popularResult.data?.filter((pkg: unknown) => (pkg as Package).popular === true) || [];
+          setPopularPackages(popularOnly as Package[]);
         }
       } catch (error) {
         console.error("Error fetching popular packages:", error);

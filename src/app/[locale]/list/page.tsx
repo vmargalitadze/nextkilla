@@ -43,14 +43,14 @@ export default function ListPage() {
   const [selectedDuration, setSelectedDuration] = useState('');
   const [priceRange, setPriceRange] = useState([0, 10000]);
   const [showPopularOnly, setShowPopularOnly] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
+
 
   useEffect(() => {
     const fetchPackages = async () => {
       try {
         const result = await getAllPackages();
         if (result.success) {
-          setPackages(result.data as any[] || []);
+          setPackages(result.data as unknown as Package[] || []);
         }
       } catch (error) {
         console.error("Error fetching packages:", error);

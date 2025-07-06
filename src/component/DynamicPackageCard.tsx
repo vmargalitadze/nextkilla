@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+
 import { Calendar } from "lucide-react";
 
 
@@ -32,10 +32,7 @@ interface DynamicPackageCardProps {
 const DynamicPackageCard: React.FC<DynamicPackageCardProps> = ({ packages }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
-  const [currentRandomItem, setCurrentRandomItem] = useState(0);
-  const [isRandomVisible, setIsRandomVisible] = useState(true);
   const [randomizedPackages, setRandomizedPackages] = useState<Package[]>([]);
-  const t = useTranslations("booking");
 
   // Initialize randomized packages on component mount
   useEffect(() => {
@@ -62,21 +59,7 @@ const DynamicPackageCard: React.FC<DynamicPackageCardProps> = ({ packages }) => 
     return () => clearInterval(interval);
   }, [randomizedPackages.length]);
 
-  // Separate effect for random items slider
-  useEffect(() => {
-    const randomInterval = setInterval(() => {
-      // Start fade out for random item
-      setIsRandomVisible(false);
 
-      // After fade out, change to next random item
-      setTimeout(() => {
-        setCurrentRandomItem((prevIndex) => (prevIndex + 1));
-        setIsRandomVisible(true);
-      }, 300); // Faster transition for random items
-    }, 4000); // Change every 4 seconds (increased from 2)
-
-    return () => clearInterval(randomInterval);
-  }, []);
 
   if (randomizedPackages.length === 0) {
     return (
@@ -147,7 +130,7 @@ const DynamicPackageCard: React.FC<DynamicPackageCardProps> = ({ packages }) => 
                 <Calendar width={18} height={18} />
               </div>
               <span className="text-gray-500 text-sm">
-                {currentPackage.duration}
+                {currentPackage.duration} DAYS
               </span>
             </div>
            
