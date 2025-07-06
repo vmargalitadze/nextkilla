@@ -9,6 +9,7 @@ import { getPackageById } from "@/lib/actions/packages";
 import { getIncludedItemsByPackage } from "@/lib/actions/includedItems";
 import { getNotIncludedItemsByPackage } from "@/lib/actions/notIncludedItems";
 import TourPlanDisplay from "@/component/TourPlanDisplay";
+import { useRouter } from "@/i18n/navigation";
 
 interface PackageData {
   id: number;
@@ -39,6 +40,7 @@ interface NotIncludedItemData {
 
 export default function PackageDetails() {
   const params = useParams();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
@@ -47,6 +49,7 @@ export default function PackageDetails() {
   const [notIncludedItems, setNotIncludedItems] = useState<NotIncludedItemData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   useEffect(() => {
     const loadPackage = async () => {
@@ -114,6 +117,33 @@ export default function PackageDetails() {
 
   const totalPrice = packageData.price * adults + packageData.price * 0.5 * children;
 
+  const handleBooking = async () => {
+    if (!packageData) return;
+    
+    setBookingLoading(true);
+    try {
+      // Navigate to booking page with package details
+      const bookingData = {
+        packageId: packageData.id,
+        packageTitle: packageData.title,
+        adults,
+        children,
+        totalPrice,
+        price: packageData.price
+      };
+      
+      // Store booking data in sessionStorage for the booking form
+      sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+      
+      // Navigate to booking page
+      router.push('/booking');
+    } catch (error) {
+      console.error('Booking error:', error);
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="w-full lg:py-36 py-16 sm:py-20 relative overflow-hidden">
@@ -152,7 +182,7 @@ export default function PackageDetails() {
                 <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                   <div className="relative h-56 sm:h-80 md:h-96">
                     <Image
-                      src="/category/photo-1532254497630-c74966e79621.jpg"
+                      src={packageData.gallery?.[0]?.url || "/category/photo-1532254497630-c74966e79621.jpg"}
                       alt={packageData.title}
                       fill
                       className="object-cover"
@@ -277,26 +307,13 @@ export default function PackageDetails() {
 
               {/* Sidebar */}
               <div className="order-2 lg:order-2 mb-8 md:mb-0">
-                <div className="sticky top-4 space-y-6">
+                <div className=" top-4 space-y-6">
                   {/* Price Card */}
                   <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
-                    <div className="text-center mb-4 sm:mb-6">
-                      <h3 className="text-xl sm:text-2xl font-bold text-gray-800">
-                        ${packageData.price}
-                      </h3>
-                      <p className="text-gray-600">per person</p>
-                    </div>
+                    
 
                     <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
-                          Date
-                        </label>
-                        <input
-                          type="date"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400 focus:border-transparent"
-                        />
-                      </div>
+                    
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
@@ -353,13 +370,17 @@ export default function PackageDetails() {
                     <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
                       <div className="border-t pt-2 flex justify-between font-semibold">
                         <span>Total: </span>
-                        <span>${totalPrice}</span>
+                        <span>₾{totalPrice}</span>
                       </div>
                     </div>
 
                     <div className="space-y-2 sm:space-y-3">
-                      <button className="explore-btn">
-                        <span>Book Now</span>
+                      <button 
+                        onClick={handleBooking}
+                        disabled={bookingLoading}
+                        className="explore-btn disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <span>{bookingLoading ? 'Processing...' : 'Book Now'}</span>
                       </button>
                     </div>
                   </div>

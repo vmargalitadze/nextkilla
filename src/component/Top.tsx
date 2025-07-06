@@ -133,7 +133,7 @@ const Top = () => {
                         </Link>
                       </h4>
                       <span className="text-[18px] font-medium">
-                        ${pkg.price}
+                        ₾{pkg.price}
                       </span>
                     </div>
                     <div className="flex gap-3 items-center mt-auto">

@@ -134,7 +134,7 @@ function Dest() {
                     </Link>
                   </h4>
                   <span className="text-[18px] font-medium">
-                    ${package_.price}
+                    ₾{package_.price}
                   </span>
                 </div>
                 <div className="flex gap-3 items-center mt-auto">

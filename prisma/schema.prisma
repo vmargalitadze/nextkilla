@@ -76,6 +76,7 @@ model Booking {
   name         String
   email        String
   phone        String?
+  idNumber     String    // Personal ID number (piradobis nomeri)
   adults       Int
   children     Int
   date         DateTime

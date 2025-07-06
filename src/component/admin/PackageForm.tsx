@@ -14,6 +14,7 @@ import CloudinaryUploader from "../CloudinaryUploader";
 import TourDayForm from "./TourDayForm";
 import IncludedItemForm from "./IncludedItemForm";
 import NotIncludedItemForm from "./NotIncludedItemForm";
+import DateRangePicker from "./DateRangePicker";
 import { X, Save, Loader2, Calendar, Plus, Edit, Trash2, Check } from "lucide-react";
 
 interface PackageFormProps {
@@ -408,13 +409,10 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Duration *
               </label>
-              <input
-                type="text"
+              <DateRangePicker
                 value={formData.duration}
-                onChange={(e) => handleInputChange("duration", e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="e.g., 4 Days / 5 Nights"
-                required
+                onChange={(value) => handleInputChange("duration", value)}
+                placeholder="Select date range to calculate duration"
               />
             </div>
 

@@ -7,8 +7,10 @@ import { getAllBuses, deleteBus } from "@/lib/actions/buses";
 import { getAllBookings, deleteBooking } from "@/lib/actions/bookings";
 import { getAllCategories } from "@/lib/actions/categories";
 import { getAllLocations, deleteLocation } from "@/lib/actions/locations";
+import { updatePaymentStatus, getAllPayments } from "@/lib/actions/payments";
 import PackageForm from "@/component/admin/PackageForm";
-import BookingForm from "@/component/admin/BookingForm";
+import PaymentForm from "@/component/admin/PaymentForm";
+
 import BusForm from "@/component/admin/BusForm";
 import CategoryForm from "@/component/admin/CategoryForm";
 import LocationForm from "@/component/admin/LocationForm";
@@ -38,27 +40,32 @@ export default function AdminPage() {
     categories: [] as any[],
     locations: [] as any[],
     galleryImages: [] as any[],
-    discounts: [] as any[]
+    discounts: [] as any[],
+    payments: [] as any[]
   });
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalPackages: 0,
     totalBookings: 0,
     totalBuses: 0,
-    totalRevenue: 0
+    totalRevenue: 0,
+    paidBookings: 0,
+    pendingBookings: 0,
+    totalPaidRevenue: 0
   });
 
   // Load data
   const loadData = async () => {
     setLoading(true);
     try {
-      const [packagesRes, bookingsRes, busesRes, categoriesRes, locationsRes, discountsRes] = await Promise.all([
+      const [packagesRes, bookingsRes, busesRes, categoriesRes, locationsRes, discountsRes, paymentsRes] = await Promise.all([
         getAllPackages(),
         getAllBookings(),
         getAllBuses(),
         getAllCategories(),
         getAllLocations(),
-        fetch('/api/discounts').then(res => res.json())
+        fetch('/api/discounts').then(res => res.json()),
+        getAllPayments()
       ]);
 
       const packages = packagesRes.success ? packagesRes.data || [] : [];
@@ -67,18 +74,32 @@ export default function AdminPage() {
       const categories = categoriesRes.success ? [...(categoriesRes.data || [])] : [];
       const locations = locationsRes.success ? locationsRes.data || [] : [];
       const discounts = discountsRes.success ? discountsRes.data || [] : [];
+      const payments = paymentsRes.success ? paymentsRes.data || [] : [];
 
-      setData({ packages, bookings, buses, categories, locations, galleryImages: [], discounts });
+      setData({ packages, bookings, buses, categories, locations, galleryImages: [], discounts, payments });
 
       // Calculate stats
       const totalRevenue = bookings.reduce((sum: number, booking: any) => 
         sum + (booking.totalPrice || 0), 0);
+      
+      const paidBookings = bookings.filter((booking: any) => 
+        booking.payment?.status === 'paid').length;
+      
+      const pendingBookings = bookings.filter((booking: any) => 
+        booking.payment?.status === 'pending').length;
+      
+      const totalPaidRevenue = bookings
+        .filter((booking: any) => booking.payment?.status === 'paid')
+        .reduce((sum: number, booking: any) => sum + (booking.totalPrice || 0), 0);
 
       setStats({
         totalPackages: packages.length,
         totalBookings: bookings.length,
         totalBuses: buses.length,
-        totalRevenue
+        totalRevenue,
+        paidBookings,
+        pendingBookings,
+        totalPaidRevenue
       });
     } catch (error) {
       console.error("Error loading data:", error);
@@ -137,9 +158,26 @@ export default function AdminPage() {
     }
   };
 
+  const handlePaymentStatusUpdate = async (paymentId: number, newStatus: string) => {
+    try {
+      const result = await updatePaymentStatus(paymentId, newStatus);
+      if (result.success) {
+        console.log(`Payment status updated to ${newStatus}`);
+        loadData(); // Reload data to reflect changes
+      } else {
+        console.error(`Failed to update payment status:`, result.error);
+        alert(`Failed to update payment status: ${result.error}`);
+      }
+    } catch (error) {
+      console.error(`Error updating payment status:`, error);
+      alert(`Error updating payment status. Please try again.`);
+    }
+  };
+
   const tabs = [
     { id: "packages", label: "Packages", icon: Package, color: "blue" },
     { id: "bookings", label: "Bookings", icon: Calendar, color: "green" },
+    { id: "payments", label: "Payments", icon: Calendar, color: "purple" },
     { id: "buses", label: "Buses", icon: Bus, color: "orange" },
     { id: "categories", label: "Categories", icon: Tag, color: "indigo" },
     { id: "locations", label: "Locations", icon: MapPin, color: "teal" },
@@ -172,7 +210,10 @@ export default function AdminPage() {
               <div className="text-right">
                 <p className="text-sm text-gray-600">Total Revenue</p>
                 <p className="text-2xl font-bold text-green-600">
-                  ${stats.totalRevenue.toLocaleString()}
+                  ₾{stats.totalRevenue.toLocaleString()}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Paid: ₾{stats.totalPaidRevenue.toLocaleString()}
                 </p>
               </div>
             </div>
@@ -203,6 +244,30 @@ export default function AdminPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Bookings</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalBookings}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6 border">
+            <div className="flex items-center">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Calendar className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Paid Bookings</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.paidBookings}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6 border">
+            <div className="flex items-center">
+              <div className="p-3 bg-yellow-100 rounded-lg">
+                <Calendar className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Pending Bookings</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.pendingBookings}</p>
               </div>
             </div>
           </div>
@@ -281,11 +346,11 @@ export default function AdminPage() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${pkg.price}
+                            ₾{pkg.price}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {pkg.salePrice ? (
-                              <span className="text-green-600 font-medium">${pkg.salePrice}</span>
+                              <span className="text-green-600 font-medium">₾{pkg.salePrice}</span>
                             ) : (
                               <span className="text-gray-400">-</span>
                             )}
@@ -325,23 +390,18 @@ export default function AdminPage() {
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">Bookings</h2>
-                  <button
-                    onClick={() => setShowForm({ type: "booking" })}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Booking</span>
-                  </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Number</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Travelers</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Price</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Status</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
@@ -353,6 +413,9 @@ export default function AdminPage() {
                               <div className="text-sm font-medium text-gray-900">{booking.name}</div>
                               <div className="text-sm text-gray-500">{booking.email}</div>
                             </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {booking.idNumber}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {booking.package?.title || "N/A"}
@@ -367,21 +430,120 @@ export default function AdminPage() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${booking.totalPrice}
+                            ₾{booking.totalPrice}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            {booking.payment ? (
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                booking.payment.status === 'paid' 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : booking.payment.status === 'pending'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : booking.payment.status === 'failed'
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-gray-100 text-gray-800'
+                              }`}>
+                                {booking.payment.status.charAt(0).toUpperCase() + booking.payment.status.slice(1)}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                No Payment
+                              </span>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex justify-end space-x-2">
-                              <button
-                                onClick={() => setShowForm({ type: "booking", data: booking })}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
+                              {booking.payment && (
+                                <select
+                                  value={booking.payment.status}
+                                  onChange={(e) => handlePaymentStatusUpdate(booking.payment.id, e.target.value)}
+                                  className="text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="paid">Paid</option>
+                                  <option value="failed">Failed</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                              )}
                               <button
                                 onClick={() => handleDelete("bookings", booking.id)}
                                 className="text-red-600 hover:text-red-900"
                               >
                                 <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Payments Tab */}
+            {activeTab === "payments" && (
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">Payments</h2>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {data.payments.map((payment: any) => (
+                        <tr key={payment.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {payment.booking?.package?.title}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              Booking #{payment.bookingId}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {payment.booking?.name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {payment.booking?.email}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ₾{payment.amount}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              payment.status === 'paid' 
+                                ? 'bg-green-100 text-green-800'
+                                : payment.status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : payment.status === 'failed'
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {new Date(payment.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex justify-end space-x-2">
+                              <button
+                                onClick={() => setShowForm({ type: "payment", data: payment })}
+                                className="text-blue-600 hover:text-blue-900"
+                              >
+                                <Edit className="w-4 h-4" />
                               </button>
                             </div>
                           </td>
@@ -689,13 +851,7 @@ export default function AdminPage() {
               onCancel={() => setShowForm(null)}
             />
           )}
-          {showForm.type === "booking" && (
-            <BookingForm
-              booking={showForm.data}
-              onSuccess={handleFormSuccess}
-              onCancel={() => setShowForm(null)}
-            />
-          )}
+
           {showForm.type === "bus" && (
             <BusForm
               bus={showForm.data}
@@ -724,6 +880,13 @@ export default function AdminPage() {
           )}
           {showForm.type === "discount" && (
             <DiscountForm
+              onSuccess={handleFormSuccess}
+              onCancel={() => setShowForm(null)}
+            />
+          )}
+          {showForm.type === "payment" && (
+            <PaymentForm
+              paymentId={showForm.data?.id}
               onSuccess={handleFormSuccess}
               onCancel={() => setShowForm(null)}
             />

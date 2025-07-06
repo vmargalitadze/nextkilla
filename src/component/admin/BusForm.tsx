@@ -149,7 +149,7 @@ export default function BusForm({ bus: busData, onSuccess, onCancel }: BusFormPr
               <option value="">Select a package</option>
               {packages.map((pkg: any) => (
                 <option key={pkg.id} value={pkg.id}>
-                  {pkg.title} - ${pkg.price}
+                  {pkg.title} - ₾{pkg.price}
                 </option>
               ))}
             </select>

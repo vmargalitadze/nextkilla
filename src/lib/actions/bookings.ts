@@ -11,9 +11,10 @@ const BookingSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Valid email is required"),
   phone: z.string().optional(),
+  idNumber: z.string().min(11, "Personal ID number must be 11 digits").max(11, "Personal ID number must be 11 digits"),
+  date: z.string().optional().default(() => new Date().toISOString()),
   adults: z.number().positive("At least 1 adult required"),
   children: z.number().min(0, "Children cannot be negative"),
-  date: z.string().min(1, "Date is required"),
   totalPrice: z.number().positive("Total price must be positive"),
   seatNumber: z.string().optional(),
   seatSelected: z.boolean().default(false),
@@ -33,15 +34,45 @@ export async function createBooking(data: z.infer<typeof BookingSchema>) {
     const booking = await prisma.booking.create({
       data: validatedData,
       include: {
-        package: true,
+        package: {
+          include: {
+            gallery: true,
+            location: true,
+          },
+        },
         seat: true,
         payment: true,
         discount: true,
       },
     });
 
-    revalidatePath("/admin");
-    return { success: true, data: booking };
+    // Create a pending payment for the booking
+    await prisma.payment.create({
+      data: {
+        bookingId: booking.id,
+        amount: booking.totalPrice,
+        status: "pending",
+      },
+    });
+
+    // Fetch the booking with the payment included
+    const bookingWithPayment = await prisma.booking.findUnique({
+      where: { id: booking.id },
+      include: {
+        package: {
+          include: {
+            gallery: true,
+            location: true,
+          },
+        },
+        seat: true,
+        payment: true,
+        discount: true,
+      },
+    });
+
+ 
+    return { success: true, data: bookingWithPayment };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.errors[0].message };
@@ -60,7 +91,12 @@ export async function updateBooking(data: z.infer<typeof BookingUpdateSchema>) {
       where: { id },
       data: updateData,
       include: {
-        package: true,
+        package: {
+          include: {
+            gallery: true,
+            location: true,
+          },
+        },
         seat: true,
         payment: true,
         discount: true,
@@ -80,6 +116,12 @@ export async function updateBooking(data: z.infer<typeof BookingUpdateSchema>) {
 // Delete a booking
 export async function deleteBooking(id: number) {
   try {
+    // First, delete the associated payment if it exists
+    await prisma.payment.deleteMany({
+      where: { bookingId: id },
+    });
+
+    // Then delete the booking (this will automatically handle the seat relationship)
     await prisma.booking.delete({
       where: { id },
     });
@@ -87,7 +129,18 @@ export async function deleteBooking(id: number) {
     revalidatePath("/admin");
     return { success: true };
   } catch (error) {
-    console.log(error);
+    console.error("Error deleting booking:", error);
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes("Record to delete does not exist")) {
+        return { success: false, error: "Booking not found" };
+      }
+      if (error.message.includes("Foreign key constraint")) {
+        return { success: false, error: "Cannot delete booking due to related data" };
+      }
+    }
+    
     return { success: false, error: "Failed to delete booking" };
   }
 }
@@ -97,7 +150,12 @@ export async function getAllBookings() {
   try {
     const bookings = await prisma.booking.findMany({
       include: {
-        package: true,
+        package: {
+          include: {
+            gallery: true,
+            location: true,
+          },
+        },
         seat: true,
         payment: true,
         discount: true,
@@ -118,7 +176,12 @@ export async function getBookingById(id: number) {
     const booking = await prisma.booking.findUnique({
       where: { id },
       include: {
-        package: true,
+        package: {
+          include: {
+            gallery: true,
+            location: true,
+          },
+        },
         seat: true,
         payment: true,
         discount: true,

@@ -165,7 +165,7 @@ const DynamicPackageCard: React.FC<DynamicPackageCardProps> = ({ packages }) => 
               </div>
               <span className={`text-red-400 font-semibold text-lg transition-all duration-700 delay-600 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
                 }`}>
-                ${currentPackage.price}
+                ₾{currentPackage.price}
               </span>
             </div>
           </div>

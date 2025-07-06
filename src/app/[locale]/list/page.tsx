@@ -35,7 +35,11 @@ export default function ListPage() {
   const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
+  
+  // Get URL parameters
   const category = searchParams.get('category');
+  const search = searchParams.get('search');
+  const price = searchParams.get('price');
 
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState(category || '');
@@ -43,7 +47,26 @@ export default function ListPage() {
   const [selectedDuration, setSelectedDuration] = useState('');
   const [priceRange, setPriceRange] = useState([0, 10000]);
   const [showPopularOnly, setShowPopularOnly] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(search || '');
 
+  // Handle URL parameters on component mount
+  useEffect(() => {
+    if (category) {
+      setSelectedCategory(category);
+    }
+    if (search) {
+      setSearchTerm(search);
+    }
+    if (price) {
+      // Parse price range from URL parameter
+      const [min, max] = price.split('-').map(p => p.replace('+', ''));
+      if (max === '+') {
+        setPriceRange([parseInt(min), 10000]);
+      } else {
+        setPriceRange([parseInt(min), parseInt(max)]);
+      }
+    }
+  }, [category, search, price]);
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -64,6 +87,15 @@ export default function ListPage() {
 
   useEffect(() => {
     let filtered = packages;
+
+    // Filter by search term (package title and description)
+    if (searchTerm) {
+      filtered = filtered.filter(pkg => 
+        pkg.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pkg.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pkg.location.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
 
     // Filter by category
     if (selectedCategory) {
@@ -92,7 +124,7 @@ export default function ListPage() {
     });
 
     setFilteredPackages(filtered);
-  }, [packages, selectedCategory, selectedDestination, selectedDuration, showPopularOnly, priceRange]);
+  }, [packages, searchTerm, selectedCategory, selectedDestination, selectedDuration, showPopularOnly, priceRange]);
 
   if (loading) {
     return (
@@ -188,6 +220,18 @@ export default function ListPage() {
               <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24">
                 <h3 className="text-xl font-semibold text-gray-800 mb-6">Filter by:</h3>
 
+                {/* Search */}
+                <div className="mb-6">
+                  <h4 className="font-semibold text-gray-700 mb-3">Search</h4>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search packages..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent"
+                  />
+                </div>
+
                 {/* Price Range */}
                 <div className="mb-6">
                   <h4 className="font-semibold text-gray-700 mb-3">Filter Price:</h4>
@@ -201,8 +245,8 @@ export default function ListPage() {
                       className="w-full"
                     />
                     <div className="flex justify-between text-sm text-gray-600">
-                      <span>$0</span>
-                      <span>${priceRange[1]}</span>
+                      <span>₾0</span>
+                      <span>₾{priceRange[1]}</span>
                     </div>
                   </div>
                 </div>
@@ -293,6 +337,7 @@ export default function ListPage() {
                 {/* Clear Filters */}
                 <button
                   onClick={() => {
+                    setSearchTerm('');
                     setSelectedCategory('');
                     setSelectedDestination('');
                     setSelectedDuration('');
@@ -320,6 +365,7 @@ export default function ListPage() {
                   </p>
                   <button
                     onClick={() => {
+                      setSearchTerm('');
                       setSelectedCategory('');
                       setSelectedDestination('');
                       setSelectedDuration('');
@@ -361,7 +407,7 @@ export default function ListPage() {
                             </Link>
                           </h4>
                           <span className="text-[18px] font-medium">
-                            ${pkg.salePrice || pkg.price}
+                            ₾{pkg.salePrice || pkg.price}
                           </span>
                         </div>
                         <div className="flex gap-3 items-center mt-auto">
