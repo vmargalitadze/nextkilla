@@ -7,14 +7,14 @@ import { revalidatePath } from "next/cache";
 
 // Zod schemas for validation
 const BookingSchema = z.object({
-  packageId: z.number().positive("Package is required"),
+  packageId: z.number().positive("Package ID must be positive"),
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Valid email is required"),
+  email: z.string().email("Email must be valid"),
   phone: z.string().optional(),
-  idNumber: z.string().min(11, "Personal ID number must be 11 digits").max(11, "Personal ID number must be 11 digits"),
-  date: z.string().optional().default(() => new Date().toISOString()),
-  adults: z.number().positive("At least 1 adult required"),
-  children: z.number().min(0, "Children cannot be negative"),
+  idNumber: z.string().min(1, "ID number is required"),
+  adults: z.number().min(1, "At least 1 adult is required"),
+  startDate: z.date(),
+  endDate: z.date(),
   totalPrice: z.number().positive("Total price must be positive"),
   discountId: z.number().optional(),
 });

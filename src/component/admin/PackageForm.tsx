@@ -68,6 +68,11 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
   const [showNotIncludedItemForm, setShowNotIncludedItemForm] = useState(false);
   const [selectedIncludedItem, setSelectedIncludedItem] = useState<any>(null);
   const [selectedNotIncludedItem, setSelectedNotIncludedItem] = useState<any>(null);
+  
+  // Package dates state
+  const [packageDates, setPackageDates] = useState<Array<{startDate: string, endDate: string, maxPeople: number}>>([]);
+  const [showDateForm, setShowDateForm] = useState(false);
+  const [tempDateForm, setTempDateForm] = useState({startDate: "", endDate: "", maxPeople: 1});
 
   useEffect(() => {
     // Load dropdown data
@@ -226,6 +231,29 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
     setTempTourDays(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Package dates functions
+  const addPackageDate = () => {
+    setShowDateForm(true);
+    setTempDateForm({startDate: "", endDate: "", maxPeople: 1});
+  };
+
+  const handlePackageDateSubmit = () => {
+    if (tempDateForm.startDate && tempDateForm.endDate) {
+      setPackageDates(prev => [...prev, {...tempDateForm}]);
+      setShowDateForm(false);
+      setTempDateForm({startDate: "", endDate: "", maxPeople: 1});
+    }
+  };
+
+  const cancelPackageDate = () => {
+    setShowDateForm(false);
+    setTempDateForm({startDate: "", endDate: "", maxPeople: 1});
+  };
+
+  const removePackageDate = (index: number) => {
+    setPackageDates(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleDeleteTourDay = async (tourDayId: number) => {
     if (confirm("Are you sure you want to delete this tour day?")) {
       try {
@@ -277,9 +305,10 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
         ...formData,
         price: Number(formData.price),
         salePrice: formData.salePrice ? Number(formData.salePrice) : undefined,
-        maxPeople: Number(formData.maxPeople),
+        // For bus tours, maxPeople is not used (it's defined per date)
+        // For other tours, use the form maxPeople
+        maxPeople: formData.byBus ? 0 : Number(formData.maxPeople),
         locationId: Number(formData.locationId),
-  
       };
 
       const result = packageData?.id 
@@ -309,6 +338,17 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
           // Create not included items
           for (const text of tempNotIncludedItems) {
             await createNotIncludedItem({ text, packageId: newPackageId });
+          }
+
+          // Create package dates for bus tours
+          if (formData.byBus && packageDates.length > 0) {
+            await fetch(`/api/packages/${newPackageId}/dates`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ dates: packageDates }),
+            });
           }
         }
         
@@ -419,6 +459,7 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
               />
             </div>
 
+            {!formData.byBus && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Max People *
@@ -432,7 +473,11 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
                 min="1"
                 required
               />
+                <p className="text-sm text-gray-500 mt-1">
+                  For bus tours, max people are defined per date in the Package Dates section below.
+                </p>
             </div>
+            )}
           </div>
 
           {/* Description */}
@@ -484,7 +529,7 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
                 <option value="">Select a location</option>
                 {locations.map((location: any) => (
                   <option key={location.id} value={location.id}>
-                    {location.name} - {location.country}
+                    {location.name} - {location.city}, {location.country}
                   </option>
                 ))}
               </select>
@@ -518,6 +563,113 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
                 </span>
               </label>
             </div>
+          </div>
+
+          {/* Package Dates for Bus Tours */}
+          {formData.byBus && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Package Dates
+                </label>
+                <button
+                  type="button"
+                  onClick={addPackageDate}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+                >
+                  <Calendar className="w-4 h-4" />
+                  Add Date
+                </button>
+              </div>
+
+              {/* Date Form */}
+              {showDateForm && (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Start Date *
+                      </label>
+                      <input
+                        type="date"
+                        value={tempDateForm.startDate}
+                        onChange={(e) => setTempDateForm(prev => ({ ...prev, startDate: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        End Date *
+                      </label>
+                      <input
+                        type="date"
+                        value={tempDateForm.endDate}
+                        onChange={(e) => setTempDateForm(prev => ({ ...prev, endDate: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Max People *
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={tempDateForm.maxPeople}
+                        onChange={(e) => setTempDateForm(prev => ({ ...prev, maxPeople: parseInt(e.target.value) || 1 }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      type="button"
+                      onClick={handlePackageDateSubmit}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium"
+                    >
+                      Add Date
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelPackageDate}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Display Package Dates */}
+              {packageDates.length > 0 && (
+                <div className="space-y-2 mb-4">
+                  {packageDates.map((date, index) => (
+                    <div key={index} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
+                      <div className="flex items-center gap-4">
+                      <span className="text-sm text-gray-700">
+                        {new Date(date.startDate).toLocaleDateString()} - {new Date(date.endDate).toLocaleDateString()}
+                      </span>
+                        <span className="text-sm text-gray-500">
+                          Max: {date.maxPeople} people
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removePackageDate(index)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
             <div>
               <label className="flex items-center space-x-2">
                 <input
@@ -531,7 +683,6 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
                 </span>
               </label>
             </div>
-          </div>
 
           {/* Image Upload */}
           <div>

@@ -8,9 +8,11 @@ import { getAllCategories } from "@/lib/actions/categories";
 import { getAllLocations, deleteLocation } from "@/lib/actions/locations";
 import PackageForm from "@/component/admin/PackageForm";
 import CategoryForm from "@/component/admin/CategoryForm";
+
 import LocationForm from "@/component/admin/LocationForm";
 import GalleryImageForm from "@/component/admin/GalleryImageForm";
 import DiscountForm from "@/component/admin/DiscountForm";
+import PackageDateForm from "@/component/admin/PackageDateForm";
 import { 
   Package, 
   Calendar, 
@@ -27,6 +29,7 @@ import {
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("packages");
   const [showForm, setShowForm] = useState<{ type: string; data?: any } | null>(null);
+  const [showDateForm, setShowDateForm] = useState<number | null>(null);
   const [data, setData] = useState({
     packages: [] as any[],
     bookings: [] as any[],
@@ -281,12 +284,23 @@ export default function AdminPage() {
                               <button
                                 onClick={() => setShowForm({ type: "package", data: pkg })}
                                 className="text-blue-600 hover:text-blue-900"
+                                title="Edit Package"
                               >
                                 <Edit className="w-4 h-4" />
                               </button>
+                              {pkg.byBus && (
+                                <button
+                                  onClick={() => setShowDateForm(pkg.id)}
+                                  className="text-green-600 hover:text-green-900"
+                                  title="Manage Dates"
+                                >
+                                  <Calendar className="w-4 h-4" />
+                                </button>
+                              )}
                               <button
                                 onClick={() => handleDelete("packages", pkg.id)}
                                 className="text-red-600 hover:text-red-900"
+                                title="Delete Package"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -341,7 +355,7 @@ export default function AdminPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <div className="flex items-center space-x-1">
                               <Users className="w-4 h-4" />
-                              <span>{booking.adults + booking.children}</span>
+                              <span>{booking.adults}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -432,7 +446,9 @@ export default function AdminPage() {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Packages</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
@@ -444,8 +460,12 @@ export default function AdminPage() {
                             <div className="text-sm font-medium text-gray-900">{location.name}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {location.city}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {location.country}
                           </td>
+                         
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {location.packages?.length || 0} packages
                           </td>
@@ -636,6 +656,15 @@ export default function AdminPage() {
           )}
 
         </>
+      )}
+
+      {/* Package Date Form */}
+      {showDateForm && (
+        <PackageDateForm
+          packageId={showDateForm}
+          onSuccess={handleFormSuccess}
+          onClose={() => setShowDateForm(null)}
+        />
       )}
     </div>
   );

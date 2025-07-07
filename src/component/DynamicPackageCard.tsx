@@ -15,6 +15,8 @@ interface Package {
   duration: string;
   startDate?: Date | null;
   endDate?: Date | null;
+  byBus?: boolean;
+  byPlane?: boolean;
   gallery: Array<{
     id: number;
     url: string;
@@ -24,7 +26,13 @@ interface Package {
     id: number;
     name: string;
     country: string;
+    city: string;
   };
+  dates?: Array<{
+    id: number;
+    startDate: Date;
+    endDate: Date;
+  }>;
 }
 
 interface DynamicPackageCardProps {
@@ -136,7 +144,13 @@ const DynamicPackageCard: React.FC<DynamicPackageCardProps> = ({ packages, local
                 <Calendar width={18} height={18} />
               </div>
               <span className="text-gray-500 text-sm">
-                {currentPackage.startDate && currentPackage.endDate ? `${currentPackage.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${currentPackage.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}` : currentPackage.duration}
+                {currentPackage.byBus && currentPackage.dates && currentPackage.dates.length > 0 ? (
+                  `${currentPackage.dates.length} ${locale === 'ge' ? 'თარიღი' : 'dates'}`
+                ) : currentPackage.startDate && currentPackage.endDate ? (
+                  `${currentPackage.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${currentPackage.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}`
+                ) : (
+                  currentPackage.duration
+                )}
               </span>
             </div>
            
@@ -166,7 +180,7 @@ const DynamicPackageCard: React.FC<DynamicPackageCardProps> = ({ packages, local
                 </div>
                 <span className={`text-gray-600 text-sm transition-all duration-700 delay-500 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
                   }`}>
-                  {currentPackage.location?.name || 'Location'}
+                  {currentPackage.location?.name ? `${currentPackage.location.name}, ${currentPackage.location.city}` : 'Location'}
                 </span>
               </div>
               <span className={`text-red-400 font-semibold text-lg transition-all duration-700 delay-600 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'

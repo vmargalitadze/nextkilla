@@ -12,6 +12,17 @@ export const locationSchema = z.object({
     .min(2, "Country name must be at least 2 characters")
     .max(50, "Country name must be less than 50 characters")
     .trim(),
+  city: z
+    .string()
+    .min(2, "City name must be at least 2 characters")
+    .max(50, "City name must be less than 50 characters")
+    .trim(),
+  image: z
+    .string()
+    .url("Please enter a valid image URL")
+    .optional()
+    .nullable()
+    .or(z.literal("")),
 });
 
 export const categorySchema = z.object({
@@ -71,6 +82,20 @@ export const tourDaySchema = z.object({
     .array(z.string().min(1, "Activity cannot be empty"))
     .min(1, "At least one activity is required")
     .max(20, "Maximum 20 activities allowed"),
+});
+
+export const packageDateSchema = z.object({
+  startDate: z
+    .string()
+    .min(1, "Start date is required"),
+  endDate: z
+    .string()
+    .min(1, "End date is required"),
+  maxPeople: z
+    .number()
+    .min(1, "Maximum people must be at least 1")
+    .max(100, "Maximum people cannot exceed 100")
+    .int("Maximum people must be a whole number"),
 });
 
 export const includedItemSchema = z.object({
@@ -153,6 +178,7 @@ export type CategoryFormData = z.infer<typeof categorySchema>;
 export type DiscountFormData = z.infer<typeof discountSchema>;
 export type GalleryImageFormData = z.infer<typeof galleryImageSchema>;
 export type TourDayFormData = z.infer<typeof tourDaySchema>;
+export type PackageDateFormData = z.infer<typeof packageDateSchema>;
 export type IncludedItemFormData = z.infer<typeof includedItemSchema>;
 export type NotIncludedItemFormData = z.infer<typeof notIncludedItemSchema>;
 export type PackageFormData = z.infer<typeof packageSchema>;
@@ -210,6 +236,9 @@ export const validateGalleryImageForm = (data: Partial<GalleryImageFormData>) =>
 
 export const validateTourDayForm = (data: Partial<TourDayFormData>) => 
   validateForm(tourDaySchema, data);
+
+export const validatePackageDateForm = (data: Partial<PackageDateFormData>) => 
+  validateForm(packageDateSchema, data);
 
 export const validateIncludedItemForm = (data: Partial<IncludedItemFormData>) => 
   validateForm(includedItemSchema, data);

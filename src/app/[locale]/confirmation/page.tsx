@@ -1,19 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CheckCircle, Calendar, Users, Package, Mail, Phone, CreditCard } from "lucide-react";
 import Image from "next/image";
 
 interface BookingData {
   id: number;
+  packageId: number;
   name: string;
   email: string;
   phone?: string;
   idNumber: string;
   adults: number;
-  children: number;
   date: string;
   totalPrice: number;
   createdAt: string;
@@ -30,6 +30,7 @@ interface BookingData {
       id: number;
       name: string;
       country: string;
+      city: string;
     };
     gallery: Array<{
       id: number;
@@ -40,27 +41,43 @@ interface BookingData {
 
 export default function ConfirmationPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations("confirmation");
   const [bookingData, setBookingData] = useState<BookingData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Get booking data from sessionStorage
-    const data = sessionStorage.getItem('confirmationData');
-    if (data) {
+    const fetchBookingData = async () => {
       try {
-        const parsedData = JSON.parse(data);
-        console.log("Booking data:", parsedData);
-        setBookingData(parsedData);
+        // Get booking ID from URL parameters
+        const bookingId = searchParams.get('bookingId');
+        
+        if (!bookingId) {
+          setError("No booking ID provided");
+          setLoading(false);
+          return;
+        }
+
+        // Fetch booking data from API
+        const response = await fetch(`/api/bookings/${bookingId}`);
+        const result = await response.json();
+
+        if (result.success) {
+          setBookingData(result.data);
+        } else {
+          setError(result.error || "Failed to fetch booking data");
+        }
       } catch (error) {
-        console.error("Error parsing booking data:", error);
-        router.push('/');
+        console.error("Error fetching booking data:", error);
+        setError("An error occurred while fetching booking data");
+      } finally {
+        setLoading(false);
       }
-    } else {
-      router.push('/');
-    }
-    setLoading(false);
-  }, [router]);
+    };
+
+    fetchBookingData();
+  }, [searchParams]);
 
   if (loading) {
     return (
@@ -68,6 +85,22 @@ export default function ConfirmationPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">{t("loading")}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => router.push('/')}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          >
+            {t("goHome")}
+          </button>
         </div>
       </div>
     );
@@ -117,7 +150,7 @@ export default function ConfirmationPage() {
                   <Image
                     src={bookingData.package.gallery[0].url}
                     alt={bookingData.package.title}
-                    className=" object-cover rounded-lg"
+                    className="object-cover rounded-lg"
                     width={80}
                     height={80}
                   />
@@ -126,17 +159,17 @@ export default function ConfirmationPage() {
                   <h4 className="font-semibold text-gray-900 text-lg">{bookingData.package.title}</h4>
                   <p className="text-gray-600 mt-1">{bookingData.package.description}</p>
                   <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
-                    <span>📍 {bookingData.package.location.name}, {bookingData.package.location.country}</span>
+                    <span>📍 {bookingData.package.location.name}, {bookingData.package.location.city}, {bookingData.package.location.country}</span>
                     <span>⏱️ {bookingData.package.duration}</span>
-                    <span>👥 Max {bookingData.package.maxPeople} people</span>
+                    <span>👥 {bookingData.package.maxPeople} people</span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-blue-600">₾{bookingData.package.price}</div>
-                  {bookingData.package.salePrice && (
-                    <div className="text-sm text-green-600">Sale: ₾{bookingData.package.salePrice}</div>
-                  )}
-                </div>
+                                  <div className="text-right">
+                    <div className="text-2xl font-bold text-blue-600">₾{bookingData.package.price}</div>
+                    {bookingData.package.salePrice && (
+                      <div className="text-sm text-green-600">Sale: ₾{bookingData.package.salePrice}</div>
+                    )}
+                  </div>
               </div>
             </div>
 
@@ -185,15 +218,15 @@ export default function ConfirmationPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">{t("travelDate")}</label>
-                  <p className="text-gray-900">{new Date(bookingData.date).toLocaleDateString()}</p>
+                  <p className="text-gray-900">{bookingData.date}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">{t("travelers")}</label>
-                  <p className="text-gray-900">{bookingData.adults + bookingData.children} ({bookingData.adults} adults, {bookingData.children} children)</p>
+                  <p className="text-gray-900">Adults: {bookingData.adults}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">{t("bookingDate")}</label>
-                  <p className="text-gray-900">{new Date(bookingData.createdAt).toLocaleDateString()}</p>
+                  <p className="text-gray-900">{bookingData.createdAt}</p>
                 </div>
               </div>
             </div>
@@ -213,12 +246,7 @@ export default function ConfirmationPage() {
                   <span className="text-sm text-gray-600">{t("adultsPrice", { count: bookingData.adults, price: bookingData.package.price })}</span>
                   <span>₾{(bookingData.package.price * bookingData.adults).toFixed(2)}</span>
                 </div>
-                {bookingData.children > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">{t("childrenPrice", { count: bookingData.children, price: bookingData.package.price * 0.5 })}</span>
-                    <span>₾{(bookingData.package.price * 0.5 * bookingData.children).toFixed(2)}</span>
-                  </div>
-                )}
+                {/* Assuming children price is not available in this interface */}
                 <div className="border-t pt-3 flex justify-between font-bold text-lg">
                   <span>{t("total")}</span>
                   <span>₾{bookingData.totalPrice.toFixed(2)}</span>

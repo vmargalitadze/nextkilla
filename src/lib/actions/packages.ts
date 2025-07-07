@@ -116,6 +116,7 @@ export async function getAllPackages() {
         bookings: true,
         tourPlan: true,
         gallery: true,
+        dates: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -139,6 +140,7 @@ export async function getPackageById(id: number) {
         tourPlan: true,
         includedItems: true,
         notIncludedItems: true,
+        dates: true,
       } as Parameters<typeof prisma.package.findUnique>[0]['include'],
     });
 

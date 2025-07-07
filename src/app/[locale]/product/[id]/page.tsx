@@ -20,12 +20,15 @@ interface PackageData {
   duration: string;
   startDate?: Date | null;
   endDate?: Date | null;
+  byBus?: boolean;
+  byPlane?: boolean;
   maxPeople: number;
   category: string;
-  location?: { name: string; country: string };
+  location?: { name: string; country: string; city: string };
   locationId: number;
   gallery?: Array<{ url: string }>;
   tourPlan?: Array<{ dayNumber: number; title: string; activities: string[] }>;
+  dates?: Array<{ id: number; startDate: Date; endDate: Date }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,8 +53,7 @@ export default function PackageDetails() {
   const dateLocale = locale === 'ge' ? 'ka-GE' : 'en-US';
   
   const [activeTab, setActiveTab] = useState("overview");
-  const [adults, setAdults] = useState(2);
-  const [children, setChildren] = useState(0);
+  const [adults, setAdults] = useState(1);
   const [packageData, setPackageData] = useState<PackageData | null>(null);
   const [includedItems, setIncludedItems] = useState<IncludedItemData[]>([]);
   const [notIncludedItems, setNotIncludedItems] = useState<NotIncludedItemData[]>([]);
@@ -123,7 +125,7 @@ export default function PackageDetails() {
     );
   }
 
-  const totalPrice = packageData.price * adults + packageData.price * 0.5 * children;
+  const totalPrice = packageData.price * adults;
 
   const handleBooking = async () => {
     if (!packageData) return;
@@ -135,7 +137,6 @@ export default function PackageDetails() {
         packageId: packageData.id,
         packageTitle: packageData.title,
         adults,
-        children,
         totalPrice,
         price: packageData.price
       };
@@ -206,9 +207,15 @@ export default function PackageDetails() {
                     <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-5 h-5 text-red-400" />
-                                                  <span className="text-gray-600">
-                            {packageData.startDate && packageData.endDate ? `${packageData.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${packageData.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}` : packageData.duration}
-                          </span>
+                        <span className="text-gray-600">
+                          {packageData.byBus && packageData.dates && packageData.dates.length > 0 ? (
+                            `${packageData.dates.length} ${locale === 'ge' ? 'თარიღი' : 'dates'}`
+                          ) : packageData.startDate && packageData.endDate ? (
+                            `${packageData.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${packageData.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}`
+                          ) : (
+                            packageData.duration
+                          )}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Users className="w-5 h-5 text-red-400" />
@@ -219,7 +226,7 @@ export default function PackageDetails() {
                       <div className="flex items-center gap-2">
                         <MapPin className="w-5 h-5 text-red-400" />
                         <span className="text-gray-600">
-                          {packageData.location?.name} - {packageData.location?.country}
+                          {packageData.location?.name} - {packageData.location?.city}, {packageData.location?.country}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -232,6 +239,35 @@ export default function PackageDetails() {
                     <p className="text-gray-700 mb-4 sm:mb-6">
                       {packageData.description}
                     </p>
+
+                    {/* Available Dates for Bus Tours */}
+                    {packageData.byBus && packageData.dates && packageData.dates.length > 0 && (
+                      <div className="mb-4 sm:mb-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                          {locale === 'ge' ? 'ხელმისაწვდომი თარიღები' : 'Available Dates'}
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {packageData.dates.map((date) => (
+                            <div key={date.id} className="bg-gray-50 rounded-lg p-3 border">
+                              <div className="text-sm font-medium text-gray-900">
+                                {date.startDate.toLocaleDateString(dateLocale, { 
+                                  month: 'short', 
+                                  day: 'numeric', 
+                                  year: 'numeric' 
+                                })}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {date.endDate.toLocaleDateString(dateLocale, { 
+                                  month: 'short', 
+                                  day: 'numeric', 
+                                  year: 'numeric' 
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -328,7 +364,7 @@ export default function PackageDetails() {
                           {t("numberOfTravelers")}
                         </label>
                         <div className="text-sm text-gray-600 mb-1 sm:mb-2">
-                          {adults} {t("adults")} - {children} {t("children")}
+                          {adults} {t("adults")}
                         </div>
                         <div className="space-y-1 sm:space-y-2">
                           {/* Adults */}
@@ -344,26 +380,6 @@ export default function PackageDetails() {
                               <span className="w-8 text-center">{adults}</span>
                               <button
                                 onClick={() => setAdults(adults + 1)}
-                                className="w-6 h-6 bg-red-400 text-white rounded-full flex items-center justify-center text-[14px] leading-tight"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Children */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">{t("childrenLabel")}</span>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => setChildren(Math.max(0, children - 1))}
-                                className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-center text-[14px] leading-tight"
-                              >
-                                −
-                              </button>
-                              <span className="w-8 text-center">{children}</span>
-                              <button
-                                onClick={() => setChildren(children + 1)}
                                 className="w-6 h-6 bg-red-400 text-white rounded-full flex items-center justify-center text-[14px] leading-tight"
                               >
                                 +
@@ -405,11 +421,19 @@ export default function PackageDetails() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600">{t("location")}:</span>
-                        <span className="text-sm font-medium">{packageData.location?.name}</span>
+                        <span className="text-sm font-medium">{packageData.location?.name ? `${packageData.location.name}, ${packageData.location.city}` : ''}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600">{t("duration")}:</span>
-                        <span className="text-sm font-medium">{packageData.startDate && packageData.endDate ? `${packageData.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${packageData.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}` : packageData.duration}</span>
+                        <span className="text-sm font-medium">
+                          {packageData.byBus && packageData.dates && packageData.dates.length > 0 ? (
+                            `${packageData.dates.length} ${locale === 'ge' ? 'თარიღი' : 'dates'}`
+                          ) : packageData.startDate && packageData.endDate ? (
+                            `${packageData.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${packageData.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}`
+                          ) : (
+                            packageData.duration
+                          )}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600">{t("maxPeople")}:</span>

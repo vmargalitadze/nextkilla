@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { createBooking } from "@/lib/actions/bookings";
+
 import { getAllPackages } from "@/lib/actions/packages";
 import { 
   type BookingFormData, 
@@ -13,31 +14,15 @@ import {
 } from "@/lib/validation/booking";
 import Image from "next/image";
 
-interface Package {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  salePrice: number | null;
-  duration: string;
-  maxPeople: number;
-  category: string;
-  popular: boolean;
-  location: {
-    id: number;
-    name: string;
-    country: string;
-  };
-  gallery: Array<{
-    id: number;
-    url: string;
-  }>;
-}
+
+
 
 export default function BookingPage() {
+  const params = useParams();
   const router = useRouter();
   const t = useTranslations("bookingForm");
-  const [packages, setPackages] = useState<Package[]>([]);
+  const locale = params.locale as string;
+  const [packages, setPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -48,9 +33,7 @@ export default function BookingPage() {
     email: "",
     phone: "",
     idNumber: "",
-    date: "",
-    adults: 2,
-    children: 0,
+    adults: 1,
     totalPrice: 0
   });
 
@@ -62,13 +45,12 @@ export default function BookingPage() {
     email: false,
     phone: false,
     idNumber: false,
-    date: false,
     adults: false,
-    children: false,
     totalPrice: false
   });
 
-  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<any | null>(null);
+  const [selectedDate, setSelectedDate] = useState<{ startDate: Date; endDate: Date } | null>(null);
 
   useEffect(() => {
     const loadPackages = async () => {
@@ -100,7 +82,6 @@ export default function BookingPage() {
           ...prev,
           packageId: data.packageId,
           adults: data.adults,
-          children: data.children,
           totalPrice: data.totalPrice
         }));
 
@@ -126,11 +107,10 @@ export default function BookingPage() {
     }
   }, [formData.packageId, packages]);
 
-  // Calculate total price when package, adults, or children changes
+  // Calculate total price when package or adults changes
   useEffect(() => {
     if (selectedPackage) {
-      const basePrice = (selectedPackage.price * formData.adults) + 
-                       (selectedPackage.price * 0.5 * formData.children);
+      const basePrice = (selectedPackage.price * formData.adults);
       const totalPrice = basePrice;
       
       setFormData(prev => ({
@@ -138,10 +118,10 @@ export default function BookingPage() {
         totalPrice
       }));
     }
-  }, [selectedPackage, formData.adults, formData.children]);
+  }, [selectedPackage, formData.adults]);
 
   // Real-time field validation
-  const validateFieldOnChange = (field: keyof BookingFormData, value: string | number) => {
+  const validateFieldOnChange = (field: keyof BookingFormData, value: string | number | undefined) => {
     if (touched[field]) {
       const validation = validateField(field, value);
       setErrors(prev => ({
@@ -171,9 +151,7 @@ export default function BookingPage() {
       email: true,
       phone: true,
       idNumber: true,
-      date: true,
       adults: true,
-      children: true,
       totalPrice: true
     });
 
@@ -190,11 +168,30 @@ export default function BookingPage() {
       return;
     }
 
-    // Check if total travelers exceed package max people
-    const totalTravelers = formData.adults + formData.children;
-    if (totalTravelers > selectedPackage.maxPeople) {
+    // For bus tours, require date selection
+    if (selectedPackage.byBus && !selectedDate) {
+      setErrors({ packageId: t("pleaseSelectDate") });
+      return;
+    }
+
+    // Check if total travelers exceed max people
+    const totalTravelers = formData.adults;
+    let maxPeople = selectedPackage.maxPeople;
+    
+    // For bus tours, check against the selected date's maxPeople
+    if (selectedPackage.byBus && selectedDate) {
+      const selectedDateData = selectedPackage.dates.find((date: any) => 
+        date.startDate.getTime() === selectedDate.startDate.getTime() && 
+        date.endDate.getTime() === selectedDate.endDate.getTime()
+      );
+      if (selectedDateData) {
+        maxPeople = selectedDateData.maxPeople;
+      }
+    }
+    
+    if (totalTravelers > maxPeople) {
       setErrors({ 
-        adults: t("totalTravelersExceed", { total: totalTravelers, max: selectedPackage.maxPeople }) 
+        adults: t("totalTravelersExceed", { total: totalTravelers, max: maxPeople }) 
       });
       return;
     }
@@ -208,18 +205,28 @@ export default function BookingPage() {
         email: formData.email,
         phone: formData.phone,
         idNumber: formData.idNumber,
-        date: formData.date || new Date().toISOString(),
         adults: formData.adults,
-        children: formData.children,
-        totalPrice: formData.totalPrice
+        totalPrice: formData.totalPrice,
+        // Use selected date for bus tours, otherwise use package default dates
+        startDate: selectedPackage.byBus && selectedDate ? selectedDate.startDate : selectedPackage.startDate || new Date(),
+        endDate: selectedPackage.byBus && selectedDate ? selectedDate.endDate : selectedPackage.endDate || new Date()
       };
 
-      const result = await createBooking(bookingData);
+      // Use the new API route
+      const response = await fetch('/api/bookings/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData)
+      });
+
+      const result = await response.json();
 
       if (result.success) {
-        // Store booking data in sessionStorage for confirmation page
-        sessionStorage.setItem('confirmationData', JSON.stringify(result.data));
-        router.push('/confirmation');
+        // Redirect to confirmation page with booking ID in URL
+        const redirectPath = `/${locale}${result.redirectUrl}`;
+        router.push(redirectPath);
       } else {
         alert(`Error creating booking: ${result.error}`);
       }
@@ -279,7 +286,10 @@ export default function BookingPage() {
                 <option value="">{t("choosePackage")}</option>
                 {packages.map((pkg) => (
                   <option key={pkg.id} value={pkg.id}>
-                    {pkg.title} - ₾{pkg.price} ({pkg.duration})
+                    {pkg.title} - ₾{pkg.price} ({pkg.startDate && pkg.endDate ? 
+                      `${pkg.startDate.toLocaleDateString(locale === 'ge' ? 'ka-GE' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${pkg.endDate.toLocaleDateString(locale === 'ge' ? 'ka-GE' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : 
+                      pkg.duration
+                    })
                   </option>
                 ))}
               </select>
@@ -300,25 +310,56 @@ export default function BookingPage() {
                       height={80}
                     />
                   )}
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{selectedPackage.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{selectedPackage.description}</p>
-                    <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                      <span>📍 {selectedPackage.location.name}, {selectedPackage.location.country}</span>
-                      <span>⏱️ {selectedPackage.duration}</span>
-                      <span>👥 Max {selectedPackage.maxPeople} people</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-600">₾{selectedPackage.price}</div>
-                    {selectedPackage.salePrice && (
-                      <div className="text-sm text-green-600">Sale: ₾{selectedPackage.salePrice}</div>
-                    )}
-                  </div>
+                 
+                    
                 </div>
               </div>
             )}
           </div>
+
+          {/* Date Selection for Bus Tours */}
+          {selectedPackage && selectedPackage.byBus && selectedPackage.dates && selectedPackage.dates.length > 0 && (
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t("selectDate")}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {selectedPackage.dates.map((date: any) => (
+                  <button
+                    key={date.id}
+                    type="button"
+                    onClick={() => setSelectedDate({ startDate: date.startDate, endDate: date.endDate })}
+                    className={`p-4 border rounded-lg text-left transition-colors ${
+                      selectedDate && 
+                      selectedDate.startDate.getTime() === date.startDate.getTime() && 
+                      selectedDate.endDate.getTime() === date.endDate.getTime()
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    <div className="font-medium text-gray-900">
+                      {date.startDate.toLocaleDateString(locale === 'ge' ? 'ka-GE' : 'en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {date.endDate.toLocaleDateString(locale === 'ge' ? 'ka-GE' : 'en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </div>
+                    <div className="text-sm text-blue-600 font-medium">
+                      Max: {date.maxPeople} people
+                    </div>
+                  </button>
+                ))}
+              </div>
+              {!selectedDate && (
+                <p className="text-red-500 text-sm mt-2">{t("pleaseSelectDate")}</p>
+              )}
+            </div>
+          )}
 
           {/* Traveler Information */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -422,25 +463,6 @@ export default function BookingPage() {
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("numberOfChildren")}
-                </label>
-                <input
-                  type="number"
-                  value={formData.children}
-                  onChange={(e) => handleInputChange("children", Number(e.target.value))}
-                  onBlur={() => handleBlur("children")}
-                  className={getFieldClassName("children")}
-                  min="0"
-                  max="20"
-                />
-                <p className="text-xs text-gray-500 mt-1">{t("childrenDiscount")}</p>
-                {getFieldError("children") && (
-                  <p className="text-red-500 text-sm mt-1">{getFieldError("children")}</p>
-                )}
-              </div>
-
               {selectedPackage && (
                 <div className="flex items-end">
                   <div className="w-full">
@@ -449,10 +471,10 @@ export default function BookingPage() {
                     </label>
                     <div className="px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg">
                       <span className="text-lg font-semibold">
-                        {formData.adults + formData.children} / {selectedPackage.maxPeople}
+                        {formData.adults} / {selectedPackage.maxPeople}
                       </span>
                     </div>
-                    {formData.adults + formData.children > selectedPackage.maxPeople && (
+                    {formData.adults > selectedPackage.maxPeople && (
                       <p className="text-red-500 text-sm mt-1">
                         {t("exceedsCapacity")}
                       </p>
@@ -472,12 +494,6 @@ export default function BookingPage() {
                   <span>{t("adultsPrice", { count: formData.adults, price: selectedPackage.price })}</span>
                   <span>₾{(selectedPackage.price * formData.adults).toFixed(2)}</span>
                 </div>
-                {formData.children > 0 && (
-                  <div className="flex justify-between">
-                    <span>{t("childrenPrice", { count: formData.children, price: selectedPackage.price * 0.5 })}</span>
-                    <span>₾{(selectedPackage.price * 0.5 * formData.children).toFixed(2)}</span>
-                  </div>
-                )}
                 <div className="border-t pt-3 flex justify-between font-bold text-lg">
                   <span>{t("totalPrice")}</span>
                   <span>₾{formData.totalPrice.toFixed(2)}</span>
@@ -486,7 +502,7 @@ export default function BookingPage() {
             </div>
           )}
 
-          {/* Submit Button */}
+                    {/* Submit Button */}
           <div className="flex justify-center">
             <button
               type="submit"

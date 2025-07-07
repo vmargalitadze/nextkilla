@@ -11,6 +11,7 @@ import {
   validateField,
   locationSchema 
 } from "@/lib/validation/admin";
+import CloudinaryUploader from "@/component/CloudinaryUploader";
 
 interface LocationFormProps {
   location?: any;
@@ -22,12 +23,16 @@ export default function LocationForm({ location: locationData, onSuccess, onCanc
   const [formData, setFormData] = useState<LocationFormData>({
     name: locationData?.name || "",
     country: locationData?.country || "",
+    city: locationData?.city || "",
+    image: locationData?.image || null,
   });
 
   const [errors, setErrors] = useState<FormErrors<LocationFormData>>({});
   const [touched, setTouched] = useState<Record<keyof LocationFormData, boolean>>({
     name: false,
-    country: false
+    country: false,
+    city: false,
+    image: false
   });
 
   const [loading, setLoading] = useState(false);
@@ -45,13 +50,20 @@ export default function LocationForm({ location: locationData, onSuccess, onCanc
   };
 
   const handleInputChange = (field: keyof LocationFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value || null }));
     validateFieldOnChange(field, value);
   };
 
   const handleBlur = (field: keyof LocationFormData) => {
     setTouched(prev => ({ ...prev, [field]: true }));
-    validateFieldOnChange(field, formData[field]);
+    validateFieldOnChange(field, formData[field] || "");
+  };
+
+  // Handle image upload
+  const handleImageChange = (urls: string[]) => {
+    const imageUrl = urls.length > 0 ? urls[0] : null;
+    setFormData(prev => ({ ...prev, image: imageUrl }));
+    setTouched(prev => ({ ...prev, image: true }));
   };
 
   const getFieldError = (field: keyof LocationFormData) => {
@@ -74,7 +86,9 @@ export default function LocationForm({ location: locationData, onSuccess, onCanc
     // Mark all fields as touched
     setTouched({
       name: true,
-      country: true
+      country: true,
+      city: true,
+      image: true
     });
 
     // Validate entire form
@@ -107,7 +121,7 @@ export default function LocationForm({ location: locationData, onSuccess, onCanc
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center gap-3">
@@ -134,6 +148,9 @@ export default function LocationForm({ location: locationData, onSuccess, onCanc
             </div>
           )}
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left Column - Text Fields */}
+            <div className="space-y-6">
           {/* Location Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -170,6 +187,45 @@ export default function LocationForm({ location: locationData, onSuccess, onCanc
             {getFieldError("country") && (
               <p className="text-red-500 text-sm mt-1">{getFieldError("country")}</p>
             )}
+              </div>
+
+              {/* City */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City *
+                </label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => handleInputChange("city", e.target.value)}
+                  onBlur={() => handleBlur("city")}
+                  className={getFieldClassName("city")}
+                  placeholder="e.g., Cusco, Beijing"
+                  required
+                />
+                {getFieldError("city") && (
+                  <p className="text-red-500 text-sm mt-1">{getFieldError("city")}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column - Image Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Location Image
+              </label>
+              <CloudinaryUploader
+                value={formData.image ? [formData.image] : []}
+                onChange={handleImageChange}
+                maxFiles={1}
+                allowEdit={true}
+                allowDelete={true}
+                className="min-h-[300px]"
+              />
+              {getFieldError("image") && (
+                <p className="text-red-500 text-sm mt-1">{getFieldError("image")}</p>
+              )}
+            </div>
           </div>
 
           {/* Actions */}

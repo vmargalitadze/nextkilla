@@ -8,6 +8,8 @@ import { revalidatePath } from "next/cache";
 const LocationSchema = z.object({
   name: z.string().min(1, "Location name is required"),
   country: z.string().min(1, "Country is required"),
+  city: z.string().min(1, "City is required"),
+  image: z.string().url("Please enter a valid image URL").optional().nullable().or(z.literal("")),
 });
 
 const LocationUpdateSchema = LocationSchema.partial().extend({
@@ -19,8 +21,14 @@ export async function createLocation(data: z.infer<typeof LocationSchema>) {
   try {
     const validatedData = LocationSchema.parse(data);
     
+    // Convert empty string to null for image field
+    const locationData = {
+      ...validatedData,
+      image: validatedData.image === "" ? null : validatedData.image
+    };
+    
     const location = await prisma.location.create({
-      data: validatedData,
+      data: locationData,
       include: {
         packages: true,
       },
@@ -42,9 +50,15 @@ export async function updateLocation(data: z.infer<typeof LocationUpdateSchema>)
     const validatedData = LocationUpdateSchema.parse(data);
     const { id, ...updateData } = validatedData;
 
+    // Convert empty string to null for image field
+    const locationData = {
+      ...updateData,
+      image: updateData.image === "" ? null : updateData.image
+    };
+
     const location = await prisma.location.update({
       where: { id },
-      data: updateData,
+      data: locationData,
       include: {
         packages: true,
       },

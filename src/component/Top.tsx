@@ -27,6 +27,7 @@ interface Package {
     id: number;
     name: string;
     country: string;
+    city: string;
   };
 }
 
