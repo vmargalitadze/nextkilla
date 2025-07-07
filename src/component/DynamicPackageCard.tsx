@@ -13,6 +13,8 @@ interface Package {
   title: string;
   price: number;
   duration: string;
+  startDate?: Date | null;
+  endDate?: Date | null;
   gallery: Array<{
     id: number;
     url: string;
@@ -27,12 +29,16 @@ interface Package {
 
 interface DynamicPackageCardProps {
   packages: Package[];
+  locale?: string;
 }
 
-const DynamicPackageCard: React.FC<DynamicPackageCardProps> = ({ packages }) => {
+const DynamicPackageCard: React.FC<DynamicPackageCardProps> = ({ packages, locale = 'en' }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [randomizedPackages, setRandomizedPackages] = useState<Package[]>([]);
+
+  // Map app locale to date locale
+  const dateLocale = locale === 'ge' ? 'ka-GE' : 'en-US';
 
   // Initialize randomized packages on component mount
   useEffect(() => {
@@ -130,7 +136,7 @@ const DynamicPackageCard: React.FC<DynamicPackageCardProps> = ({ packages }) => 
                 <Calendar width={18} height={18} />
               </div>
               <span className="text-gray-500 text-sm">
-                {currentPackage.duration} DAYS
+                {currentPackage.startDate && currentPackage.endDate ? `${currentPackage.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${currentPackage.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}` : currentPackage.duration}
               </span>
             </div>
            
@@ -177,4 +183,4 @@ const DynamicPackageCard: React.FC<DynamicPackageCardProps> = ({ packages }) => 
   );
 };
 
-export default DynamicPackageCard; 
+export default DynamicPackageCard;

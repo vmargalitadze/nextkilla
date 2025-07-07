@@ -30,11 +30,14 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
     price: packageData?.price || "",
     salePrice: packageData?.salePrice || "",
     duration: packageData?.duration || "",
+    startDate: packageData?.startDate || "",
+    endDate: packageData?.endDate || "",
     maxPeople: packageData?.maxPeople || "",
     category: packageData?.category || "Cultural",
     popular: packageData?.popular || false,
+    byBus: packageData?.byBus || false,
+    byPlane: packageData?.byPlane || false,
     locationId: packageData?.locationId || "",
-
     gallery: packageData?.gallery?.map((img: any) => img.url) || [],
   });
 
@@ -407,7 +410,11 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
               </label>
               <DateRangePicker
                 value={formData.duration}
-                onChange={(value) => handleInputChange("duration", value)}
+                onChange={(value, startDate, endDate) => {
+                  handleInputChange("duration", value);
+                  if (startDate) handleInputChange("startDate", startDate.toISOString());
+                  if (endDate) handleInputChange("endDate", endDate.toISOString());
+                }}
                 placeholder="Select date range to calculate duration"
               />
             </div>
@@ -495,6 +502,32 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
                 />
                 <span className="text-sm font-medium text-gray-700">
                   Mark as Popular Package
+                </span>
+              </label>
+            </div>
+            <div>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.byBus}
+                  onChange={(e) => handleInputChange("byBus", e.target.checked)}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  By Bus
+                </span>
+              </label>
+            </div>
+            <div>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.byPlane}
+                  onChange={(e) => handleInputChange("byPlane", e.target.checked)}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  By Plane
                 </span>
               </label>
             </div>

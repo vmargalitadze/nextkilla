@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Package" ADD COLUMN     "byBus" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "byPlane" BOOLEAN NOT NULL DEFAULT false;

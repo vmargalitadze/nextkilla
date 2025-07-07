@@ -7,7 +7,7 @@ import { Calendar, X } from "lucide-react";
 
 interface DateRangePickerProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, startDate?: Date, endDate?: Date) => void;
   placeholder?: string;
 }
 
@@ -59,7 +59,7 @@ export default function DateRangePicker({ value, onChange, placeholder = "Select
       const daysDiff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
       const nightsDiff = daysDiff - 1;
       const durationText = `${daysDiff} Days / ${nightsDiff} Nights`;
-      onChange(durationText);
+      onChange(durationText, start, end);
       setIsOpen(false);
     }
   };

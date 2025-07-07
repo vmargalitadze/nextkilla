@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+
 import { getAllPackages } from "@/lib/actions/packages";
 import DynamicPackageCard from "./DynamicPackageCard";
 
@@ -10,6 +11,8 @@ interface Package {
   title: string;
   price: number;
   duration: string;
+  startDate?: Date | null;
+  endDate?: Date | null;
   gallery: Array<{
     id: number;
     url: string;
@@ -43,10 +46,16 @@ const steps = [
   },
 ];
 
-const Booking = () => {
-    const t = useTranslations("booking");
-    const [packages, setPackages] = useState<Package[]>([]);
-    const [loading, setLoading] = useState(true);
+interface BookingProps {
+  locale?: string;
+}
+
+function Booking({ locale = 'en' }: BookingProps) {
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [loading, setLoading] = useState(true);
+  const t = useTranslations("booking");
+
+
 
     useEffect(() => {
         const fetchPackages = async () => {
@@ -105,7 +114,7 @@ const Booking = () => {
                         </div>
                     </div>
                 ) : (
-                    <DynamicPackageCard packages={packages} />
+                    <DynamicPackageCard packages={packages} locale={locale} />
                 )}
             </div>
         </div>

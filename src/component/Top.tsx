@@ -8,12 +8,15 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Link } from "@/i18n/navigation";
 import { getAllPackages } from "@/lib/actions/packages";
+import { Calendar } from "lucide-react";
 
 interface Package {
   id: number;
   title: string;
   price: number;
   duration: string;
+  startDate?: Date | null;
+  endDate?: Date | null;
   popular?: boolean;
   gallery: Array<{
     id: number;
@@ -27,10 +30,21 @@ interface Package {
   };
 }
 
-const Top = () => {
+interface TopProps {
+  locale?: string;
+}
+
+const Top: React.FC<TopProps> = ({ locale = 'en' }) => {
   const t = useTranslations("top");
   const [popularPackages, setPopularPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Map app locale to date locale
+  const dateLocale = locale === 'ge' ? 'ka-GE' : 'en-US';
+  
+  // Debug logging
+  console.log('Top component - locale prop:', locale);
+  console.log('Top component - dateLocale:', dateLocale);
 
   useEffect(() => {
     const fetchPopularPackages = async () => {
@@ -41,6 +55,8 @@ const Top = () => {
           // Filter packages where popular is true
           const popularOnly = popularResult.data?.filter((pkg: unknown) => (pkg as Package).popular === true) || [];
           setPopularPackages(popularOnly as Package[]);
+          
+       
         }
       } catch (error) {
         console.error("Error fetching popular packages:", error);
@@ -137,11 +153,11 @@ const Top = () => {
                       </span>
                     </div>
                     <div className="flex gap-3 items-center mt-auto">
-                      <span className="inline-flex items-center justify-center p-2 bg-gray-100 rounded-full">
-                        <Image src="/send.svg" width={18} height={18} alt="" />
-                      </span>
-                      <span className="text-gray-700 text-[18px] font-medium">
-                        {pkg.duration}
+                    <span className="inline-flex items-center justify-center p-2 bg-gray-100 rounded-full">
+                  <Calendar width={18} height={18} />
+                  </span>
+                      <span className="text-gray-700 text-sm">
+                        {pkg.startDate && pkg.endDate ? `${pkg.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${pkg.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}` : pkg.duration}
                       </span>
                     </div>
                     <Link

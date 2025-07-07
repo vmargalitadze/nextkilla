@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useParams } from 'next/navigation';
 import { getAllPackages } from "@/lib/actions/packages";
 import { Link } from "@/i18n/navigation";
 import Image from 'next/image';
@@ -16,6 +16,8 @@ interface Package {
   price: number;
   salePrice?: number;
   duration: string;
+  startDate?: Date | null;
+  endDate?: Date | null;
   category: string;
   popular: boolean;
   location: {
@@ -35,17 +37,21 @@ export default function ListPage() {
   const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
+  const params = useParams();
+  
+  // Map app locale to date locale
+  const dateLocale = params.locale === 'ge' ? 'ka-GE' : 'en-US';
   
   // Get URL parameters
   const category = searchParams.get('category');
   const search = searchParams.get('search');
-  const price = searchParams.get('price');
+  const date = searchParams.get('date');
 
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState(category || '');
   const [selectedDestination, setSelectedDestination] = useState('');
   const [selectedDuration, setSelectedDuration] = useState('');
-  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [selectedDate, setSelectedDate] = useState(date || '');
   const [showPopularOnly, setShowPopularOnly] = useState(false);
   const [searchTerm, setSearchTerm] = useState(search || '');
 
@@ -57,16 +63,10 @@ export default function ListPage() {
     if (search) {
       setSearchTerm(search);
     }
-    if (price) {
-      // Parse price range from URL parameter
-      const [min, max] = price.split('-').map(p => p.replace('+', ''));
-      if (max === '+') {
-        setPriceRange([parseInt(min), 10000]);
-      } else {
-        setPriceRange([parseInt(min), parseInt(max)]);
-      }
+    if (date) {
+      setSelectedDate(date);
     }
-  }, [category, search, price]);
+  }, [category, search, date]);
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -117,14 +117,18 @@ export default function ListPage() {
       filtered = filtered.filter(pkg => pkg.popular === true);
     }
 
-    // Filter by price range
-    filtered = filtered.filter(pkg => {
-      const price = pkg.salePrice || pkg.price;
-      return price >= priceRange[0] && price <= priceRange[1];
-    });
+    // Filter by date (if date is selected, show packages that start on or after that date)
+    if (selectedDate) {
+      const selectedDateObj = new Date(selectedDate);
+      filtered = filtered.filter(pkg => {
+        if (!pkg.startDate) return true; // Show packages without dates
+        const packageStartDate = new Date(pkg.startDate);
+        return packageStartDate >= selectedDateObj;
+      });
+    }
 
     setFilteredPackages(filtered);
-  }, [packages, searchTerm, selectedCategory, selectedDestination, selectedDuration, showPopularOnly, priceRange]);
+  }, [packages, searchTerm, selectedCategory, selectedDestination, selectedDuration, showPopularOnly, selectedDate]);
 
   if (loading) {
     return (
@@ -232,22 +236,17 @@ export default function ListPage() {
                   />
                 </div>
 
-                {/* Price Range */}
+                {/* Date Filter */}
                 <div className="mb-6">
-                  <h4 className="font-semibold text-gray-700 mb-3">Filter Price:</h4>
+                  <h4 className="font-semibold text-gray-700 mb-3">Filter by Date:</h4>
                   <div className="space-y-2">
                     <input
-                      type="range"
-                      min="0"
-                      max="10000"
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                      className="w-full"
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent"
+                      min={new Date().toISOString().split('T')[0]}
                     />
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>₾0</span>
-                      <span>₾{priceRange[1]}</span>
-                    </div>
                   </div>
                 </div>
 
@@ -334,6 +333,28 @@ export default function ListPage() {
                   </div>
                 </div>
 
+                {/* Available Dates */}
+                <div className="mb-6">
+                  <h4 className="font-semibold text-gray-700 mb-3">Available Dates</h4>
+                  <div className="space-y-2">
+                    {packages
+                      .filter(pkg => pkg.startDate)
+                      .map((pkg) => {
+                        const startDate = new Date(pkg.startDate!);
+                        const endDate = pkg.endDate ? new Date(pkg.endDate) : null;
+                        const dateDisplay = endDate 
+                          ? `${startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}`
+                          : startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' });
+                        
+                        return (
+                          <div key={pkg.id} className="text-sm text-gray-600">
+                            <span className="font-medium">{pkg.title}:</span> {dateDisplay}
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+
                 {/* Clear Filters */}
                 <button
                   onClick={() => {
@@ -342,7 +363,7 @@ export default function ListPage() {
                     setSelectedDestination('');
                     setSelectedDuration('');
                     setShowPopularOnly(false);
-                    setPriceRange([0, 10000]);
+                    setSelectedDate('');
                   }}
                   className="w-full bg-red-400 text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
                 >
@@ -370,7 +391,7 @@ export default function ListPage() {
                       setSelectedDestination('');
                       setSelectedDuration('');
                       setShowPopularOnly(false);
-                      setPriceRange([0, 10000]);
+                      setSelectedDate('');
                     }}
                     className="inline-flex items-center px-6 py-3 bg-red-400 text-white rounded-lg hover:bg-red-500 transition-colors"
                   >
@@ -415,7 +436,7 @@ export default function ListPage() {
                             <Image src="/send.svg" width={18} height={18} alt="" />
                           </span>
                           <span className="text-gray-700 text-[18px] font-medium">
-                            {pkg.duration}
+                            {pkg.startDate && pkg.endDate ? `${pkg.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${pkg.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}` : pkg.duration}
                           </span>
                         </div>
                         <Link

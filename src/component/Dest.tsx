@@ -8,12 +8,15 @@ import { Pagination } from "swiper/modules";
 import { useTranslations } from "next-intl";
 import "swiper/css";
 import "swiper/css/pagination";
+import { Calendar } from "lucide-react";
 
 interface Package {
   id: number;
   title: string;
   price: number;
   duration: string;
+  startDate?: Date | null;
+  endDate?: Date | null;
   gallery: Array<{
     id: number;
     url: string;
@@ -26,10 +29,17 @@ interface Package {
   };
 }
 
-function Dest() {
+interface DestProps {
+  locale?: string;
+}
+
+function Dest({ locale = 'en' }: DestProps) {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const t = useTranslations("newDest");
+
+  // Map app locale to date locale
+  const dateLocale = locale === 'ge' ? 'ka-GE' : 'en-US';
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -137,12 +147,13 @@ function Dest() {
                     ₾{package_.price}
                   </span>
                 </div>
+
                 <div className="flex gap-3 items-center mt-auto">
                   <span className="inline-flex items-center justify-center p-2 bg-gray-100 rounded-full">
-                    <Image src="/send.svg" width={18} height={18} alt="" />
+                  <Calendar width={18} height={18} />
                   </span>
-                  <span className="text-gray-700 text-[18px] font-medium">
-                    {package_.duration}
+                  <span className="text-gray-700 text-sm">
+                    {package_.startDate && package_.endDate ? `${package_.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${package_.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}` : package_.duration}
                   </span>
                 </div>
                 <Link

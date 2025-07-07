@@ -124,6 +124,10 @@ export const packageSchema = z.object({
     .min(1, "Category is required"),
   popular: z
     .boolean(),
+  byBus: z
+    .boolean(),
+  byPlane: z
+    .boolean(),
   locationId: z
     .number()
     .min(1, "Location is required")

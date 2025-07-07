@@ -29,8 +29,12 @@ const PackageSchema = z.object({
   price: z.number().positive("Price must be positive"),
   salePrice: z.number().optional(),
   duration: z.string().min(1, "Duration is required"),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
   maxPeople: z.number().positive("Max people must be positive"),
   popular: z.boolean().default(false),
+  byBus: z.boolean().default(false),
+  byPlane: z.boolean().default(false),
   category: z.enum(CATEGORIES),
   locationId: z.number().positive("Location is required"),
 

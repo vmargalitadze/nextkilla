@@ -10,7 +10,7 @@ function CompanyFilter() {
   const t = useTranslations("companyFilter");
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRange, setPriceRange] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
   const [category, setCategory] = useState("");
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,8 +52,8 @@ function CompanyFilter() {
     if (searchTerm) {
       params.append("search", searchTerm);
     }
-    if (priceRange) {
-      params.append("price", priceRange);
+    if (selectedDate) {
+      params.append("date", selectedDate);
     }
     if (category) {
       params.append("category", category);
@@ -71,7 +71,7 @@ function CompanyFilter() {
           <div className="grid grid-cols-1">
             <div className="p-6 bg-white  rounded-xl shadow ">
               <div className="registration-form text-dark text-start">
-                <div className="grid lg:grid-cols-5 md:grid-cols-2 grid-cols-1 gap-4">
+                <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4">
                   <div>
                     <label className="form-label font-medium text-slate-900 ">
                       {t("search")}
@@ -103,21 +103,16 @@ function CompanyFilter() {
                   </div>
                   <div>
                     <label className="form-label font-medium text-slate-900 ">
-                      Price Range
+                      {t("departureDate")}
                     </label>
                     <div className="relative mt-2">
-                      <select 
-                        value={priceRange}
-                        onChange={(e) => setPriceRange(e.target.value)}
-                        className="form-select w-full py-2 px-3 ps-10 h-10 bg-white  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
-                      >
-                        <option value="">All Prices</option>
-                        <option value="0-100">₾0 - ₾100</option>
-                        <option value="100-500">₾100 - ₾500</option>
-                        <option value="500-1000">₾500 - ₾1000</option>
-                        <option value="1000-2000">₾1000 - ₾2000</option>
-                        <option value="2000+">₾2000+</option>
-                      </select>
+                      <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="w-full py-2 px-3 h-10 bg-white rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
+                        min={new Date().toISOString().split('T')[0]}
+                      />
                     </div>
                   </div>
                   <div>

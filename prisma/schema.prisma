@@ -33,15 +33,19 @@ model Location {
 }
 
 model Package {
-  id          Int    @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
   description String
   price       Float
   salePrice   Float?        // Sale price (optional)
   duration    String
+  startDate   DateTime?     // Start date of the package
+  endDate     DateTime?     // End date of the package
   maxPeople   Int
   category    Category      // Using enum instead of relation
   popular     Boolean       @default(false)
+  byBus       Boolean       @default(false) // Added field
+  byPlane     Boolean       @default(false) // Added field
 
   location   Location       @relation(fields: [locationId], references: [id])
   locationId Int

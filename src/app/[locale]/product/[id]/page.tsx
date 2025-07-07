@@ -18,6 +18,8 @@ interface PackageData {
   description: string;
   price: number;
   duration: string;
+  startDate?: Date | null;
+  endDate?: Date | null;
   maxPeople: number;
   category: string;
   location?: { name: string; country: string };
@@ -42,6 +44,11 @@ export default function PackageDetails() {
   const params = useParams();
   const router = useRouter();
   const t = useTranslations("productDetails");
+  const locale = params.locale as string;
+  
+  // Map app locale to date locale
+  const dateLocale = locale === 'ge' ? 'ka-GE' : 'en-US';
+  
   const [activeTab, setActiveTab] = useState("overview");
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
@@ -199,9 +206,9 @@ export default function PackageDetails() {
                     <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-5 h-5 text-red-400" />
-                        <span className="text-gray-600">
-                          {packageData.duration}
-                        </span>
+                                                  <span className="text-gray-600">
+                            {packageData.startDate && packageData.endDate ? `${packageData.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${packageData.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}` : packageData.duration}
+                          </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Users className="w-5 h-5 text-red-400" />
@@ -402,7 +409,7 @@ export default function PackageDetails() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600">{t("duration")}:</span>
-                        <span className="text-sm font-medium">{packageData.duration}</span>
+                        <span className="text-sm font-medium">{packageData.startDate && packageData.endDate ? `${packageData.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${packageData.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}` : packageData.duration}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600">{t("maxPeople")}:</span>

@@ -75,7 +75,8 @@
     "cookie_policy": "Cookie Policy"
   },
   "common": {
-    "welcome": "Welcome"
+    "welcome": "Welcome",
+    "exploreNow": "Explore Now"
   },
   "category": {
     "title": "Categories"
