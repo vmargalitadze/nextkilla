@@ -136,9 +136,9 @@ export const packageSchema = z.object({
     .nullable(),
   duration: z
     .string()
-    .min(1, "Duration is required")
     .max(50, "Duration must be less than 50 characters")
-    .trim(),
+    .trim()
+    .optional(),
   maxPeople: z
     .number()
     .min(1, "Maximum people must be at least 1")
@@ -170,6 +170,15 @@ export const packageSchema = z.object({
 }, {
   message: "Sale price must be less than regular price",
   path: ["salePrice"]
+}).refine((data) => {
+  // Duration is required for non-bus tours
+  if (!data.byBus && (!data.duration || data.duration.trim() === "")) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Duration is required for non-bus tours",
+  path: ["duration"]
 });
 
 // Form data types

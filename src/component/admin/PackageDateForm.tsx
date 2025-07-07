@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 
 interface PackageDate {
@@ -22,11 +22,7 @@ export default function PackageDateForm({ packageId, onClose, onSuccess }: Packa
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadPackageDates();
-  }, [packageId]);
-
-  const loadPackageDates = async () => {
+  const loadPackageDates = useCallback(async () => {
     try {
       const response = await fetch(`/api/packages/${packageId}/dates`);
       if (response.ok) {
@@ -36,7 +32,11 @@ export default function PackageDateForm({ packageId, onClose, onSuccess }: Packa
     } catch (error) {
       console.error("Failed to load package dates:", error);
     }
-  };
+  }, [packageId]);
+
+  useEffect(() => {
+    loadPackageDates();
+  }, [loadPackageDates]);
 
   const addDate = () => {
     setDates([...dates, { startDate: "", endDate: "", maxPeople: 1 }]);

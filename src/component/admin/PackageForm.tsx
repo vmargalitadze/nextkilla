@@ -305,8 +305,9 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
         ...formData,
         price: Number(formData.price),
         salePrice: formData.salePrice ? Number(formData.salePrice) : undefined,
-        // For bus tours, maxPeople is not used (it's defined per date)
-        // For other tours, use the form maxPeople
+        // For bus tours, duration and maxPeople are not used (they're defined per date)
+        // For other tours, use the form values
+        duration: formData.byBus && packageDates.length > 0 ? "" : formData.duration,
         maxPeople: formData.byBus ? 0 : Number(formData.maxPeople),
         locationId: Number(formData.locationId),
       };
@@ -444,20 +445,27 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Duration *
-              </label>
-              <DateRangePicker
-                value={formData.duration}
-                onChange={(value, startDate, endDate) => {
-                  handleInputChange("duration", value);
-                  if (startDate) handleInputChange("startDate", startDate.toISOString());
-                  if (endDate) handleInputChange("endDate", endDate.toISOString());
-                }}
-                placeholder="Select date range to calculate duration"
-              />
-            </div>
+            {(!formData.byBus || packageDates.length === 0) && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Duration *
+                </label>
+                <DateRangePicker
+                  value={formData.duration}
+                  onChange={(value, startDate, endDate) => {
+                    handleInputChange("duration", value);
+                    if (startDate) handleInputChange("startDate", startDate.toISOString());
+                    if (endDate) handleInputChange("endDate", endDate.toISOString());
+                  }}
+                  placeholder="Select date range to calculate duration"
+                />
+                {formData.byBus && packageDates.length === 0 && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Duration will be calculated from Package Dates when you add them below.
+                  </p>
+                )}
+              </div>
+            )}
 
             {!formData.byBus && (
             <div>

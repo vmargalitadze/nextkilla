@@ -28,7 +28,7 @@ const PackageSchema = z.object({
   description: z.string().min(1, "Description is required"),
   price: z.number().positive("Price must be positive"),
   salePrice: z.number().optional(),
-  duration: z.string().min(1, "Duration is required"),
+  duration: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   maxPeople: z.number().positive("Max people must be positive"),
@@ -37,20 +37,32 @@ const PackageSchema = z.object({
   byPlane: z.boolean().default(false),
   category: z.enum(CATEGORIES),
   locationId: z.number().positive("Location is required"),
-
 });
 
 const PackageUpdateSchema = PackageSchema.partial().extend({
   id: z.number().positive("ID is required"),
 });
 
-// Create a new package
+// Create a new package with validation
 export async function createPackage(data: z.infer<typeof PackageSchema>) {
   try {
-    const validatedData = PackageSchema.parse(data);
+    // Validate the data with custom refinement
+    const validatedData = PackageSchema.refine((data) => {
+      // Duration is required for non-bus tours
+      if (!data.byBus && (!data.duration || data.duration.trim() === "")) {
+        return false;
+      }
+      return true;
+    }, {
+      message: "Duration is required for non-bus tours",
+      path: ["duration"]
+    }).parse(data);
     
     const package_ = await prisma.package.create({
-      data: validatedData,
+      data: {
+        ...validatedData,
+        duration: validatedData.duration || "", // Ensure duration is always a string
+      },
       include: {
         location: true,
         tourPlan: true,
@@ -72,6 +84,23 @@ export async function updatePackage(data: z.infer<typeof PackageUpdateSchema>) {
   try {
     const validatedData = PackageUpdateSchema.parse(data);
     const { id, ...updateData } = validatedData;
+
+    // Apply the same duration validation for updates
+    if (updateData.byBus !== undefined || updateData.duration !== undefined) {
+      const validationSchema = PackageSchema.refine((data) => {
+        // Duration is required for non-bus tours
+        if (!data.byBus && (!data.duration || data.duration.trim() === "")) {
+          return false;
+        }
+        return true;
+      }, {
+        message: "Duration is required for non-bus tours",
+        path: ["duration"]
+      });
+      
+      // Validate the update data
+      validationSchema.parse(updateData);
+    }
 
     const package_ = await prisma.package.update({
       where: { id },

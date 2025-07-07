@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 import { getAllPackages } from "@/lib/actions/packages";
 import { 
@@ -12,19 +13,35 @@ import {
   validateBookingForm,
   validateField 
 } from "@/lib/validation/booking";
-import Image from "next/image";
 
-
-
+interface Package {
+  id: number;
+  title: string;
+  price: number;
+  maxPeople: number;
+  byBus: boolean;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  duration?: string;
+  gallery?: Array<{ url: string }>;
+  dates?: Array<{
+    id: number;
+    startDate: Date;
+    endDate: Date;
+    maxPeople: number;
+  }>;
+}
 
 export default function BookingPage() {
   const params = useParams();
   const router = useRouter();
   const t = useTranslations("bookingForm");
   const locale = params.locale as string;
-  const [packages, setPackages] = useState<any[]>([]);
+  
+  const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string>("");
 
   // Form data
   const [formData, setFormData] = useState<BookingFormData>({
@@ -49,33 +66,37 @@ export default function BookingPage() {
     totalPrice: false
   });
 
-  const [selectedPackage, setSelectedPackage] = useState<any | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [selectedDate, setSelectedDate] = useState<{ startDate: Date; endDate: Date } | null>(null);
 
-  useEffect(() => {
-    const loadPackages = async () => {
-      try {
-        const packagesResult = await getAllPackages();
-        
-        if (packagesResult.success) {
-          const packagesData = packagesResult.data || [];
-          console.log("Loaded packages:", packagesData);
-          setPackages(packagesData);
-        }
-      } catch (error) {
-        console.error("Error loading packages:", error);
-      } finally {
-        setLoading(false);
+  // Load packages on component mount
+  const loadPackages = useCallback(async () => {
+    try {
+      setError("");
+      const packagesResult = await getAllPackages();
+      
+      if (packagesResult.success) {
+        const packagesData = packagesResult.data || [];
+        setPackages(packagesData);
+      } else {
+        setError("Failed to load packages");
       }
-    };
-
-    loadPackages();
+    } catch (error) {
+      console.error("Error loading packages:", error);
+      setError("Failed to load packages");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    // Check for booking data from sessionStorage (from product page)
+    loadPackages();
+  }, [loadPackages]);
+
+  // Check for booking data from sessionStorage
+  useEffect(() => {
     const bookingData = sessionStorage.getItem('bookingData');
-    if (bookingData) {
+    if (bookingData && packages.length > 0) {
       try {
         const data = JSON.parse(bookingData);
         setFormData(prev => ({
@@ -85,13 +106,11 @@ export default function BookingPage() {
           totalPrice: data.totalPrice
         }));
 
-        // Find the selected package
         const package_ = packages.find(pkg => pkg.id === data.packageId);
         if (package_) {
           setSelectedPackage(package_);
         }
 
-        // Clear sessionStorage
         sessionStorage.removeItem('bookingData');
       } catch (error) {
         console.error("Error parsing booking data:", error);
@@ -99,29 +118,33 @@ export default function BookingPage() {
     }
   }, [packages]);
 
+  // Update selected package when packageId changes
   useEffect(() => {
-    // Update selected package when packageId changes
     if (formData.packageId) {
       const package_ = packages.find(pkg => pkg.id === formData.packageId);
       setSelectedPackage(package_ || null);
+      // Reset selected date when package changes
+      setSelectedDate(null);
     }
   }, [formData.packageId, packages]);
 
   // Calculate total price when package or adults changes
-  useEffect(() => {
+  const totalPrice = useMemo(() => {
     if (selectedPackage) {
-      const basePrice = (selectedPackage.price * formData.adults);
-      const totalPrice = basePrice;
-      
-      setFormData(prev => ({
-        ...prev,
-        totalPrice
-      }));
+      return selectedPackage.price * formData.adults;
     }
+    return 0;
   }, [selectedPackage, formData.adults]);
 
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      totalPrice
+    }));
+  }, [totalPrice]);
+
   // Real-time field validation
-  const validateFieldOnChange = (field: keyof BookingFormData, value: string | number | undefined) => {
+  const validateFieldOnChange = useCallback((field: keyof BookingFormData, value: string | number | undefined) => {
     if (touched[field]) {
       const validation = validateField(field, value);
       setErrors(prev => ({
@@ -129,17 +152,17 @@ export default function BookingPage() {
         [field]: validation.isValid ? undefined : validation.error
       }));
     }
-  };
+  }, [touched]);
 
-  const handleInputChange = (field: keyof BookingFormData, value: string | number) => {
+  const handleInputChange = useCallback((field: keyof BookingFormData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     validateFieldOnChange(field, value);
-  };
+  }, [validateFieldOnChange]);
 
-  const handleBlur = (field: keyof BookingFormData) => {
+  const handleBlur = useCallback((field: keyof BookingFormData) => {
     setTouched(prev => ({ ...prev, [field]: true }));
     validateFieldOnChange(field, formData[field]);
-  };
+  }, [validateFieldOnChange, formData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,7 +203,7 @@ export default function BookingPage() {
     
     // For bus tours, check against the selected date's maxPeople
     if (selectedPackage.byBus && selectedDate) {
-      const selectedDateData = selectedPackage.dates.find((date: any) => 
+      const selectedDateData = selectedPackage.dates?.find((date) => 
         date.startDate.getTime() === selectedDate.startDate.getTime() && 
         date.endDate.getTime() === selectedDate.endDate.getTime()
       );
@@ -197,6 +220,7 @@ export default function BookingPage() {
     }
 
     setSubmitting(true);
+    setError("");
 
     try {
       const bookingData = {
@@ -207,12 +231,10 @@ export default function BookingPage() {
         idNumber: formData.idNumber,
         adults: formData.adults,
         totalPrice: formData.totalPrice,
-        // Use selected date for bus tours, otherwise use package default dates
         startDate: selectedPackage.byBus && selectedDate ? selectedDate.startDate : selectedPackage.startDate || new Date(),
         endDate: selectedPackage.byBus && selectedDate ? selectedDate.endDate : selectedPackage.endDate || new Date()
       };
 
-      // Use the new API route
       const response = await fetch('/api/bookings/create', {
         method: 'POST',
         headers: {
@@ -224,37 +246,44 @@ export default function BookingPage() {
       const result = await response.json();
 
       if (result.success) {
-        // Redirect to confirmation page with booking ID in URL
         const redirectPath = `/${locale}${result.redirectUrl}`;
         router.push(redirectPath);
       } else {
-        alert(`Error creating booking: ${result.error}`);
+        setError(result.error || "Failed to create booking");
       }
     } catch (error) {
       console.error("Error submitting booking:", error);
-      alert("An error occurred while creating your booking. Please try again.");
+      setError("An error occurred while creating your booking. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const getFieldError = (field: keyof BookingFormData) => {
+  const getFieldError = useCallback((field: keyof BookingFormData) => {
     return touched[field] && errors[field] ? errors[field] : "";
-  };
+  }, [touched, errors]);
 
-  const getFieldClassName = (field: keyof BookingFormData) => {
-    const baseClasses = "w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent";
+  const getFieldClassName = useCallback((field: keyof BookingFormData) => {
+    const baseClasses = "w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors";
     const hasError = getFieldError(field);
     
     if (hasError) {
       return `${baseClasses} border-red-500 focus:ring-red-500`;
     }
-    return `${baseClasses} border-gray-300`;
-  };
+    return `${baseClasses} border-gray-300 hover:border-gray-400`;
+  }, [getFieldError]);
+
+  const formatDate = useCallback((date: Date) => {
+    return date.toLocaleDateString(locale === 'ge' ? 'ka-GE' : 'en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  }, [locale]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">{t("loading")}</p>
@@ -263,18 +292,45 @@ export default function BookingPage() {
     );
   }
 
+  if (error && !selectedPackage) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Packages</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={loadPackages}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pt-20">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t("title")}</h1>
-          <p className="text-gray-600">{t("subtitle")}</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">{t("title")}</h1>
+          <p className="text-gray-600 text-lg">{t("subtitle")}</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-700">{error}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Package Selection */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">{t("selectPackage")}</h2>
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+              <span className="mr-3">🎯</span>
+              {t("selectPackage")}
+            </h2>
             <div>
               <select
                 value={formData.packageId}
@@ -282,36 +338,49 @@ export default function BookingPage() {
                 onBlur={() => handleBlur("packageId")}
                 className={getFieldClassName("packageId")}
                 required
+                aria-describedby={getFieldError("packageId") ? "package-error" : undefined}
               >
                 <option value="">{t("choosePackage")}</option>
                 {packages.map((pkg) => (
                   <option key={pkg.id} value={pkg.id}>
                     {pkg.title} - ₾{pkg.price} ({pkg.startDate && pkg.endDate ? 
-                      `${pkg.startDate.toLocaleDateString(locale === 'ge' ? 'ka-GE' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${pkg.endDate.toLocaleDateString(locale === 'ge' ? 'ka-GE' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : 
+                      `${formatDate(pkg.startDate)} - ${formatDate(pkg.endDate)}` : 
                       pkg.duration
                     })
                   </option>
                 ))}
               </select>
               {getFieldError("packageId") && (
-                <p className="text-red-500 text-sm mt-1">{getFieldError("packageId")}</p>
+                <p id="package-error" className="text-red-500 text-sm mt-2 flex items-center">
+                  <span className="mr-1">⚠️</span>
+                  {getFieldError("packageId")}
+                </p>
               )}
             </div>
 
             {selectedPackage && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-start space-x-4">
+              <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                <div className="flex items-start space-x-6">
                   {selectedPackage.gallery && selectedPackage.gallery.length > 0 && (
-                    <Image
-                      src={selectedPackage.gallery[0].url}
-                      alt={selectedPackage.title}
-                      className=" object-cover rounded-lg"
-                      width={80}
-                      height={80}
-                    />
+                    <div className="relative">
+                      <Image
+                        src={selectedPackage.gallery[0].url}
+                        alt={selectedPackage.title}
+                        className="object-cover rounded-lg shadow-md"
+                        width={120}
+                        height={120}
+                        priority
+                      />
+                    </div>
                   )}
-                 
-                    
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{selectedPackage.title}</h3>
+                    <p className="text-2xl font-bold text-blue-600 mb-2">₾{selectedPackage.price}</p>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <span>👥 Max: {selectedPackage.maxPeople} people</span>
+                      {selectedPackage.byBus && <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">🚌 Bus Tour</span>}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -319,51 +388,52 @@ export default function BookingPage() {
 
           {/* Date Selection for Bus Tours */}
           {selectedPackage && selectedPackage.byBus && selectedPackage.dates && selectedPackage.dates.length > 0 && (
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t("selectDate")}</h2>
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+                <span className="mr-3">📅</span>
+                {t("selectDate")}
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {selectedPackage.dates.map((date: any) => (
+                {selectedPackage.dates.map((date) => (
                   <button
                     key={date.id}
                     type="button"
                     onClick={() => setSelectedDate({ startDate: date.startDate, endDate: date.endDate })}
-                    className={`p-4 border rounded-lg text-left transition-colors ${
+                    className={`p-6 border-2 rounded-xl text-left transition-all duration-200 hover:shadow-md ${
                       selectedDate && 
                       selectedDate.startDate.getTime() === date.startDate.getTime() && 
                       selectedDate.endDate.getTime() === date.endDate.getTime()
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300 hover:border-gray-400'
+                        ? 'border-blue-500 bg-blue-50 shadow-md'
+                        : 'border-gray-300 hover:border-blue-300 bg-white'
                     }`}
                   >
-                    <div className="font-medium text-gray-900">
-                      {date.startDate.toLocaleDateString(locale === 'ge' ? 'ka-GE' : 'en-US', { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        year: 'numeric' 
-                      })}
+                    <div className="font-semibold text-gray-900 mb-1">
+                      {formatDate(date.startDate)}
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {date.endDate.toLocaleDateString(locale === 'ge' ? 'ka-GE' : 'en-US', { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        year: 'numeric' 
-                      })}
+                    <div className="text-sm text-gray-500 mb-2">
+                      to {formatDate(date.endDate)}
                     </div>
                     <div className="text-sm text-blue-600 font-medium">
-                      Max: {date.maxPeople} people
+                      👥 Max: {date.maxPeople} people
                     </div>
                   </button>
                 ))}
               </div>
               {!selectedDate && (
-                <p className="text-red-500 text-sm mt-2">{t("pleaseSelectDate")}</p>
+                <p className="text-red-500 text-sm mt-3 flex items-center">
+                  <span className="mr-1">⚠️</span>
+                  {t("pleaseSelectDate")}
+                </p>
               )}
             </div>
           )}
 
           {/* Traveler Information */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">{t("travelerInfo")}</h2>
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+              <span className="mr-3">👤</span>
+              {t("travelerInfo")}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -377,9 +447,13 @@ export default function BookingPage() {
                   className={getFieldClassName("name")}
                   placeholder={t("fullNamePlaceholder")}
                   required
+                  aria-describedby={getFieldError("name") ? "name-error" : undefined}
                 />
                 {getFieldError("name") && (
-                  <p className="text-red-500 text-sm mt-1">{getFieldError("name")}</p>
+                  <p id="name-error" className="text-red-500 text-sm mt-2 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    {getFieldError("name")}
+                  </p>
                 )}
               </div>
 
@@ -395,9 +469,13 @@ export default function BookingPage() {
                   className={getFieldClassName("email")}
                   placeholder={t("emailPlaceholder")}
                   required
+                  aria-describedby={getFieldError("email") ? "email-error" : undefined}
                 />
                 {getFieldError("email") && (
-                  <p className="text-red-500 text-sm mt-1">{getFieldError("email")}</p>
+                  <p id="email-error" className="text-red-500 text-sm mt-2 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    {getFieldError("email")}
+                  </p>
                 )}
               </div>
 
@@ -412,9 +490,13 @@ export default function BookingPage() {
                   onBlur={() => handleBlur("phone")}
                   className={getFieldClassName("phone")}
                   placeholder={t("phonePlaceholder")}
+                  aria-describedby={getFieldError("phone") ? "phone-error" : undefined}
                 />
                 {getFieldError("phone") && (
-                  <p className="text-red-500 text-sm mt-1">{getFieldError("phone")}</p>
+                  <p id="phone-error" className="text-red-500 text-sm mt-2 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    {getFieldError("phone")}
+                  </p>
                 )}
               </div>
 
@@ -431,18 +513,25 @@ export default function BookingPage() {
                   placeholder={t("idNumberPlaceholder")}
                   maxLength={11}
                   required
+                  aria-describedby={getFieldError("idNumber") ? "id-error" : "id-help"}
                 />
-                <p className="text-xs text-gray-500 mt-1">{t("idNumberHelp")}</p>
+                <p id="id-help" className="text-xs text-gray-500 mt-1">{t("idNumberHelp")}</p>
                 {getFieldError("idNumber") && (
-                  <p className="text-red-500 text-sm mt-1">{getFieldError("idNumber")}</p>
+                  <p id="id-error" className="text-red-500 text-sm mt-2 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    {getFieldError("idNumber")}
+                  </p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Travel Details */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">{t("travelDetails")}</h2>
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+              <span className="mr-3">🎒</span>
+              {t("travelDetails")}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -457,9 +546,13 @@ export default function BookingPage() {
                   min="1"
                   max="20"
                   required
+                  aria-describedby={getFieldError("adults") ? "adults-error" : undefined}
                 />
                 {getFieldError("adults") && (
-                  <p className="text-red-500 text-sm mt-1">{getFieldError("adults")}</p>
+                  <p id="adults-error" className="text-red-500 text-sm mt-2 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    {getFieldError("adults")}
+                  </p>
                 )}
               </div>
 
@@ -469,13 +562,14 @@ export default function BookingPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {t("totalTravelers")}
                     </label>
-                    <div className="px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg">
-                      <span className="text-lg font-semibold">
+                    <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                      <span className="text-lg font-semibold text-blue-700">
                         {formData.adults} / {selectedPackage.maxPeople}
                       </span>
                     </div>
                     {formData.adults > selectedPackage.maxPeople && (
-                      <p className="text-red-500 text-sm mt-1">
+                      <p className="text-red-500 text-sm mt-2 flex items-center">
+                        <span className="mr-1">⚠️</span>
                         {t("exceedsCapacity")}
                       </p>
                     )}
@@ -487,29 +581,39 @@ export default function BookingPage() {
 
           {/* Price Summary */}
           {selectedPackage && (
-            <div className="bg-blue-50 rounded-lg p-6">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">{t("priceSummary")}</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span>{t("adultsPrice", { count: formData.adults, price: selectedPackage.price })}</span>
-                  <span>₾{(selectedPackage.price * formData.adults).toFixed(2)}</span>
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-200">
+              <h3 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                <span className="mr-3">💰</span>
+                {t("priceSummary")}
+              </h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-700">{t("adultsPrice", { count: formData.adults, price: selectedPackage.price })}</span>
+                  <span className="font-semibold">₾{(selectedPackage.price * formData.adults).toFixed(2)}</span>
                 </div>
-                <div className="border-t pt-3 flex justify-between font-bold text-lg">
-                  <span>{t("totalPrice")}</span>
-                  <span>₾{formData.totalPrice.toFixed(2)}</span>
+                <div className="border-t border-blue-200 pt-4 flex justify-between items-center">
+                  <span className="text-lg font-bold text-gray-900">{t("totalPrice")}</span>
+                  <span className="text-2xl font-bold text-blue-600">₾{formData.totalPrice.toFixed(2)}</span>
                 </div>
               </div>
             </div>
           )}
 
-                    {/* Submit Button */}
+          {/* Submit Button */}
           <div className="flex justify-center">
             <button
               type="submit"
               disabled={submitting || !selectedPackage}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-8 py-4 rounded-lg font-medium text-lg transition-colors disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-200 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
             >
-              {submitting ? t("submitting") : t("submitBooking")}
+              {submitting ? (
+                <span className="flex items-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  {t("submitting")}
+                </span>
+              ) : (
+                t("submitBooking")
+              )}
             </button>
           </div>
         </form>
