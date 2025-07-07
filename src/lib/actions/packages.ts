@@ -33,7 +33,7 @@ const PackageSchema = z.object({
   popular: z.boolean().default(false),
   category: z.enum(CATEGORIES),
   locationId: z.number().positive("Location is required"),
-  busId: z.number().optional(),
+
 });
 
 const PackageUpdateSchema = PackageSchema.partial().extend({
@@ -49,7 +49,6 @@ export async function createPackage(data: z.infer<typeof PackageSchema>) {
       data: validatedData,
       include: {
         location: true,
-        bus: true,
         tourPlan: true,
       },
     });
@@ -75,7 +74,6 @@ export async function updatePackage(data: z.infer<typeof PackageUpdateSchema>) {
       data: updateData,
       include: {
         location: true,
-        bus: true,
         tourPlan: true,
       },
     });
@@ -111,7 +109,6 @@ export async function getAllPackages() {
     const packages = await prisma.package.findMany({
       include: {
         location: true,
-        bus: true,
         bookings: true,
         tourPlan: true,
         gallery: true,
@@ -133,7 +130,6 @@ export async function getPackageById(id: number) {
       where: { id },
       include: {
         location: true,
-        bus: true,
         bookings: true,
         gallery: true,
         tourPlan: true,

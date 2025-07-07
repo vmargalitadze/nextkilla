@@ -25,8 +25,6 @@ enum Category {
   Domestic
 }
 
-
-
 model Location {
   id       Int       @id @default(autoincrement())
   name     String
@@ -54,8 +52,6 @@ model Package {
   includedItems    IncludedItem[]
   notIncludedItems NotIncludedItem[]
 
-  bus       Bus?
-  busId     Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -81,41 +77,9 @@ model Booking {
   children     Int
   date         DateTime
   totalPrice   Float
-  seatNumber   String? // Optional: the seat number chosen
-  seatSelected Boolean   @default(false) // Did the user select a seat?
-  seat         Seat?     @relation(fields: [seatId], references: [id])
-  seatId       Int?      @unique
-  payment      Payment?
   discount     Discount? @relation(fields: [discountId], references: [id])
   discountId   Int?
   createdAt    DateTime  @default(now())
-}
-
-model Bus {
-  id        Int    @id @default(autoincrement())
-  name      String
-  seatCount Int
-  seats     Seat[]
-
-  package   Package @relation(fields: [packageId], references: [id])
-  packageId Int     @unique
-}
-
-model Seat {
-  id      Int      @id @default(autoincrement())
-  number  String
-  bus     Bus      @relation(fields: [busId], references: [id])
-  busId   Int
-  booking Booking? // Optional: link to booking if reserved
-}
-
-model Payment {
-  id        Int      @id @default(autoincrement())
-  booking   Booking  @relation(fields: [bookingId], references: [id])
-  bookingId Int      @unique
-  amount    Float
-  status    String // e.g., 'pending', 'paid', 'failed'
-  createdAt DateTime @default(now())
 }
 
 model Discount {

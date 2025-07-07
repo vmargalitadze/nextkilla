@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { MapPin, Calendar, Users, Check, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { useParams } from "next/navigation";
 import { getPackageById } from "@/lib/actions/packages";
@@ -21,7 +22,6 @@ interface PackageData {
   category: string;
   location?: { name: string; country: string };
   locationId: number;
-  busId: number | null;
   gallery?: Array<{ url: string }>;
   tourPlan?: Array<{ dayNumber: number; title: string; activities: string[] }>;
   createdAt: Date;
@@ -41,6 +41,7 @@ interface NotIncludedItemData {
 export default function PackageDetails() {
   const params = useParams();
   const router = useRouter();
+  const t = useTranslations("productDetails");
   const [activeTab, setActiveTab] = useState("overview");
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
@@ -107,7 +108,7 @@ export default function PackageDetails() {
       <div className="w-full lg:py-36 py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Package Not Found</h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">{t("packageNotFound")}</h1>
             <p className="text-gray-600">{error}</p>
           </div>
         </div>
@@ -205,7 +206,7 @@ export default function PackageDetails() {
                       <div className="flex items-center gap-2">
                         <Users className="w-5 h-5 text-red-400" />
                         <span className="text-gray-600">
-                          Max People: {packageData.maxPeople}
+                          {t("maxPeople")}: {packageData.maxPeople}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -232,9 +233,9 @@ export default function PackageDetails() {
                   <div className="border-b border-gray-200 overflow-x-auto">
                     <nav className="flex space-x-4 sm:space-x-8 px-4 sm:px-6">
                       {[
-                        { id: "overview", label: "Overview" },
-                        { id: "tour-plan", label: "Tour Plan" },
-                        { id: "gallery", label: "Gallery" },
+                        { id: "overview", label: t("overview") },
+                        { id: "tour-plan", label: t("tourPlan") },
+                        { id: "gallery", label: t("gallery") },
                       ].map((tab) => (
                         <button
                           key={tab.id}
@@ -255,7 +256,7 @@ export default function PackageDetails() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         <div>
                           <h3 className="text-lg font-semibold mb-4">
-                            What&apos;s Included
+                            {t("whatsIncluded")}
                           </h3>
                           {includedItems.length > 0 ? (
                             <ul className="space-y-2">
@@ -267,12 +268,12 @@ export default function PackageDetails() {
                               ))}
                             </ul>
                           ) : (
-                            <p className="text-gray-500">No included items listed</p>
+                            <p className="text-gray-500">{t("noIncludedItems")}</p>
                           )}
                         </div>
                         <div>
                           <h3 className="text-lg font-semibold mb-4">
-                            What&apos;s Not Included
+                            {t("whatsNotIncluded")}
                           </h3>
                           {notIncludedItems.length > 0 ? (
                             <ul className="space-y-2">
@@ -284,7 +285,7 @@ export default function PackageDetails() {
                               ))}
                             </ul>
                           ) : (
-                            <p className="text-gray-500">No excluded items listed</p>
+                            <p className="text-gray-500">{t("noExcludedItems")}</p>
                           )}
                         </div>
                       </div>
@@ -297,7 +298,7 @@ export default function PackageDetails() {
                     {activeTab === "gallery" && (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                         <div className="col-span-full text-center py-8">
-                          <p className="text-gray-500">Gallery images will be available soon</p>
+                          <p className="text-gray-500">{t("galleryComingSoon")}</p>
                         </div>
                       </div>
                     )}
@@ -317,15 +318,15 @@ export default function PackageDetails() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
-                          Number of Travelers
+                          {t("numberOfTravelers")}
                         </label>
                         <div className="text-sm text-gray-600 mb-1 sm:mb-2">
-                          {adults} adults - {children} children
+                          {adults} {t("adults")} - {children} {t("children")}
                         </div>
                         <div className="space-y-1 sm:space-y-2">
                           {/* Adults */}
                           <div className="flex items-center justify-between">
-                            <span className="text-sm">Adult</span>
+                            <span className="text-sm">{t("adult")}</span>
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => setAdults(Math.max(1, adults - 1))}
@@ -345,7 +346,7 @@ export default function PackageDetails() {
 
                           {/* Children */}
                           <div className="flex items-center justify-between">
-                            <span className="text-sm">Children</span>
+                            <span className="text-sm">{t("childrenLabel")}</span>
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => setChildren(Math.max(0, children - 1))}
@@ -369,7 +370,7 @@ export default function PackageDetails() {
 
                     <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
                       <div className="border-t pt-2 flex justify-between font-semibold">
-                        <span>Total: </span>
+                        <span>{t("total")}: </span>
                         <span>₾{totalPrice}</span>
                       </div>
                     </div>
@@ -380,7 +381,7 @@ export default function PackageDetails() {
                         disabled={bookingLoading}
                         className="explore-btn disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <span>{bookingLoading ? 'Processing...' : 'Book Now'}</span>
+                        <span>{bookingLoading ? t("processing") : t("bookNow")}</span>
                       </button>
                     </div>
                   </div>
@@ -388,23 +389,23 @@ export default function PackageDetails() {
                   {/* Package Info */}
                   <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
                     <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
-                      Package Information
+                      {t("packageInformation")}
                     </h3>
                     <div className="space-y-3 sm:space-y-4">
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Category:</span>
+                        <span className="text-sm text-gray-600">{t("category")}:</span>
                         <span className="text-sm font-medium">{packageData.category}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Location:</span>
+                        <span className="text-sm text-gray-600">{t("location")}:</span>
                         <span className="text-sm font-medium">{packageData.location?.name}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Duration:</span>
+                        <span className="text-sm text-gray-600">{t("duration")}:</span>
                         <span className="text-sm font-medium">{packageData.duration}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Max People:</span>
+                        <span className="text-sm text-gray-600">{t("maxPeople")}:</span>
                         <span className="text-sm font-medium">{packageData.maxPeople}</span>
                       </div>
                     </div>

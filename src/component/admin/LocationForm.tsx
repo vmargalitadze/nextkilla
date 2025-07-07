@@ -4,6 +4,13 @@
 import React, { useState } from "react";
 import { createLocation, updateLocation } from "@/lib/actions/locations";
 import { X, Save, Loader2, MapPin } from "lucide-react";
+import { 
+  type LocationFormData, 
+  type FormErrors,
+  validateLocationForm,
+  validateField,
+  locationSchema 
+} from "@/lib/validation/admin";
 
 interface LocationFormProps {
   location?: any;
@@ -12,16 +19,72 @@ interface LocationFormProps {
 }
 
 export default function LocationForm({ location: locationData, onSuccess, onCancel }: LocationFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LocationFormData>({
     name: locationData?.name || "",
     country: locationData?.country || "",
+  });
+
+  const [errors, setErrors] = useState<FormErrors<LocationFormData>>({});
+  const [touched, setTouched] = useState<Record<keyof LocationFormData, boolean>>({
+    name: false,
+    country: false
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Real-time field validation
+  const validateFieldOnChange = (field: keyof LocationFormData, value: string) => {
+    if (touched[field]) {
+      const validation = validateField(locationSchema, field, value);
+      setErrors(prev => ({
+        ...prev,
+        [field]: validation.isValid ? undefined : validation.error
+      }));
+    }
+  };
+
+  const handleInputChange = (field: keyof LocationFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    validateFieldOnChange(field, value);
+  };
+
+  const handleBlur = (field: keyof LocationFormData) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    validateFieldOnChange(field, formData[field]);
+  };
+
+  const getFieldError = (field: keyof LocationFormData) => {
+    return touched[field] && errors[field] ? errors[field] : "";
+  };
+
+  const getFieldClassName = (field: keyof LocationFormData) => {
+    const baseClasses = "w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent";
+    const hasError = getFieldError(field);
+    
+    if (hasError) {
+      return `${baseClasses} border-red-500 focus:ring-red-500`;
+    }
+    return `${baseClasses} border-gray-300`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Mark all fields as touched
+    setTouched({
+      name: true,
+      country: true
+    });
+
+    // Validate entire form
+    const validation = validateLocationForm(formData);
+    
+    if (!validation.success) {
+      setErrors(validation.errors as FormErrors<LocationFormData>);
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -40,10 +103,6 @@ export default function LocationForm({ location: locationData, onSuccess, onCanc
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -84,10 +143,14 @@ export default function LocationForm({ location: locationData, onSuccess, onCanc
               type="text"
               value={formData.name}
               onChange={(e) => handleInputChange("name", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              onBlur={() => handleBlur("name")}
+              className={getFieldClassName("name")}
               placeholder="e.g., Machu Picchu, Great Wall of China"
               required
             />
+            {getFieldError("name") && (
+              <p className="text-red-500 text-sm mt-1">{getFieldError("name")}</p>
+            )}
           </div>
 
           {/* Country */}
@@ -99,10 +162,14 @@ export default function LocationForm({ location: locationData, onSuccess, onCanc
               type="text"
               value={formData.country}
               onChange={(e) => handleInputChange("country", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              onBlur={() => handleBlur("country")}
+              className={getFieldClassName("country")}
               placeholder="e.g., Peru, China"
               required
             />
+            {getFieldError("country") && (
+              <p className="text-red-500 text-sm mt-1">{getFieldError("country")}</p>
+            )}
           </div>
 
           {/* Actions */}

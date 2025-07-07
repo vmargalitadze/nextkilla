@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { createPackage, updatePackage } from "@/lib/actions/packages";
 import { CATEGORIES } from "@/lib/Validation";
 import { getAllLocations } from "@/lib/actions/locations";
-import { getAllBuses } from "@/lib/actions/buses";
+
 import { getTourDaysByPackage, deleteTourDay, createTourDay } from "@/lib/actions/tourDays";
 import { getIncludedItemsByPackage, deleteIncludedItem, createIncludedItem } from "@/lib/actions/includedItems";
 import { getNotIncludedItemsByPackage, deleteNotIncludedItem, createNotIncludedItem } from "@/lib/actions/notIncludedItems";
@@ -34,7 +34,7 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
     category: packageData?.category || "Cultural",
     popular: packageData?.popular || false,
     locationId: packageData?.locationId || "",
-    busId: packageData?.busId || "",
+
     gallery: packageData?.gallery?.map((img: any) => img.url) || [],
   });
 
@@ -55,7 +55,7 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [locations, setLocations] = useState<any[]>([]);
-  const [buses, setBuses] = useState<any[]>([]);
+
   const [tourDays, setTourDays] = useState<any[]>([]);
   const [showTourDayForm, setShowTourDayForm] = useState(false);
   const [selectedTourDay, setSelectedTourDay] = useState<any>(null);
@@ -70,13 +70,9 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
     // Load dropdown data
     const loadData = async () => {
       try {
-        const [locationsRes, busesRes] = await Promise.all([
-          getAllLocations(),
-          getAllBuses(),
-        ]);
+        const locationsRes = await getAllLocations();
 
         if (locationsRes.success && locationsRes.data) setLocations(locationsRes.data);
-        if (busesRes.success && busesRes.data) setBuses(busesRes.data);
       } catch {
         console.error("Error loading form data");
       }
@@ -280,7 +276,7 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
         salePrice: formData.salePrice ? Number(formData.salePrice) : undefined,
         maxPeople: Number(formData.maxPeople),
         locationId: Number(formData.locationId),
-        busId: formData.busId ? Number(formData.busId) : undefined,
+  
       };
 
       const result = packageData?.id 
@@ -487,23 +483,7 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bus (Optional)
-              </label>
-              <select
-                value={formData.busId}
-                onChange={(e) => handleInputChange("busId", e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Select a bus (optional)</option>
-                {buses.map((bus: any) => (
-                  <option key={bus.id} value={bus.id}>
-                    {bus.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+
 
             <div>
               <label className="flex items-center space-x-2">

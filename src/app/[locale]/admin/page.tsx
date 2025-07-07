@@ -3,15 +3,10 @@
 
 import React, { useState, useEffect } from "react";
 import { getAllPackages, deletePackage } from "@/lib/actions/packages";
-import { getAllBuses, deleteBus } from "@/lib/actions/buses";
 import { getAllBookings, deleteBooking } from "@/lib/actions/bookings";
 import { getAllCategories } from "@/lib/actions/categories";
 import { getAllLocations, deleteLocation } from "@/lib/actions/locations";
-import { updatePaymentStatus, getAllPayments } from "@/lib/actions/payments";
 import PackageForm from "@/component/admin/PackageForm";
-import PaymentForm from "@/component/admin/PaymentForm";
-
-import BusForm from "@/component/admin/BusForm";
 import CategoryForm from "@/component/admin/CategoryForm";
 import LocationForm from "@/component/admin/LocationForm";
 import GalleryImageForm from "@/component/admin/GalleryImageForm";
@@ -19,7 +14,6 @@ import DiscountForm from "@/component/admin/DiscountForm";
 import { 
   Package, 
   Calendar, 
-  Bus, 
   Plus, 
   Edit, 
   Trash2, 
@@ -36,70 +30,46 @@ export default function AdminPage() {
   const [data, setData] = useState({
     packages: [] as any[],
     bookings: [] as any[],
-    buses: [] as any[],
     categories: [] as any[],
     locations: [] as any[],
     galleryImages: [] as any[],
-    discounts: [] as any[],
-    payments: [] as any[]
+    discounts: [] as any[]
   });
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalPackages: 0,
     totalBookings: 0,
-    totalBuses: 0,
-    totalRevenue: 0,
-    paidBookings: 0,
-    pendingBookings: 0,
-    totalPaidRevenue: 0
+    totalRevenue: 0
   });
 
   // Load data
   const loadData = async () => {
     setLoading(true);
     try {
-      const [packagesRes, bookingsRes, busesRes, categoriesRes, locationsRes, discountsRes, paymentsRes] = await Promise.all([
+      const [packagesRes, bookingsRes, categoriesRes, locationsRes, discountsRes] = await Promise.all([
         getAllPackages(),
         getAllBookings(),
-        getAllBuses(),
         getAllCategories(),
         getAllLocations(),
-        fetch('/api/discounts').then(res => res.json()),
-        getAllPayments()
+        fetch('/api/discounts').then(res => res.json())
       ]);
 
       const packages = packagesRes.success ? packagesRes.data || [] : [];
       const bookings = bookingsRes.success ? bookingsRes.data || [] : [];
-      const buses = busesRes.success ? busesRes.data || [] : [];
       const categories = categoriesRes.success ? [...(categoriesRes.data || [])] : [];
       const locations = locationsRes.success ? locationsRes.data || [] : [];
       const discounts = discountsRes.success ? discountsRes.data || [] : [];
-      const payments = paymentsRes.success ? paymentsRes.data || [] : [];
 
-      setData({ packages, bookings, buses, categories, locations, galleryImages: [], discounts, payments });
+      setData({ packages, bookings, categories, locations, galleryImages: [], discounts });
 
       // Calculate stats
       const totalRevenue = bookings.reduce((sum: number, booking: any) => 
         sum + (booking.totalPrice || 0), 0);
-      
-      const paidBookings = bookings.filter((booking: any) => 
-        booking.payment?.status === 'paid').length;
-      
-      const pendingBookings = bookings.filter((booking: any) => 
-        booking.payment?.status === 'pending').length;
-      
-      const totalPaidRevenue = bookings
-        .filter((booking: any) => booking.payment?.status === 'paid')
-        .reduce((sum: number, booking: any) => sum + (booking.totalPrice || 0), 0);
 
       setStats({
         totalPackages: packages.length,
         totalBookings: bookings.length,
-        totalBuses: buses.length,
-        totalRevenue,
-        paidBookings,
-        pendingBookings,
-        totalPaidRevenue
+        totalRevenue
       });
     } catch (error) {
       console.error("Error loading data:", error);
@@ -129,9 +99,6 @@ export default function AdminPage() {
           case "bookings":
             result = await deleteBooking(id);
             break;
-          case "buses":
-            result = await deleteBus(id);
-            break;
           case "categories":
             // Categories cannot be deleted as they are predefined enum values
             console.log("Categories cannot be deleted");
@@ -158,27 +125,11 @@ export default function AdminPage() {
     }
   };
 
-  const handlePaymentStatusUpdate = async (paymentId: number, newStatus: string) => {
-    try {
-      const result = await updatePaymentStatus(paymentId, newStatus);
-      if (result.success) {
-        console.log(`Payment status updated to ${newStatus}`);
-        loadData(); // Reload data to reflect changes
-      } else {
-        console.error(`Failed to update payment status:`, result.error);
-        alert(`Failed to update payment status: ${result.error}`);
-      }
-    } catch (error) {
-      console.error(`Error updating payment status:`, error);
-      alert(`Error updating payment status. Please try again.`);
-    }
-  };
+
 
   const tabs = [
     { id: "packages", label: "Packages", icon: Package, color: "blue" },
     { id: "bookings", label: "Bookings", icon: Calendar, color: "green" },
-    { id: "payments", label: "Payments", icon: Calendar, color: "purple" },
-    { id: "buses", label: "Buses", icon: Bus, color: "orange" },
     { id: "categories", label: "Categories", icon: Tag, color: "indigo" },
     { id: "locations", label: "Locations", icon: MapPin, color: "teal" },
     { id: "gallery", label: "Gallery Images", icon: Image, color: "purple" },
@@ -212,9 +163,7 @@ export default function AdminPage() {
                 <p className="text-2xl font-bold text-green-600">
                   ₾{stats.totalRevenue.toLocaleString()}
                 </p>
-                <p className="text-sm text-gray-500">
-                  Paid: ₾{stats.totalPaidRevenue.toLocaleString()}
-                </p>
+
               </div>
             </div>
           </div>
@@ -248,41 +197,7 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border">
-            <div className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Calendar className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Paid Bookings</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.paidBookings}</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border">
-            <div className="flex items-center">
-              <div className="p-3 bg-yellow-100 rounded-lg">
-                <Calendar className="w-6 h-6 text-yellow-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending Bookings</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.pendingBookings}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6 border">
-            <div className="flex items-center">
-              <div className="p-3 bg-orange-100 rounded-lg">
-                <Bus className="w-6 h-6 text-orange-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Buses</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalBuses}</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Tabs */}
@@ -401,7 +316,7 @@ export default function AdminPage() {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Travelers</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone Number</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
@@ -432,39 +347,11 @@ export default function AdminPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             ₾{booking.totalPrice}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            {booking.payment ? (
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                booking.payment.status === 'paid' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : booking.payment.status === 'pending'
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : booking.payment.status === 'failed'
-                                  ? 'bg-red-100 text-red-800'
-                                  : 'bg-gray-100 text-gray-800'
-                              }`}>
-                                {booking.payment.status.charAt(0).toUpperCase() + booking.payment.status.slice(1)}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                No Payment
-                              </span>
-                            )}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {booking.phone || "N/A"}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex justify-end space-x-2">
-                              {booking.payment && (
-                                <select
-                                  value={booking.payment.status}
-                                  onChange={(e) => handlePaymentStatusUpdate(booking.payment.id, e.target.value)}
-                                  className="text-xs border border-gray-300 rounded px-2 py-1 bg-white"
-                                >
-                                  <option value="pending">Pending</option>
-                                  <option value="paid">Paid</option>
-                                  <option value="failed">Failed</option>
-                                  <option value="cancelled">Cancelled</option>
-                                </select>
-                              )}
                               <button
                                 onClick={() => handleDelete("bookings", booking.id)}
                                 className="text-red-600 hover:text-red-900"
@@ -481,138 +368,7 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* Payments Tab */}
-            {activeTab === "payments" && (
-              <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Payments</h2>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {data.payments.map((payment: any) => (
-                        <tr key={payment.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              {payment.booking?.package?.title}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              Booking #{payment.bookingId}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              {payment.booking?.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {payment.booking?.email}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ₾{payment.amount}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              payment.status === 'paid' 
-                                ? 'bg-green-100 text-green-800'
-                                : payment.status === 'pending'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : payment.status === 'failed'
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {new Date(payment.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex justify-end space-x-2">
-                              <button
-                                onClick={() => setShowForm({ type: "payment", data: payment })}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
 
-            {/* Buses Tab */}
-            {activeTab === "buses" && (
-              <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Buses</h2>
-                  <button
-                    onClick={() => setShowForm({ type: "bus" })}
-                    className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Bus</span>
-                  </button>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bus Name</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seats</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {data.buses.map((bus: any) => (
-                        <tr key={bus.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{bus.name}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {bus.seatCount} seats
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {bus.package?.title || "N/A"}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex justify-end space-x-2">
-                              <button
-                                onClick={() => setShowForm({ type: "bus", data: bus })}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDelete("buses", bus.id)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
 
             {/* Categories Tab */}
             {activeTab === "categories" && (
@@ -852,13 +608,7 @@ export default function AdminPage() {
             />
           )}
 
-          {showForm.type === "bus" && (
-            <BusForm
-              bus={showForm.data}
-              onSuccess={handleFormSuccess}
-              onCancel={() => setShowForm(null)}
-            />
-          )}
+
           {showForm.type === "category" && (
             <CategoryForm
               onCancel={() => setShowForm(null)}
@@ -884,13 +634,7 @@ export default function AdminPage() {
               onCancel={() => setShowForm(null)}
             />
           )}
-          {showForm.type === "payment" && (
-            <PaymentForm
-              paymentId={showForm.data?.id}
-              onSuccess={handleFormSuccess}
-              onCancel={() => setShowForm(null)}
-            />
-          )}
+
         </>
       )}
     </div>
