@@ -12,10 +12,12 @@ function CompanyFilter() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [category, setCategory] = useState("");
+  const [location, setLocation] = useState("");
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [availableLocations, setAvailableLocations] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch packages and filter categories
+  // Fetch packages and filter categories and locations
   useEffect(() => {
     const fetchPackages = async () => {
       try {
@@ -35,6 +37,15 @@ function CompanyFilter() {
             .map(item => item.category);
           
           setAvailableCategories(categoriesWithPackages);
+
+          // Get unique locations from packages
+          const uniqueLocations = [...new Set(
+            packages
+              .filter((pkg: any) => pkg.location?.city)
+              .map((pkg: any) => pkg.location.city)
+          )].sort();
+          
+          setAvailableLocations(uniqueLocations);
         }
       } catch (error) {
         console.error("Error fetching packages:", error);
@@ -58,9 +69,12 @@ function CompanyFilter() {
     if (category) {
       params.append("category", category);
     }
+    if (location) {
+      params.append("location", location);
+    }
     
     const queryString = params.toString();
-    const url = queryString ? `/list?${queryString}` : "/list";
+    const url = queryString ? `/travels?${queryString}` : "/travels";
     router.push(url);
   };
 
@@ -71,7 +85,7 @@ function CompanyFilter() {
           <div className="grid grid-cols-1">
             <div className="p-6 bg-white  rounded-xl shadow ">
               <div className="registration-form text-dark text-start">
-                <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4">
+                <div className="grid lg:grid-cols-5 md:grid-cols-2 grid-cols-1 gap-4">
                   <div>
                     <label className="form-label font-medium text-slate-900 ">
                       {t("search")}
@@ -117,7 +131,7 @@ function CompanyFilter() {
                   </div>
                   <div>
                     <label className="form-label font-medium text-slate-900 ">
-                      Category
+                    {t("category")}
                     </label>
                     <div className="relative mt-2">
                       <select 
@@ -130,6 +144,26 @@ function CompanyFilter() {
                         {availableCategories.map((cat) => (
                           <option key={cat} value={cat}>
                             {cat}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="form-label font-medium text-slate-900 ">
+                      {t("location")}
+                    </label>
+                    <div className="relative mt-2">
+                      <select 
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        className="form-select w-full py-2 px-3 ps-10 h-10 bg-white  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
+                        disabled={loading}
+                      >
+                        <option value="">All Locations</option>
+                        {availableLocations.map((loc) => (
+                          <option key={loc} value={loc}>
+                            {loc}
                           </option>
                         ))}
                       </select>

@@ -8,6 +8,7 @@ import Dest from "@/component/Dest";
 import Footer from "@/component/Footer";
 import Hero from "@/component/Hero";
 import Top from "@/component/Top";
+import TransportModes from "@/component/TransportModes";
 
 export default function Home() {
   const params = useParams();
@@ -19,6 +20,7 @@ export default function Home() {
     <>
       <Hero />
       <CompanyFilter />
+      <TransportModes />
       {/* <Info /> */}
     
       <Category />

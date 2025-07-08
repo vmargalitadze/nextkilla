@@ -2,6 +2,7 @@
   "navbar": {
     "home": "Home",
     "about": "About",
+    "travels": "Travels",
     "news": "News",
     "contact": "Contact"
   },
@@ -88,7 +89,9 @@
     "personCount": "No. of person",
     "searchPlaceholder": "Search destinations...",
     "selectPersons": "Select persons",
-    "searchButton": "Search"
+    "searchButton": "Search",
+    "category": "Category",
+    "location": "Location"
   },
   "packageDetails": {
     "reviews": "reviews",
@@ -194,6 +197,20 @@
     "backToHome": "Back to Home",
     "printConfirmation": "Print Confirmation"
   },
+  "transportModes": {
+    "title": "Choose Your Travel Style",
+    "subtitle": "Experience the world your way with our flexible transportation options",
+    "busTitle": "Bus Tours",
+    "busDescription": "Comfortable and scenic journeys with multiple departure dates",
+    "busFeature1": "Multiple dates available",
+    "busFeature2": "Group travel experience",
+    "planeTitle": "Plane Tours",
+    "planeDescription": "Fast and convenient air travel to your dream destinations",
+    "planeFeature1": "Quick arrival",
+    "planeFeature2": "Premium experience",
+    "exploreCountry": "Explore travel packages",
+    "viewAllDestinations": "View All Destinations"
+  },
   "productDetails": {
     "packageNotFound": "Package Not Found",
     "maxPeople": "Max People",
@@ -215,5 +232,24 @@
     "category": "Category",
     "location": "Location",
     "duration": "Duration"
+  },
+  "travels": {
+    "clear": "Clear",
+    "filterBy": "Filter by:",
+    "transportType": "Transport Type",
+    "search": "Search",
+    "viewDetails": "View Details",
+    "filterByDate": "Filter by Date:",
+    "popularity": "Popularity",
+    "popularOnly": "Popular packages only",
+    "categories": "Categories",
+    "countries": "Countries",
+    "destinations": "Destinations",
+    "availableDates": "Available Dates",
+    "all": "All",
+    "busTours": "🚌 Bus Tours",
+    "planeTours": "✈️ Plane Tours",
+    "noPackages": "No packages found",
+    "tryAdjusting": "Try adjusting your filters or search terms."
   }
 }

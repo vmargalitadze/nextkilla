@@ -4,9 +4,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
+
 
 import { getAllPackages } from "@/lib/actions/packages";
+import { getPackageAvailability, getBusTourAvailability } from "@/lib/actions/bookings";
 import { 
   type BookingFormData, 
   type BookingFormErrors,
@@ -66,27 +67,6 @@ export default function BookingPage() {
     }
   };
 
-  // Helper function to get max people for a package
-  const getMaxPeople = () => {
-    if (!selectedPackage) return 0;
-    
-    // For bus tours, use the selected date's maxPeople
-    if (selectedPackage.byBus && selectedDate) {
-      const selectedDateData = selectedPackage.dates?.find((date) => 
-        date.startDate.getTime() === selectedDate.startDate.getTime() && 
-        date.endDate.getTime() === selectedDate.endDate.getTime()
-      );
-      return selectedDateData ? selectedDateData.maxPeople : 0;
-    }
-    
-    // For bus tours without selected date, show first available date's maxPeople
-    if (selectedPackage.byBus && selectedPackage.dates && selectedPackage.dates.length > 0) {
-      return selectedPackage.dates[0].maxPeople;
-    }
-    
-    // For regular tours, use the package's maxPeople
-    return selectedPackage.maxPeople;
-  };
 
   
   const [packages, setPackages] = useState<Package[]>([]);
@@ -119,6 +99,8 @@ export default function BookingPage() {
 
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [selectedDate, setSelectedDate] = useState<{ startDate: Date; endDate: Date } | null>(null);
+  const [availability, setAvailability] = useState<any>(null);
+  const [busTourAvailability, setBusTourAvailability] = useState<any[]>([]);
 
   // Load packages on component mount
   const loadPackages = useCallback(async () => {
@@ -176,8 +158,47 @@ export default function BookingPage() {
       setSelectedPackage(package_ || null);
       // Reset selected date when package changes
       setSelectedDate(null);
+      
+      // Load availability for the selected package
+      loadPackageAvailability(package_);
     }
   }, [formData.packageId, packages]);
+
+  // Load availability for a package
+  const loadPackageAvailability = async (package_: Package | undefined) => {
+    if (!package_) return;
+
+    try {
+      if (package_.byBus) {
+        // For bus tours, get availability for all dates
+        const busAvailability = await getBusTourAvailability(package_.id);
+        if (busAvailability.success) {
+          setBusTourAvailability(busAvailability.data || []);
+        }
+      } else {
+        // For plane and regular tours, get overall availability
+        const packageAvailability = await getPackageAvailability(package_.id);
+        if (packageAvailability.success) {
+          setAvailability(packageAvailability.data);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading availability:", error);
+    }
+  };
+
+  // Update availability when selected date changes for bus tours
+  useEffect(() => {
+    if (selectedPackage?.byBus && selectedDate) {
+      const dateAvailability = busTourAvailability.find(date => 
+        date.startDate.getTime() === selectedDate.startDate.getTime() && 
+        date.endDate.getTime() === selectedDate.endDate.getTime()
+      );
+      if (dateAvailability) {
+        setAvailability(dateAvailability);
+      }
+    }
+  }, [selectedDate, busTourAvailability, selectedPackage]);
 
   // Calculate total price when package or adults changes
   const totalPrice = useMemo(() => {
@@ -370,67 +391,7 @@ export default function BookingPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Package Selection */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-              <span className="mr-3">🎯</span>
-              {t("selectPackage")}
-            </h2>
-            <div>
-              <select
-                value={formData.packageId}
-                onChange={(e) => handleInputChange("packageId", Number(e.target.value))}
-                onBlur={() => handleBlur("packageId")}
-                className={getFieldClassName("packageId")}
-                required
-                aria-describedby={getFieldError("packageId") ? "package-error" : undefined}
-              >
-                <option value="">{t("choosePackage")}</option>
-                {packages.map((pkg) => (
-                  <option key={pkg.id} value={pkg.id}>
-                    {pkg.title} - ₾{pkg.price} ({pkg.startDate && pkg.endDate ? 
-                      `${formatDateDisplay(pkg.startDate)} - ${formatDateDisplay(pkg.endDate)}` : 
-                      pkg.duration
-                    })
-                  </option>
-                ))}
-              </select>
-              {getFieldError("packageId") && (
-                <p id="package-error" className="text-red-500 text-sm mt-2 flex items-center">
-                  <span className="mr-1">⚠️</span>
-                  {getFieldError("packageId")}
-                </p>
-              )}
-            </div>
-
-            {selectedPackage && (
-              <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-                <div className="flex items-start space-x-6">
-                  {selectedPackage.gallery && selectedPackage.gallery.length > 0 && (
-                    <div className="relative">
-                      <Image
-                        src={selectedPackage.gallery[0].url}
-                        alt={selectedPackage.title}
-                        className="object-cover rounded-lg shadow-md"
-                        width={120}
-                        height={120}
-                        priority
-                      />
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{selectedPackage.title}</h3>
-                    <p className="text-2xl font-bold text-blue-600 mb-2">₾{selectedPackage.price}</p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      <span>👥 Max: {selectedPackage.maxPeople} people</span>
-                      {selectedPackage.byBus && <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">🚌 Bus Tour</span>}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
+     
           {/* Date Selection for Bus Tours */}
           {selectedPackage && selectedPackage.byBus && selectedPackage.dates && selectedPackage.dates.length > 0 && (
             <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
@@ -439,30 +400,49 @@ export default function BookingPage() {
                 {t("selectDate")}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {selectedPackage.dates.map((date) => (
-                  <button
-                    key={date.id}
-                    type="button"
-                    onClick={() => setSelectedDate({ startDate: date.startDate, endDate: date.endDate })}
-                    className={`p-6 border-2 rounded-xl text-left transition-all duration-200 hover:shadow-md ${
-                      selectedDate && 
-                      selectedDate.startDate.getTime() === date.startDate.getTime() && 
-                      selectedDate.endDate.getTime() === date.endDate.getTime()
-                        ? 'border-blue-500 bg-blue-50 shadow-md'
-                        : 'border-gray-300 hover:border-blue-300 bg-white'
-                    }`}
-                  >
-                    <div className="font-semibold text-gray-900 mb-1">
-                      {formatDateDisplay(date.startDate)}
-                    </div>
-                    <div className="text-sm text-gray-500 mb-2">
-                      to {formatDateDisplay(date.endDate)}
-                    </div>
-                    <div className="text-sm text-blue-600 font-medium">
-                      👥 Max: {date.maxPeople} people
-                    </div>
-                  </button>
-                ))}
+                {selectedPackage.dates.map((date) => {
+                  const dateAvailability = busTourAvailability.find(avail => 
+                    avail.startDate.getTime() === date.startDate.getTime() && 
+                    avail.endDate.getTime() === date.endDate.getTime()
+                  );
+                  
+                  const isFullyBooked = dateAvailability?.isFullyBooked || false;
+                  const availableSpots = dateAvailability?.availableSpots || date.maxPeople;
+                  
+                  return (
+                    <button
+                      key={date.id}
+                      type="button"
+                      disabled={isFullyBooked}
+                      onClick={() => setSelectedDate({ startDate: date.startDate, endDate: date.endDate })}
+                      className={`p-6 border-2 rounded-xl text-left transition-all duration-200 hover:shadow-md ${
+                        selectedDate && 
+                        selectedDate.startDate.getTime() === date.startDate.getTime() && 
+                        selectedDate.endDate.getTime() === date.endDate.getTime()
+                          ? 'border-blue-500 bg-blue-50 shadow-md'
+                          : isFullyBooked
+                            ? 'border-red-300 bg-red-50 cursor-not-allowed opacity-60'
+                            : 'border-gray-300 hover:border-blue-300 bg-white'
+                      }`}
+                    >
+                      <div className="font-semibold text-gray-900 mb-1">
+                        {formatDateDisplay(date.startDate)}
+                      </div>
+                      <div className="text-sm text-gray-500 mb-2">
+                        to {formatDateDisplay(date.endDate)}
+                      </div>
+                      <div className={`text-sm font-medium ${
+                        isFullyBooked ? 'text-red-600' : 'text-blue-600'
+                      }`}>
+                        {isFullyBooked ? (
+                          <span>🚫 Fully Booked</span>
+                        ) : (
+                          <span>👥 {availableSpots} spots available</span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
               {!selectedDate && (
                 <p className="text-red-500 text-sm mt-3 flex items-center">
@@ -589,8 +569,9 @@ export default function BookingPage() {
                   onBlur={() => handleBlur("adults")}
                   className={getFieldClassName("adults")}
                   min="1"
-                  max="20"
+                  max={availability?.isFullyBooked ? 0 : (availability?.availableSpots || 20)}
                   required
+                  disabled={availability?.isFullyBooked}
                   aria-describedby={getFieldError("adults") ? "adults-error" : undefined}
                 />
                 {getFieldError("adults") && (
@@ -607,21 +588,41 @@ export default function BookingPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {t("totalTravelers")}
                     </label>
-                    <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                      <span className="text-lg font-semibold text-blue-700">
+                    <div className={`px-4 py-3 border rounded-lg ${
+                      availability?.isFullyBooked 
+                        ? 'bg-red-50 border-red-200' 
+                        : formData.adults > (availability?.availableSpots || 0)
+                        ? 'bg-yellow-50 border-yellow-200'
+                        : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'
+                    }`}>
+                      <span className={`text-lg font-semibold ${
+                        availability?.isFullyBooked 
+                          ? 'text-red-700' 
+                          : formData.adults > (availability?.availableSpots || 0)
+                          ? 'text-yellow-700'
+                          : 'text-blue-700'
+                      }`}>
                         {formData.adults} / {(() => {
-                          const maxPeople = getMaxPeople();
-                          if (selectedPackage?.byBus && !selectedDate) {
-                            return `${maxPeople} (select date)`;
+                          if (availability?.isFullyBooked) {
+                            return 'Fully Booked';
                           }
-                          return maxPeople;
+                          if (selectedPackage?.byBus && !selectedDate) {
+                            return `${availability?.maxPeople || 'Select date'}`;
+                          }
+                          return availability?.availableSpots || availability?.maxPeople || 'Unknown';
                         })()}
                       </span>
                     </div>
-                    {formData.adults > getMaxPeople() && (
+                    {availability?.isFullyBooked && (
                       <p className="text-red-500 text-sm mt-2 flex items-center">
+                        <span className="mr-1">🚫</span>
+                        This tour is fully booked
+                      </p>
+                    )}
+                    {!availability?.isFullyBooked && formData.adults > (availability?.availableSpots || 0) && (
+                      <p className="text-yellow-600 text-sm mt-2 flex items-center">
                         <span className="mr-1">⚠️</span>
-                        {t("exceedsCapacity")}
+                        Only {availability?.availableSpots} spots available
                       </p>
                     )}
                   </div>
@@ -654,7 +655,7 @@ export default function BookingPage() {
           <div className="flex justify-center">
             <button
               type="submit"
-              disabled={submitting || !selectedPackage}
+              disabled={submitting || !selectedPackage || availability?.isFullyBooked || formData.adults > (availability?.availableSpots || 0)}
               className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-200 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
             >
               {submitting ? (

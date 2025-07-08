@@ -209,3 +209,27 @@ export async function getPackageById(id: number) {
 }
 
 // Get popular packages
+
+// Get unique countries from packages
+export async function getUniqueCountries() {
+  try {
+    const packages = await prisma.package.findMany({
+      include: {
+        location: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Extract unique countries
+    const uniqueCountries = [...new Set(
+      packages
+        .filter(pkg => pkg.location?.country)
+        .map(pkg => pkg.location.country)
+    )].sort();
+
+    return { success: true, data: uniqueCountries };
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: "Failed to fetch countries" };
+  }
+}

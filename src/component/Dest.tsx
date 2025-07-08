@@ -8,16 +8,21 @@ import { Pagination } from "swiper/modules";
 import { useTranslations } from "next-intl";
 import "swiper/css";
 import "swiper/css/pagination";
-import { Calendar } from "lucide-react";
+
 
 interface Package {
   id: number;
   title: string;
+  description: string;
   price: number;
+  salePrice?: number | null;
   duration: string;
   startDate?: Date | null;
   endDate?: Date | null;
   byBus: boolean;
+  byPlane: boolean;
+  category: string;
+  popular?: boolean;
   gallery: Array<{
     id: number;
     url: string;
@@ -47,35 +52,10 @@ function Dest({ locale = 'en' }: DestProps) {
   const t = useTranslations("newDest");
 
   // Map app locale to date locale
-  const dateLocale = locale === 'ge' ? 'ka-GE' : 'en-US';
-  
-  // Georgian month names
-  const georgianMonths = {
-    'Jan': 'იან',
-    'Feb': 'თებ',
-    'Mar': 'მარ',
-    'Apr': 'აპრ',
-    'May': 'მაი',
-    'Jun': 'ივნ',
-    'Jul': 'ივლ',
-    'Aug': 'აგვ',
-    'Sep': 'სექ',
-    'Oct': 'ოქტ',
-    'Nov': 'ნოე',
-    'Dec': 'დეკ'
-  };
+ console.log(locale);
+ 
 
-  // Helper function to format dates
-  const formatDate = (date: Date) => {
-    if (locale === 'ge') {
-      const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      const parts = formatted.split(' ');
-      const month = georgianMonths[parts[0] as keyof typeof georgianMonths] || parts[0];
-      return `${month} ${parts[1]}, ${parts[2]}`;
-    } else {
-      return date.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-  };
+
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -109,10 +89,11 @@ function Dest({ locale = 'en' }: DestProps) {
       </div>
     );
   }
-
+ 
+ 
   return (
     <>
-      <div className="max-w-7xl pt-15 mx-auto">
+      <div className="max-w-7xl pt-15  mx-auto">
         <div className="mb-7 text-center">
           <h3 className="capitalize font-[Salsa,cursive] text-[30px] md:text-[40px] md:text-6xl">
             {t("title")}
@@ -134,7 +115,7 @@ function Dest({ locale = 'en' }: DestProps) {
         {packages.map((package_, idx) => (
           <SwiperSlide key={package_.id}>
             <div
-              className="bg-white mb-24 rounded-lg shadow-lg overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              className=" mb-5 mt-16 rounded-lg shadow-lg overflow-hidden flex flex-col"
               style={{
                 animationDelay: `${idx * 0.1}s`,
                 animationName: "fadeInUp",
@@ -142,90 +123,74 @@ function Dest({ locale = 'en' }: DestProps) {
                 animationFillMode: "both",
               }}
             >
-              <div className="relative hover:shadow-xl hover:-translate-y-1 w-full h-[500px]">
-                {package_.gallery[0]?.url ? (
+              <div className="relative w-full h-[300px]">
+                {package_.gallery && package_.gallery.length > 0 ? (
                   <Image
                     src={package_.gallery[0].url}
                     alt={package_.title}
                     fill
-                    className="object-cover rounded-t-lg"
+                    className="object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <div className="text-gray-400 text-center">
-                      <svg
-                        className="w-12 h-12 mx-auto mb-2"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <p className="text-sm">No image</p>
-                    </div>
+                    <span className="text-gray-400">No image</span>
                   </div>
                 )}
+                {package_.popular && (
+                  <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+                    Popular
+                  </div>
+                )}
+                {/* Transport type indicator */}
+                <div className="absolute top-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm font-medium">
+                  {package_.byBus ? "🚌" : package_.byPlane ? "✈️" : ""}
+                </div>
               </div>
-              <div className="p-6 flex rounded-lg flex-col flex-1">
+              <div className="p-6 flex flex-col flex-1">
                 <div className="flex flex-col lg:flex-row justify-between mb-3">
-                  <h4 className="text-red-400 font-semibold text-[18px]">
-                    <Link
-                      href={`/product/${package_.id}`}
-                     
-                    >
-                      {package_.title}
-                    </Link>
-                  </h4>
-                  <span className="text-[18px] font-medium">
-                    ₾{package_.price}
-                  </span>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 lg:mb-0">
+                    {package_.title}
+                  </h3>
+                  <div className="text-right">
+                    {package_.salePrice ? (
+                      <div>
+                        <span className="text-lg font-bold text-red-600">
+                          ₾{package_.salePrice}
+                        </span>
+                        <span className="text-sm text-gray-500 line-through ml-2">
+                          ₾{package_.price}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-lg font-bold text-gray-900">
+                        ₾{package_.price}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex gap-3 items-center mt-auto">
-                  <span className="inline-flex items-center justify-center p-2 bg-gray-100 rounded-full">
-                  <Calendar width={18} height={18} />
-                  </span>
-                  <span className="text-gray-700 text-sm">
-                    {package_.byBus && package_.dates && package_.dates.length > 0 
-                      ? `${formatDate(package_.dates[0].startDate)} - ${formatDate(package_.dates[0].endDate)}`
-                      : package_.startDate && package_.endDate 
-                        ? `${formatDate(package_.startDate)} - ${formatDate(package_.endDate)}`
-                        : package_.duration
-                    }
-                  </span>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  {package_.description}
+                </p>
+
+                <div className="flex items-center text-sm text-gray-500 mb-4">
+                  <span className="mr-4">{package_.location?.name || ""}</span>
+                
                 </div>
-                <Link
-                  href={`/product/${package_.id}`}
-                  className="explore-btn gap-3 group mt-4 inline-flex items-center text-[#f09819] font-semibold "
-                >
-                  <span>Explore Now</span>
-                  <div className="max-w-[24px]">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="text-[#f09819]"
-                      width="27"
-                      height="14"
-                      viewBox="0 0 27 14"
-                      fill="none"
-                    >
-                      <path
-                        d="M0.217443 6.25H18.4827C18.6276 6.25 18.7001 6.30263 18.7001 6.40789V7.59211C18.7001 7.69737 18.6276 7.75 18.4827 7.75H0.217443C0.0724811 7.75 0 7.69737 0 7.59211V6.40789C0 6.30263 0.0724811 6.25 0.217443 6.25Z"
-                        fill="currentColor"
-                      />
-                      <path
-                        d="M20.7001 12.28L25.0467 7.9333C25.5601 7.41997 25.5601 6.57997 25.0467 6.06664L20.7001 1.71997"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeMiterlimit="10"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+
+                <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-500">
+                      {package_.byBus ? "🚌" : "✈️"} {package_.category}
+                    </span>
                   </div>
-                </Link>
+                  <Link
+                    href={`/product/${package_.id}`}
+                    className="w-[50%] text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
             </div>
           </SwiperSlide>

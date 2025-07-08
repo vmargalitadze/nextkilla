@@ -23,10 +23,170 @@ const BookingUpdateSchema = BookingSchema.partial().extend({
   id: z.number().positive("ID is required"),
 });
 
+// Get availability for a package
+export async function getPackageAvailability(packageId: number, startDate?: Date, endDate?: Date) {
+  try {
+    const package_ = await prisma.package.findUnique({
+      where: { id: packageId },
+      include: {
+        bookings: true,
+        dates: true,
+      },
+    });
+
+    if (!package_) {
+      return { success: false, error: "Package not found" };
+    }
+
+    // For byBus tours, check availability for specific dates
+    if (package_.byBus && startDate && endDate) {
+      const packageDate = package_.dates.find(date => 
+        date.startDate.getTime() === startDate.getTime() && 
+        date.endDate.getTime() === endDate.getTime()
+      );
+
+      if (!packageDate) {
+        return { success: false, error: "Date not found for this package" };
+      }
+
+      // Calculate booked spots for this specific date
+      const bookedSpots = package_.bookings
+        .filter(booking => 
+          booking.startDate.getTime() === startDate.getTime() && 
+          booking.endDate.getTime() === endDate.getTime()
+        )
+        .reduce((total, booking) => total + booking.adults, 0);
+
+      const availableSpots = packageDate.maxPeople - bookedSpots;
+      const isFullyBooked = availableSpots <= 0;
+
+      return {
+        success: true,
+        data: {
+          maxPeople: packageDate.maxPeople,
+          bookedSpots,
+          availableSpots: Math.max(0, availableSpots),
+          isFullyBooked,
+          packageType: 'byBus'
+        }
+      };
+    }
+
+    // For byPlane tours, check overall availability
+    if (package_.byPlane) {
+      // Calculate total booked spots for the package
+      const bookedSpots = package_.bookings.reduce((total, booking) => total + booking.adults, 0);
+      const availableSpots = package_.maxPeople - bookedSpots;
+      const isFullyBooked = availableSpots <= 0;
+
+      return {
+        success: true,
+        data: {
+          maxPeople: package_.maxPeople,
+          bookedSpots,
+          availableSpots: Math.max(0, availableSpots),
+          isFullyBooked,
+          packageType: 'byPlane'
+        }
+      };
+    }
+
+    // For regular tours (non-bus, non-plane)
+    const bookedSpots = package_.bookings.reduce((total, booking) => total + booking.adults, 0);
+    const availableSpots = package_.maxPeople - bookedSpots;
+    const isFullyBooked = availableSpots <= 0;
+
+    return {
+      success: true,
+      data: {
+        maxPeople: package_.maxPeople,
+        bookedSpots,
+        availableSpots: Math.max(0, availableSpots),
+        isFullyBooked,
+        packageType: 'regular'
+      }
+    };
+
+  } catch (error) {
+    console.error("Error getting package availability:", error);
+    return { success: false, error: "Failed to get package availability" };
+  }
+}
+
+// Get availability for all dates of a bus tour
+export async function getBusTourAvailability(packageId: number) {
+  try {
+    const package_ = await prisma.package.findUnique({
+      where: { id: packageId },
+      include: {
+        bookings: true,
+        dates: true,
+      },
+    });
+
+    if (!package_ || !package_.byBus) {
+      return { success: false, error: "Package not found or not a bus tour" };
+    }
+
+    const dateAvailability = package_.dates.map(date => {
+      const bookedSpots = package_.bookings
+        .filter(booking => 
+          booking.startDate.getTime() === date.startDate.getTime() && 
+          booking.endDate.getTime() === date.endDate.getTime()
+        )
+        .reduce((total, booking) => total + booking.adults, 0);
+
+      const availableSpots = date.maxPeople - bookedSpots;
+      const isFullyBooked = availableSpots <= 0;
+
+      return {
+        dateId: date.id,
+        startDate: date.startDate,
+        endDate: date.endDate,
+        maxPeople: date.maxPeople,
+        bookedSpots,
+        availableSpots: Math.max(0, availableSpots),
+        isFullyBooked
+      };
+    });
+
+    return {
+      success: true,
+      data: dateAvailability
+    };
+
+  } catch (error) {
+    console.error("Error getting bus tour availability:", error);
+    return { success: false, error: "Failed to get bus tour availability" };
+  }
+}
+
 // Create a new booking
 export async function createBooking(data: z.infer<typeof BookingSchema>) {
   try {
     const validatedData = BookingSchema.parse(data);
+    
+    // Check availability before creating booking
+    const availability = await getPackageAvailability(
+      validatedData.packageId, 
+      validatedData.startDate, 
+      validatedData.endDate
+    );
+
+    if (!availability.success || !availability.data) {
+      return { success: false, error: availability.error || "Failed to check availability" };
+    }
+
+    if (availability.data.isFullyBooked) {
+      return { success: false, error: "This tour is fully booked" };
+    }
+
+    if (validatedData.adults > availability.data.availableSpots) {
+      return { 
+        success: false, 
+        error: `Only ${availability.data.availableSpots} spots available, but trying to book ${validatedData.adults} people` 
+      };
+    }
     
     const booking = await prisma.booking.create({
       data: validatedData,

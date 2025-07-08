@@ -153,6 +153,8 @@ export default function PackageDetails() {
     }
   };
 
+
+
   return (
     <>
       <div className="w-full lg:py-36 py-16 sm:py-20 relative overflow-hidden">
@@ -339,10 +341,23 @@ export default function PackageDetails() {
                     )}
 
                     {activeTab === "gallery" && (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                        <div className="col-span-full text-center py-8">
-                          <p className="text-gray-500">{t("galleryComingSoon")}</p>
-                        </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+                        {packageData.gallery && packageData.gallery.length > 0 ? (
+                          packageData.gallery.map((image, index) => (
+                            <div key={index} className="relative aspect-square overflow-hidden rounded-lg">
+                              <Image
+                                src={image.url}
+                                alt={`${packageData.title} - Gallery image ${index + 1}`}
+                                fill
+                                className="object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                              />
+                            </div>
+                          ))
+                        ) : (
+                          <div className="col-span-full text-center py-8">
+                            <p className="text-gray-500">{t("noGalleryImages")}</p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -435,6 +450,12 @@ export default function PackageDetails() {
                           )}
                         </span>
                       </div>
+                      {/* Debug info - remove this after testing */}
+                      {packageData.byPlane && (
+                        <div className="text-xs text-gray-400 mt-1">
+                          Debug: byPlane={packageData.byPlane}, startDate={packageData.startDate ? 'set' : 'null'}, endDate={packageData.endDate ? 'set' : 'null'}, duration={packageData.duration}
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600">{t("maxPeople")}:</span>
                         <span className="text-sm font-medium">{packageData.maxPeople}</span>

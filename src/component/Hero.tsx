@@ -44,7 +44,7 @@ export default function Hero() {
         effect="fade"
         speed={1000}
         loop={true}
-        pagination={{ clickable: true }}
+ 
         autoplay={{ delay: 3000, disableOnInteraction: false }}
         modules={[Pagination, EffectFade, Autoplay]}
         className="w-full h-full swiper-container"
@@ -68,8 +68,7 @@ export default function Hero() {
               </h1>
               <p className="text-lg font-medium leading-snug mb-6">{slide.text}</p>
               
-              {/* Pagination inline with text - clickable */}
-              <div className="swiper-pagination pb-10" />
+         
             </div>
 
             <div

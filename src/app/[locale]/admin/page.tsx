@@ -322,6 +322,8 @@ export default function AdminPage() {
                               ) : (
                                 <span className="text-gray-400">No dates set</span>
                               )
+                            ) : pkg.startDate && pkg.endDate ? (
+                              `${formatDate(pkg.startDate)} - ${formatDate(pkg.endDate)}`
                             ) : (
                               `${pkg.duration} days`
                             )}
