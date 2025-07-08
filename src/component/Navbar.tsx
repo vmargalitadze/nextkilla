@@ -23,9 +23,9 @@ export default function Navbar() {
   // Navigation items array
   const navItems = [
     { name: t("home"), href: "/" },
-    { name: t("about"), href: "/about" },
+
     { name: t("travels"), href: "/travels" },
-    { name: t("news"), href: "/news" },
+
     { name: t("contact"), href: "/contact" },
   ];
 
@@ -33,17 +33,27 @@ export default function Navbar() {
     <div>
       <nav
         className={`fixed  top-0 left-0 w-full px-4 py-4 z-[9999] transition-all duration-300
-          ${scrolled
-            ? "bg-black/80 backdrop-blur text-white shadow"
-            : "bg-transparent text-white"}
+          ${
+            scrolled
+              ? "bg-black/80 backdrop-blur text-white shadow"
+              : "bg-transparent text-white"
+          }
         `}
       >
-        <div className="container flex flex-wrap items-center justify-between mx-auto">
+        <div className="container  font-[Quicksand,sans-serif] flex flex-wrap items-center justify-between mx-auto">
           <Link
             href="/"
-            className={`mr-4 block cursor-pointer py-1.5 font-bold text-2xl transition-colors duration-300 ${scrolled ? "text-white" : "text-red-400"}`}
+            className={`mr-4 block cursor-pointer py-1.5 font-bold text-2xl transition-colors duration-300 ${
+              scrolled ? "text-white" : "text-red-400"
+            }`}
           >
-          <Image src="/logo.jpg" alt="logo" className="rounded-full" width={60} height={60} />
+            <Image
+              src="/logo.jpg"
+              alt="logo"
+              className="rounded-full"
+              width={60}
+              height={60}
+            />
           </Link>
 
           <div className="lg:hidden">
@@ -111,7 +121,7 @@ export default function Navbar() {
                     <Link
                       onClick={() => setIsMobileMenuOpen(false)}
                       href={item.href}
-                      className="text-2xl font-bold hover:text-red-400 transition-colors duration-300"
+                      className="text-2xl font-[Quicksand,sans-serif] font-bold hover:text-red-400 transition-colors duration-300"
                     >
                       {item.name}
                     </Link>
@@ -119,7 +129,6 @@ export default function Navbar() {
                 ))}
               </ul>
             </div>
-            
           </div>
 
           {/* Desktop Menu */}
@@ -135,7 +144,9 @@ export default function Navbar() {
                   </Link>
                 </li>
               ))}
-              <li><LocaleSwitcher /></li>
+              <li>
+                <LocaleSwitcher />
+              </li>
             </ul>
           </div>
         </div>

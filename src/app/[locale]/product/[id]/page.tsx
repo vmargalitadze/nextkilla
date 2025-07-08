@@ -132,20 +132,15 @@ export default function PackageDetails() {
     
     setBookingLoading(true);
     try {
-      // Navigate to booking page with package details
-      const bookingData = {
-        packageId: packageData.id,
-        packageTitle: packageData.title,
-        adults,
-        totalPrice,
-        price: packageData.price
-      };
-      
-      // Store booking data in sessionStorage for the booking form
-      sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
-      
-      // Navigate to booking page
-      router.push('/booking');
+      // Build URL with booking parameters
+      const params = new URLSearchParams({
+        packageId: packageData.id.toString(),
+        adults: adults.toString(),
+        totalPrice: totalPrice.toString()
+      });
+
+      // Navigate to booking page with parameters
+      router.push(`/booking?${params.toString()}`);
     } catch (error) {
       console.error('Booking error:', error);
     } finally {
@@ -203,9 +198,9 @@ export default function PackageDetails() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="p-4 sm:p-6">
+                  <div className="p-4 font-[Quicksand,sans-serif] sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
-                      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+                      <h1 className="text-2xl sm:text-3xl font-[Quicksand,sans-serif] font-bold text-gray-800">
                         {packageData.title}
                       </h1>
                     </div>
@@ -255,14 +250,14 @@ export default function PackageDetails() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                           {packageData.dates.map((date) => (
                             <div key={date.id} className="bg-gray-50 rounded-lg p-3 border">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-[16px] font-medium text-gray-900">
                                 {date.startDate.toLocaleDateString(dateLocale, { 
                                   month: 'short', 
                                   day: 'numeric', 
                                   year: 'numeric' 
                                 })}
                               </div>
-                              <div className="text-xs text-gray-500">
+                              <div className="text-[14px] text-gray-500">
                                 {date.endDate.toLocaleDateString(dateLocale, { 
                                   month: 'short', 
                                   day: 'numeric', 
@@ -279,7 +274,7 @@ export default function PackageDetails() {
 
                 {/* Tabs Section */}
                 <div className="bg-white rounded-lg shadow-lg mt-6 sm:mt-8">
-                  <div className="border-b border-gray-200 overflow-x-auto">
+                  <div className="border-b font-[Quicksand,sans-serif] border-gray-200 overflow-x-auto">
                     <nav className="flex space-x-4 sm:space-x-8 px-4 sm:px-6">
                       {[
                         { id: "overview", label: t("overview") },
@@ -289,7 +284,7 @@ export default function PackageDetails() {
                         <button
                           key={tab.id}
                           onClick={() => setActiveTab(tab.id)}
-                          className={`py-3 px-2 sm:py-4 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
+                          className={`py-3 px-2 sm:py-4 sm:px-1 border-b-2 font-medium text-[16px] whitespace-nowrap ${activeTab === tab.id
                               ? "border-red-400 text-red-400"
                               : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                             }`}
@@ -370,7 +365,7 @@ export default function PackageDetails() {
 
               {/* Sidebar */}
               <div className="order-2 lg:order-2 mb-8 md:mb-0">
-                <div className=" top-4 space-y-6">
+                <div className=" top-4 font-[Quicksand,sans-serif] space-y-6">
                   {/* Price Card */}
                   <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
                     
@@ -379,16 +374,16 @@ export default function PackageDetails() {
                     
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        <label className="block text-[16px] font-medium text-gray-700 mb-1 sm:mb-2">
                           {t("numberOfTravelers")}
                         </label>
-                        <div className="text-sm text-gray-600 mb-1 sm:mb-2">
+                        <div className="text-[16px] text-gray-600 mb-1 sm:mb-2">
                           {adults} {t("adults")}
                         </div>
                         <div className="space-y-1 sm:space-y-2">
                           {/* Adults */}
                           <div className="flex items-center justify-between">
-                            <span className="text-sm">{t("adult")}</span>
+                            <span className="text-[16px]">{t("adult")}</span>
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => setAdults(Math.max(1, adults - 1))}
@@ -411,7 +406,7 @@ export default function PackageDetails() {
                     </div>
 
                     <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
-                      <div className="border-t pt-2 flex justify-between font-semibold">
+                      <div className="border-t pt-2 flex justify-between font-semibold text-[16px]">
                         <span>{t("total")}: </span>
                         <span>₾{totalPrice}</span>
                       </div>
@@ -435,16 +430,16 @@ export default function PackageDetails() {
                     </h3>
                     <div className="space-y-3 sm:space-y-4">
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">{t("category")}:</span>
-                        <span className="text-sm font-medium">{packageData.category}</span>
+                        <span className="text-[16px] text-gray-600">{t("category")}:</span>
+                        <span className="text-[16px] font-medium">{packageData.category}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">{t("location")}:</span>
-                        <span className="text-sm font-medium">{packageData.location?.name ? `${packageData.location.name}, ${packageData.location.city}` : ''}</span>
+                        <span className="text-[16px] text-gray-600">{t("location")}:</span>
+                        <span className="text-[16px] font-medium">{packageData.location?.name ? `${packageData.location.name}, ${packageData.location.city}` : ''}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">{t("duration")}:</span>
-                        <span className="text-sm font-medium">
+                        <span className="text-[16px] text-gray-600">{t("duration")}:</span>
+                        <span className="text-[16px] font-medium">
                           {packageData.byBus && packageData.dates && packageData.dates.length > 0 ? (
                             `${packageData.dates.length} ${locale === 'ge' ? 'თარიღი' : 'dates'}`
                           ) : packageData.startDate && packageData.endDate ? (
@@ -456,8 +451,8 @@ export default function PackageDetails() {
                       </div>
                
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">{t("maxPeople")}:</span>
-                        <span className="text-sm font-medium">{displayMaxPeople}</span>
+                        <span className="text-[16px] text-gray-600">{t("maxPeople")}:</span>
+                        <span className="text-[16px] font-medium">{displayMaxPeople}</span>
                       </div>
                     </div>
                   </div>

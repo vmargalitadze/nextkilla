@@ -181,7 +181,7 @@ export default function LocaleSwitcher({ onOpen }: { onOpen?: () => void }) {
             className="rounded-full w-full h-full object-cover border" 
           />
         </div>
-        <span className="text-lg gap-x-2 font-normal transition-colors">{currentLocale?.label}</span>
+        <span className="text-lg gap-x-2 font-[Quicksand,sans-serif] font-normal transition-colors">{currentLocale?.label}</span>
       </button>
 
       {/* Dropdown */}
@@ -208,7 +208,7 @@ export default function LocaleSwitcher({ onOpen }: { onOpen?: () => void }) {
               height={20} 
               className="rounded-full w-5 h-5 object-cover border" 
             />
-            <span className='text-lg text-black'>{locale.label}</span>
+            <span className='text-lg font-[Quicksand,sans-serif] text-black'>{locale.label}</span>
             {currentLocale?.code === locale.code && <Check className="w-4 h-4 text-black ml-auto" />}
           </button>
         ))}

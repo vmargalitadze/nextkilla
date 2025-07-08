@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 
@@ -36,6 +36,7 @@ interface Package {
 export default function BookingPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations("bookingForm");
   const locale = params.locale as string;
   
@@ -126,30 +127,42 @@ export default function BookingPage() {
     loadPackages();
   }, [loadPackages]);
 
-  // Check for booking data from sessionStorage
+  // Check for booking data from URL parameters
   useEffect(() => {
-    const bookingData = sessionStorage.getItem('bookingData');
-    if (bookingData && packages.length > 0) {
-      try {
-        const data = JSON.parse(bookingData);
+    if (packages.length > 0) {
+      const packageId = searchParams.get('packageId');
+      const adultsParam = searchParams.get('adults');
+      const selectedDateId = searchParams.get('selectedDateId');
+      
+      if (packageId) {
+        const packageIdNum = parseInt(packageId);
+        const adultsNum = adultsParam ? parseInt(adultsParam) : 1;
+        
         setFormData(prev => ({
           ...prev,
-          packageId: data.packageId,
-          adults: data.adults,
-          totalPrice: data.totalPrice
+          packageId: packageIdNum,
+          adults: adultsNum
         }));
 
-        const package_ = packages.find(pkg => pkg.id === data.packageId);
+        const package_ = packages.find(pkg => pkg.id === packageIdNum);
         if (package_) {
           setSelectedPackage(package_);
+          
+          // If there's a selectedDateId, find and set the selected date
+          if (selectedDateId && package_.dates) {
+            const dateIdNum = parseInt(selectedDateId);
+            const selectedDateData = package_.dates.find(date => date.id === dateIdNum);
+            if (selectedDateData) {
+              setSelectedDate({
+                startDate: selectedDateData.startDate,
+                endDate: selectedDateData.endDate
+              });
+            }
+          }
         }
-
-        sessionStorage.removeItem('bookingData');
-      } catch (error) {
-        console.error("Error parsing booking data:", error);
       }
     }
-  }, [packages]);
+  }, [packages, searchParams]);
 
   // Update selected package when packageId changes
   useEffect(() => {
@@ -378,10 +391,10 @@ export default function BookingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pt-20">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl font-[Quicksand,sans-serif] mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">{t("title")}</h1>
-          <p className="text-gray-600 text-lg">{t("subtitle")}</p>
+          <h1 className="text-4xl font-[Quicksand,sans-serif] font-bold text-gray-900 mb-2">{t("title")}</h1>
+          <p className="text-gray-600 font-[Quicksand,sans-serif] text-lg">{t("subtitle")}</p>
         </div>
 
         {error && (
@@ -428,10 +441,10 @@ export default function BookingPage() {
                       <div className="font-semibold text-gray-900 mb-1">
                         {formatDateDisplay(date.startDate)}
                       </div>
-                      <div className="text-sm text-gray-500 mb-2">
+                      <div className="text-[16px] text-gray-500 mb-2">
                         to {formatDateDisplay(date.endDate)}
                       </div>
-                      <div className={`text-sm font-medium ${
+                      <div className={`text-[16px] font-medium ${
                         isFullyBooked ? 'text-red-600' : 'text-blue-600'
                       }`}>
                         {isFullyBooked ? (
@@ -445,7 +458,7 @@ export default function BookingPage() {
                 })}
               </div>
               {!selectedDate && (
-                <p className="text-red-500 text-sm mt-3 flex items-center">
+                <p className="text-red-500 text-[16px] mt-3 flex items-center">
                   <span className="mr-1">⚠️</span>
                   {t("pleaseSelectDate")}
                 </p>
@@ -461,7 +474,7 @@ export default function BookingPage() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-[16px] font-medium text-gray-700 mb-2">
                   {t("fullName")} *
                 </label>
                 <input
@@ -475,7 +488,7 @@ export default function BookingPage() {
                   aria-describedby={getFieldError("name") ? "name-error" : undefined}
                 />
                 {getFieldError("name") && (
-                  <p id="name-error" className="text-red-500 text-sm mt-2 flex items-center">
+                  <p id="name-error" className="text-red-500 text-[16px] mt-2 flex items-center">
                     <span className="mr-1">⚠️</span>
                     {getFieldError("name")}
                   </p>
@@ -483,7 +496,7 @@ export default function BookingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-[16px] font-medium text-gray-700 mb-2">
                   {t("emailAddress")} *
                 </label>
                 <input
@@ -497,7 +510,7 @@ export default function BookingPage() {
                   aria-describedby={getFieldError("email") ? "email-error" : undefined}
                 />
                 {getFieldError("email") && (
-                  <p id="email-error" className="text-red-500 text-sm mt-2 flex items-center">
+                    <p id="email-error" className="text-red-500 text-[16px] mt-2 flex items-center">
                     <span className="mr-1">⚠️</span>
                     {getFieldError("email")}
                   </p>
@@ -505,7 +518,7 @@ export default function BookingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-[16px] font-medium text-gray-700 mb-2">
                   {t("phoneNumber")}
                 </label>
                 <input
@@ -518,7 +531,7 @@ export default function BookingPage() {
                   aria-describedby={getFieldError("phone") ? "phone-error" : undefined}
                 />
                 {getFieldError("phone") && (
-                  <p id="phone-error" className="text-red-500 text-sm mt-2 flex items-center">
+                  <p id="phone-error" className="text-red-500 text-[16px] mt-2 flex items-center">
                     <span className="mr-1">⚠️</span>
                     {getFieldError("phone")}
                   </p>
@@ -526,7 +539,7 @@ export default function BookingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-[16px] font-medium text-gray-700 mb-2">
                   {t("personalIdNumber")} *
                 </label>
                 <input
@@ -540,9 +553,9 @@ export default function BookingPage() {
                   required
                   aria-describedby={getFieldError("idNumber") ? "id-error" : "id-help"}
                 />
-                <p id="id-help" className="text-xs text-gray-500 mt-1">{t("idNumberHelp")}</p>
+                <p id="id-help" className="text-[14px] text-gray-500 mt-1">{t("idNumberHelp")}</p>
                 {getFieldError("idNumber") && (
-                  <p id="id-error" className="text-red-500 text-sm mt-2 flex items-center">
+                  <p id="id-error" className="text-red-500 text-[16px] mt-2 flex items-center">
                     <span className="mr-1">⚠️</span>
                     {getFieldError("idNumber")}
                   </p>
@@ -559,7 +572,7 @@ export default function BookingPage() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-[16px] font-medium text-gray-700 mb-2">
                   {t("numberOfAdults")} *
                 </label>
                 <input
@@ -575,7 +588,7 @@ export default function BookingPage() {
                   aria-describedby={getFieldError("adults") ? "adults-error" : undefined}
                 />
                 {getFieldError("adults") && (
-                  <p id="adults-error" className="text-red-500 text-sm mt-2 flex items-center">
+                  <p id="adults-error" className="text-red-500 text-[16px] mt-2 flex items-center">
                     <span className="mr-1">⚠️</span>
                     {getFieldError("adults")}
                   </p>
@@ -585,7 +598,7 @@ export default function BookingPage() {
               {selectedPackage && (
                 <div className="flex items-end">
                   <div className="w-full">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-[16px] font-medium text-gray-700 mb-2">
                       {t("totalTravelers")}
                     </label>
                     <div className={`px-4 py-3 border rounded-lg ${
@@ -614,13 +627,13 @@ export default function BookingPage() {
                       </span>
                     </div>
                     {availability?.isFullyBooked && (
-                      <p className="text-red-500 text-sm mt-2 flex items-center">
+                      <p className="text-red-500 text-[16px] mt-2 flex items-center">
                         <span className="mr-1">🚫</span>
                         This tour is fully booked
                       </p>
                     )}
                     {!availability?.isFullyBooked && formData.adults > (availability?.availableSpots || 0) && (
-                      <p className="text-yellow-600 text-sm mt-2 flex items-center">
+                      <p className="text-yellow-600 text-[16px] mt-2 flex items-center">
                         <span className="mr-1">⚠️</span>
                         Only {availability?.availableSpots} spots available
                       </p>
@@ -656,7 +669,7 @@ export default function BookingPage() {
             <button
               type="submit"
               disabled={submitting || !selectedPackage || availability?.isFullyBooked || formData.adults > (availability?.availableSpots || 0)}
-             className="w-[30%] mx-auto text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
+             className="w-[30%] mx-auto text-[18px] font-[Quicksand,sans-serif] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
             >
               {submitting ? (
                 <span className="flex items-center">

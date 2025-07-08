@@ -146,7 +146,7 @@ const Category = () => {
                                                     className="object-cover"
                                                 />
                                             </div>
-                                            <div className="p-6 flex flex-col flex-1">
+                                            <div className="p-6 flex font-[Quicksand,sans-serif] flex-col flex-1">
                                                 <div className="flex flex-col lg:flex-row justify-between mb-3">
                                                     <h3 className="text-lg font-semibold text-gray-900 mb-2 lg:mb-0">
                                                         {category}

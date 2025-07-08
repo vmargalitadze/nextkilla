@@ -132,7 +132,7 @@ function Dest({ locale = "en" }: DestProps) {
                       </div>
                     )}
                     {package_.popular && (
-                      <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+                      <div className="absolute font-[Quicksand,sans-serif] top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
                         Popular
                       </div>
                     )}
@@ -141,7 +141,7 @@ function Dest({ locale = "en" }: DestProps) {
                       {package_.byBus ? "🚌" : package_.byPlane ? "✈️" : ""}
                     </div>
                   </div>
-                  <div className="p-6 flex flex-col flex-1">
+                  <div className="p-6 flex font-[Quicksand,sans-serif] flex-col flex-1">
                     <div className="flex flex-col lg:flex-row justify-between mb-3">
                       <h3 className="text-lg font-semibold text-gray-900 mb-2 lg:mb-0">
                         {package_.title}

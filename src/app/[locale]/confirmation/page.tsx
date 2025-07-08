@@ -162,7 +162,7 @@ export default function ConfirmationPage() {
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
       <div className="container mx-auto">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl font-[Quicksand,sans-serif] mx-auto px-4 py-8">
         {/* Success Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">

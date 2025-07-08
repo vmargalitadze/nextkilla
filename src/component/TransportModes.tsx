@@ -16,7 +16,7 @@ export default function TransportModes() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               {t("title")}
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg font-[Quicksand,sans-serif] font-medium leading-snug mb-6">
               {t("subtitle")}
             </p>
           </div>
@@ -35,8 +35,8 @@ export default function TransportModes() {
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                <div className="absolute  inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute font-[Quicksand,sans-serif] bottom-0 left-0 right-0 p-6 text-white">
                   <h3 className="text-2xl font-bold mb-2">{t("busTitle")}</h3>
                   <p className="text-gray-200 mb-4">{t("busDescription")}</p>
                   <div className="flex items-center space-x-4">
@@ -66,7 +66,7 @@ export default function TransportModes() {
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                <div className="absolute font-[Quicksand,sans-serif] bottom-0 left-0 right-0 p-6 text-white">
                   <h3 className="text-2xl font-bold mb-2">{t("planeTitle")}</h3>
                   <p className="text-gray-200 mb-4">{t("planeDescription")}</p>
                   <div className="flex items-center space-x-4">

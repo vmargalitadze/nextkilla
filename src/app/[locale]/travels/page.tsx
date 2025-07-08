@@ -310,12 +310,10 @@ export default function TravelsPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               {getPageTitle()}
             </h1>
-            <p className="text-gray-600">
-              {filteredPackages.length} packages found
-            </p>
+           
           </div>
 
-          <div className="flex gap-8">
+          <div className="flex font-[Quicksand,sans-serif] gap-8">
             {/* Sidebar */}
             <div className="w-80 hidden lg:block">
               <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24">
@@ -653,7 +651,7 @@ export default function TravelsPage() {
                           {pkg.byBus ? "🚌" : pkg.byPlane ? "✈️" : ""}
                         </div>
                       </div>
-                      <div className="p-6 flex flex-col flex-1">
+                      <div className="p-6 font-[Quicksand,sans-serif] flex flex-col flex-1">
                         <div className="flex flex-col lg:flex-row justify-between mb-3">
                           <h3 className="text-lg font-semibold text-gray-900 mb-2 lg:mb-0">
                             {pkg.title}
