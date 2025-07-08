@@ -12,11 +12,13 @@
   "dependencies": {
     "@prisma/adapter-neon": "^6.11.0",
     "@prisma/client": "^6.11.0",
+    "@types/nodemailer": "^6.4.17",
     "@uploadthing/react": "^7.3.2",
     "gsap": "^3.13.0",
     "lucide-react": "^0.525.0",
     "next": "15.3.4",
     "next-intl": "^4.3.4",
+    "nodemailer": "^7.0.5",
     "react": "^18.3.1",
     "react-datepicker": "^8.4.0",
     "react-dom": "^18.3.1",

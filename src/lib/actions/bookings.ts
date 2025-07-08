@@ -4,6 +4,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { transporter } from "@/lib/email";
 
 // Zod schemas for validation
 const BookingSchema = z.object({
@@ -200,6 +201,26 @@ export async function createBooking(data: z.infer<typeof BookingSchema>) {
         discount: true,
       },
     });
+
+    // Send booking receipt email
+    try {
+      await transporter.sendMail({
+        from: `no-reply@${process.env.DOMAIN_NAME || 'yourdomain.com'}`,
+        to: booking.email,
+        subject: `Booking Receipt - ${booking.package.title}`,
+        html: `
+          <h2>გმადლობთ დაჯავშნისთვის, ${booking.name}! მალე დაგიკავშირდებით</h2>
+          <p><strong>ტური:</strong> ${booking.package.title}</p>
+          <p><strong>მდებარეობა:</strong> ${booking.package.location?.country}, ${booking.package.location?.city}</p>
+          <p><strong>თარიღები:</strong> ${booking.startDate.toDateString()} - ${booking.endDate.toDateString()}</p>
+          <p><strong>მოზრდილების რაოდენობა:</strong> ${booking.adults}</p>
+          <p><strong>სულ თანხა:</strong> ${booking.totalPrice} ₾</p>
+          <p><em>ეს არის ავტომატური შეტყობინება და მისამართი არ კონტროლდება. გთხოვთ, არ უპასუხოთ ამ ელფოსტაზე.</em></p>
+        `,
+      });
+    } catch (emailError) {
+      console.error("Failed to send booking receipt email:", emailError);
+    }
 
     return { success: true, data: booking };
   } catch (error) {
