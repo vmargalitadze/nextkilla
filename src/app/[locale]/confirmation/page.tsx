@@ -176,7 +176,12 @@ export default function ConfirmationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Package Details */}
+
+            {/* Call you soon message */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center font-semibold text-blue-700 text-lg">
+              მალე დაგიკავშირდებით | We will call you soon
+            </div>
+
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Package className="w-5 h-5 text-blue-600" />

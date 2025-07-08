@@ -205,7 +205,7 @@ export async function createBooking(data: z.infer<typeof BookingSchema>) {
     // Send booking receipt email
     try {
       await transporter.sendMail({
-        from: `no-reply@${process.env.DOMAIN_NAME || 'yourdomain.com'}`,
+        from: `No Reply <no-reply@${process.env.DOMAIN_NAME || 'yourdomain.com'}>`,
         to: booking.email,
         subject: `Booking Receipt - ${booking.package.title}`,
         html: `
