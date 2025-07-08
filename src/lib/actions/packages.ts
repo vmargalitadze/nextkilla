@@ -3,24 +3,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-
-// Predefined categories
- const CATEGORIES = [
-  "Cultural",
-  "Adventure", 
-  "Historical",
-  "Culinary",
-  "Beach",
-  "Ski",
-  "Eco",
-  "Religious",
-  "Shopping",
-  "Wellness",
-  "Photography",
-  "Weekend",
-  "International",
-  "Domestic"
-] as const;
+import { CATEGORIES } from "@/lib/Validation";
 
 // Zod schemas for validation
 const PackageSchema = z.object({
@@ -31,12 +14,13 @@ const PackageSchema = z.object({
   duration: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  maxPeople: z.number().positive("Max people must be positive"),
+  maxPeople: z.number().min(0, "Max people cannot be negative"),
   popular: z.boolean().default(false),
   byBus: z.boolean().default(false),
   byPlane: z.boolean().default(false),
   category: z.enum(CATEGORIES),
   locationId: z.number().positive("Location is required"),
+  gallery: z.array(z.string().url("Please enter valid image URLs")).optional(),
 });
 
 const PackageUpdateSchema = PackageSchema.partial().extend({
@@ -56,13 +40,31 @@ export async function createPackage(data: z.infer<typeof PackageSchema>) {
     }, {
       message: "Duration is required for non-bus tours",
       path: ["duration"]
+    }).refine((data) => {
+      // Max people must be positive for non-bus tours
+      if (!data.byBus && data.maxPeople <= 0) {
+        return false;
+      }
+      return true;
+    }, {
+      message: "Max people must be positive for non-bus tours",
+      path: ["maxPeople"]
     }).parse(data);
     
+    // Remove gallery from validatedData since we handle it separately
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { gallery, ...packageData } = validatedData;
+    
+    // Convert date strings to Date objects or null
+    const processedData = {
+      ...packageData,
+      duration: packageData.duration || "", // Ensure duration is always a string
+      startDate: packageData.startDate ? new Date(packageData.startDate) : null,
+      endDate: packageData.endDate ? new Date(packageData.endDate) : null,
+    };
+    
     const package_ = await prisma.package.create({
-      data: {
-        ...validatedData,
-        duration: validatedData.duration || "", // Ensure duration is always a string
-      },
+      data: processedData,
       include: {
         location: true,
         tourPlan: true,
@@ -72,7 +74,9 @@ export async function createPackage(data: z.infer<typeof PackageSchema>) {
     revalidatePath("/admin");
     return { success: true, data: package_ };
   } catch (error) {
+    console.error("Package creation error:", error);
     if (error instanceof z.ZodError) {
+      console.error("Validation errors:", error.errors);
       return { success: false, error: error.errors[0].message };
     }
     return { success: false, error: "Failed to create package" };
@@ -85,8 +89,8 @@ export async function updatePackage(data: z.infer<typeof PackageUpdateSchema>) {
     const validatedData = PackageUpdateSchema.parse(data);
     const { id, ...updateData } = validatedData;
 
-    // Apply the same duration validation for updates
-    if (updateData.byBus !== undefined || updateData.duration !== undefined) {
+    // Apply the same validation for updates
+    if (updateData.byBus !== undefined || updateData.duration !== undefined || updateData.maxPeople !== undefined) {
       const validationSchema = PackageSchema.refine((data) => {
         // Duration is required for non-bus tours
         if (!data.byBus && (!data.duration || data.duration.trim() === "")) {
@@ -96,15 +100,35 @@ export async function updatePackage(data: z.infer<typeof PackageUpdateSchema>) {
       }, {
         message: "Duration is required for non-bus tours",
         path: ["duration"]
+      }).refine((data) => {
+        // Max people must be positive for non-bus tours
+        if (!data.byBus && data.maxPeople <= 0) {
+          return false;
+        }
+        return true;
+      }, {
+        message: "Max people must be positive for non-bus tours",
+        path: ["maxPeople"]
       });
       
       // Validate the update data
       validationSchema.parse(updateData);
     }
 
+    // Remove gallery from updateData since we handle it separately
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { gallery, ...packageUpdateData } = updateData;
+    
+    // Convert date strings to Date objects or null
+    const processedUpdateData = {
+      ...packageUpdateData,
+      startDate: packageUpdateData.startDate ? new Date(packageUpdateData.startDate) : null,
+      endDate: packageUpdateData.endDate ? new Date(packageUpdateData.endDate) : null,
+    };
+    
     const package_ = await prisma.package.update({
       where: { id },
-      data: updateData,
+      data: processedUpdateData,
       include: {
         location: true,
         tourPlan: true,

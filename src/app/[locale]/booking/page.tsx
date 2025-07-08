@@ -38,6 +38,57 @@ export default function BookingPage() {
   const t = useTranslations("bookingForm");
   const locale = params.locale as string;
   
+  // Georgian month names
+  const georgianMonths = {
+    'Jan': 'იან',
+    'Feb': 'თებ',
+    'Mar': 'მარ',
+    'Apr': 'აპრ',
+    'May': 'მაი',
+    'Jun': 'ივნ',
+    'Jul': 'ივლ',
+    'Aug': 'აგვ',
+    'Sep': 'სექ',
+    'Oct': 'ოქტ',
+    'Nov': 'ნოე',
+    'Dec': 'დეკ'
+  };
+
+  // Helper function to format dates
+  const formatDateDisplay = (date: Date) => {
+    if (locale === 'ge') {
+      const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const parts = formatted.split(' ');
+      const month = georgianMonths[parts[0] as keyof typeof georgianMonths] || parts[0];
+      return `${month} ${parts[1]}, ${parts[2]}`;
+    } else {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+  };
+
+  // Helper function to get max people for a package
+  const getMaxPeople = () => {
+    if (!selectedPackage) return 0;
+    
+    // For bus tours, use the selected date's maxPeople
+    if (selectedPackage.byBus && selectedDate) {
+      const selectedDateData = selectedPackage.dates?.find((date) => 
+        date.startDate.getTime() === selectedDate.startDate.getTime() && 
+        date.endDate.getTime() === selectedDate.endDate.getTime()
+      );
+      return selectedDateData ? selectedDateData.maxPeople : 0;
+    }
+    
+    // For bus tours without selected date, show first available date's maxPeople
+    if (selectedPackage.byBus && selectedPackage.dates && selectedPackage.dates.length > 0) {
+      return selectedPackage.dates[0].maxPeople;
+    }
+    
+    // For regular tours, use the package's maxPeople
+    return selectedPackage.maxPeople;
+  };
+
+  
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -273,13 +324,7 @@ export default function BookingPage() {
     return `${baseClasses} border-gray-300 hover:border-gray-400`;
   }, [getFieldError]);
 
-  const formatDate = useCallback((date: Date) => {
-    return date.toLocaleDateString(locale === 'ge' ? 'ka-GE' : 'en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
-  }, [locale]);
+
 
   if (loading) {
     return (
@@ -344,7 +389,7 @@ export default function BookingPage() {
                 {packages.map((pkg) => (
                   <option key={pkg.id} value={pkg.id}>
                     {pkg.title} - ₾{pkg.price} ({pkg.startDate && pkg.endDate ? 
-                      `${formatDate(pkg.startDate)} - ${formatDate(pkg.endDate)}` : 
+                      `${formatDateDisplay(pkg.startDate)} - ${formatDateDisplay(pkg.endDate)}` : 
                       pkg.duration
                     })
                   </option>
@@ -408,10 +453,10 @@ export default function BookingPage() {
                     }`}
                   >
                     <div className="font-semibold text-gray-900 mb-1">
-                      {formatDate(date.startDate)}
+                      {formatDateDisplay(date.startDate)}
                     </div>
                     <div className="text-sm text-gray-500 mb-2">
-                      to {formatDate(date.endDate)}
+                      to {formatDateDisplay(date.endDate)}
                     </div>
                     <div className="text-sm text-blue-600 font-medium">
                       👥 Max: {date.maxPeople} people
@@ -564,10 +609,16 @@ export default function BookingPage() {
                     </label>
                     <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
                       <span className="text-lg font-semibold text-blue-700">
-                        {formData.adults} / {selectedPackage.maxPeople}
+                        {formData.adults} / {(() => {
+                          const maxPeople = getMaxPeople();
+                          if (selectedPackage?.byBus && !selectedDate) {
+                            return `${maxPeople} (select date)`;
+                          }
+                          return maxPeople;
+                        })()}
                       </span>
                     </div>
-                    {formData.adults > selectedPackage.maxPeople && (
+                    {formData.adults > getMaxPeople() && (
                       <p className="text-red-500 text-sm mt-2 flex items-center">
                         <span className="mr-1">⚠️</span>
                         {t("exceedsCapacity")}

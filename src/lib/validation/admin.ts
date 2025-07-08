@@ -141,7 +141,7 @@ export const packageSchema = z.object({
     .optional(),
   maxPeople: z
     .number()
-    .min(1, "Maximum people must be at least 1")
+    .min(0, "Maximum people cannot be negative")
     .max(100, "Maximum people cannot exceed 100")
     .int("Maximum people must be a whole number"),
   category: z
@@ -159,8 +159,8 @@ export const packageSchema = z.object({
     .positive("Location ID must be positive"),
   gallery: z
     .array(z.string().url("Please enter valid image URLs"))
-    .min(1, "At least one gallery image is required")
-    .max(20, "Maximum 20 gallery images allowed"),
+    .max(20, "Maximum 20 gallery images allowed")
+    .optional(),
 }).refine((data) => {
   // Sale price must be less than regular price if provided
   if (data.salePrice && data.salePrice >= data.price) {
@@ -179,6 +179,15 @@ export const packageSchema = z.object({
 }, {
   message: "Duration is required for non-bus tours",
   path: ["duration"]
+}).refine((data) => {
+  // Max people must be positive for non-bus tours
+  if (!data.byBus && data.maxPeople <= 0) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Max people must be positive for non-bus tours",
+  path: ["maxPeople"]
 });
 
 // Form data types

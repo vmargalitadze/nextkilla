@@ -18,6 +18,7 @@ interface Package {
   duration: string;
   startDate?: Date | null;
   endDate?: Date | null;
+  byBus: boolean;
   category: string;
   popular: boolean;
   location: {
@@ -31,6 +32,12 @@ interface Package {
     url: string;
     packageId: number;
   }>;
+  dates?: Array<{
+    id: number;
+    startDate: Date;
+    endDate: Date;
+    maxPeople: number;
+  }>;
 }
 
 export default function ListPage() {
@@ -42,6 +49,34 @@ export default function ListPage() {
   
   // Map app locale to date locale
   const dateLocale = params.locale === 'ge' ? 'ka-GE' : 'en-US';
+  
+  // Georgian month names
+  const georgianMonths = {
+    'Jan': 'იან',
+    'Feb': 'თებ',
+    'Mar': 'მარ',
+    'Apr': 'აპრ',
+    'May': 'მაი',
+    'Jun': 'ივნ',
+    'Jul': 'ივლ',
+    'Aug': 'აგვ',
+    'Sep': 'სექ',
+    'Oct': 'ოქტ',
+    'Nov': 'ნოე',
+    'Dec': 'დეკ'
+  };
+
+  // Helper function to format dates
+  const formatDate = (date: Date) => {
+    if (params.locale === 'ge') {
+      const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const parts = formatted.split(' ');
+      const month = georgianMonths[parts[0] as keyof typeof georgianMonths] || parts[0];
+      return `${month} ${parts[1]}, ${parts[2]}`;
+    } else {
+      return date.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+  };
   
   // Get URL parameters
   const category = searchParams.get('category');
@@ -339,13 +374,21 @@ export default function ListPage() {
                   <h4 className="font-semibold text-gray-700 mb-3">Available Dates</h4>
                   <div className="space-y-2">
                     {packages
-                      .filter(pkg => pkg.startDate)
+                      .filter(pkg => (pkg.byBus && pkg.dates && pkg.dates.length > 0) || pkg.startDate)
                       .map((pkg) => {
-                        const startDate = new Date(pkg.startDate!);
-                        const endDate = pkg.endDate ? new Date(pkg.endDate) : null;
-                        const dateDisplay = endDate 
-                          ? `${startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}`
-                          : startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' });
+                        let dateDisplay = '';
+                        
+                        if (pkg.byBus && pkg.dates && pkg.dates.length > 0) {
+                          // For bus tours, show the first date
+                          dateDisplay = `${formatDate(pkg.dates[0].startDate)} - ${formatDate(pkg.dates[0].endDate)}`;
+                        } else if (pkg.startDate) {
+                          // For regular tours
+                          const startDate = new Date(pkg.startDate);
+                          const endDate = pkg.endDate ? new Date(pkg.endDate) : null;
+                          dateDisplay = endDate 
+                            ? `${formatDate(startDate)} - ${formatDate(endDate)}`
+                            : formatDate(startDate);
+                        }
                         
                         return (
                           <div key={pkg.id} className="text-sm text-gray-600">
@@ -437,7 +480,12 @@ export default function ListPage() {
                             <Image src="/send.svg" width={18} height={18} alt="" />
                           </span>
                           <span className="text-gray-700 text-[18px] font-medium">
-                            {pkg.startDate && pkg.endDate ? `${pkg.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${pkg.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}` : pkg.duration}
+                            {pkg.byBus && pkg.dates && pkg.dates.length > 0 
+                              ? `${formatDate(pkg.dates[0].startDate)} - ${formatDate(pkg.dates[0].endDate)}`
+                              : pkg.startDate && pkg.endDate 
+                                ? `${formatDate(pkg.startDate)} - ${formatDate(pkg.endDate)}`
+                                : pkg.duration
+                            }
                           </span>
                         </div>
                         <Link

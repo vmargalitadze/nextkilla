@@ -312,6 +312,8 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
         locationId: Number(formData.locationId),
       };
 
+      console.log("Submitting package data:", submitData);
+      
       const result = packageData?.id 
         ? await updatePackage({ ...submitData, id: packageData.id })
         : await createPackage(submitData);
@@ -350,6 +352,22 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
               },
               body: JSON.stringify({ dates: packageDates }),
             });
+          }
+
+          // Create gallery images
+          if (formData.gallery && formData.gallery.length > 0) {
+            for (const imageUrl of formData.gallery) {
+              await fetch('/api/gallery-images', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  url: imageUrl,
+                  packageId: newPackageId,
+                }),
+              });
+            }
           }
         }
         

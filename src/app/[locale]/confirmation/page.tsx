@@ -15,6 +15,8 @@ interface BookingData {
   idNumber: string;
   adults: number;
   date: string;
+  startDate: string;
+  endDate: string;
   totalPrice: number;
   createdAt: string;
   package: {
@@ -25,6 +27,7 @@ interface BookingData {
     salePrice?: number;
     duration: string;
     maxPeople: number;
+    byBus: boolean;
     category: string;
     location: {
       id: number;
@@ -46,6 +49,40 @@ export default function ConfirmationPage() {
   const [bookingData, setBookingData] = useState<BookingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Get locale from URL
+  const locale = typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : 'en';
+  
+  // Georgian month names
+  const georgianMonths = {
+    'Jan': 'იან',
+    'Feb': 'თებ',
+    'Mar': 'მარ',
+    'Apr': 'აპრ',
+    'May': 'მაი',
+    'Jun': 'ივნ',
+    'Jul': 'ივლ',
+    'Aug': 'აგვ',
+    'Sep': 'სექ',
+    'Oct': 'ოქტ',
+    'Nov': 'ნოე',
+    'Dec': 'დეკ'
+  };
+
+  // Helper function to format dates
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    if (locale === 'ge') {
+      const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const parts = formatted.split(' ');
+      const month = georgianMonths[parts[0] as keyof typeof georgianMonths] || parts[0];
+      return `${month} ${parts[1]}, ${parts[2]}`;
+    } else {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+  };
 
   useEffect(() => {
     const fetchBookingData = async () => {
@@ -218,7 +255,12 @@ export default function ConfirmationPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">{t("travelDate")}</label>
-                  <p className="text-gray-900">{bookingData.date}</p>
+                  <p className="text-gray-900">
+                    {bookingData.startDate && bookingData.endDate 
+                      ? `${formatDate(bookingData.startDate)} - ${formatDate(bookingData.endDate)}`
+                      : bookingData.date || bookingData.package.duration
+                    }
+                  </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">{t("travelers")}</label>
@@ -226,8 +268,14 @@ export default function ConfirmationPage() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">{t("bookingDate")}</label>
-                  <p className="text-gray-900">{bookingData.createdAt}</p>
+                  <p className="text-gray-900">{formatDate(bookingData.createdAt)}</p>
                 </div>
+                {bookingData.package.byBus && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Tour Type</label>
+                    <p className="text-gray-900">🚌 Bus Tour</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -17,6 +17,7 @@ interface Package {
   duration: string;
   startDate?: Date | null;
   endDate?: Date | null;
+  byBus: boolean;
   gallery: Array<{
     id: number;
     url: string;
@@ -28,6 +29,12 @@ interface Package {
     country: string;
     city: string;
   };
+  dates?: Array<{
+    id: number;
+    startDate: Date;
+    endDate: Date;
+    maxPeople: number;
+  }>;
 }
 
 interface DestProps {
@@ -41,6 +48,34 @@ function Dest({ locale = 'en' }: DestProps) {
 
   // Map app locale to date locale
   const dateLocale = locale === 'ge' ? 'ka-GE' : 'en-US';
+  
+  // Georgian month names
+  const georgianMonths = {
+    'Jan': 'იან',
+    'Feb': 'თებ',
+    'Mar': 'მარ',
+    'Apr': 'აპრ',
+    'May': 'მაი',
+    'Jun': 'ივნ',
+    'Jul': 'ივლ',
+    'Aug': 'აგვ',
+    'Sep': 'სექ',
+    'Oct': 'ოქტ',
+    'Nov': 'ნოე',
+    'Dec': 'დეკ'
+  };
+
+  // Helper function to format dates
+  const formatDate = (date: Date) => {
+    if (locale === 'ge') {
+      const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const parts = formatted.split(' ');
+      const month = georgianMonths[parts[0] as keyof typeof georgianMonths] || parts[0];
+      return `${month} ${parts[1]}, ${parts[2]}`;
+    } else {
+      return date.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+  };
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -154,7 +189,12 @@ function Dest({ locale = 'en' }: DestProps) {
                   <Calendar width={18} height={18} />
                   </span>
                   <span className="text-gray-700 text-sm">
-                    {package_.startDate && package_.endDate ? `${package_.startDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })} - ${package_.endDate.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}` : package_.duration}
+                    {package_.byBus && package_.dates && package_.dates.length > 0 
+                      ? `${formatDate(package_.dates[0].startDate)} - ${formatDate(package_.dates[0].endDate)}`
+                      : package_.startDate && package_.endDate 
+                        ? `${formatDate(package_.startDate)} - ${formatDate(package_.endDate)}`
+                        : package_.duration
+                    }
                   </span>
                 </div>
                 <Link

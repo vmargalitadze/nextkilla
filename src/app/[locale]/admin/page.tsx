@@ -39,6 +39,40 @@ export default function AdminPage() {
     discounts: [] as any[]
   });
   const [loading, setLoading] = useState(true);
+  
+  // Get locale from URL
+  const locale = typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : 'en';
+  
+  // Georgian month names
+  const georgianMonths = {
+    'Jan': 'იან',
+    'Feb': 'თებ',
+    'Mar': 'მარ',
+    'Apr': 'აპრ',
+    'May': 'მაი',
+    'Jun': 'ივნ',
+    'Jul': 'ივლ',
+    'Aug': 'აგვ',
+    'Sep': 'სექ',
+    'Oct': 'ოქტ',
+    'Nov': 'ნოე',
+    'Dec': 'დეკ'
+  };
+
+  // Helper function to format dates
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    if (locale === 'ge') {
+      const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const parts = formatted.split(' ');
+      const month = georgianMonths[parts[0] as keyof typeof georgianMonths] || parts[0];
+      return `${month} ${parts[1]}, ${parts[2]}`;
+    } else {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+  };
   const [stats, setStats] = useState({
     totalPackages: 0,
     totalBookings: 0,
@@ -251,6 +285,8 @@ export default function AdminPage() {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sale Price</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Max People</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booked</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
@@ -274,10 +310,88 @@ export default function AdminPage() {
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {pkg.duration}
+                            {pkg.byBus ? (
+                              pkg.dates && pkg.dates.length > 0 ? (
+                                <div>
+                                  {pkg.dates.map((date: any, index: number) => (
+                                    <div key={index} className="mb-1">
+                                      <div>{formatDate(date.startDate)} - {formatDate(date.endDate)}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-gray-400">No dates set</span>
+                              )
+                            ) : (
+                              `${pkg.duration} days`
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {pkg.maxPeople}
+                            {pkg.byBus ? (
+                              pkg.dates && pkg.dates.length > 0 ? (
+                                <div>
+                                  <div>{pkg.dates[0].maxPeople}</div>
+                               
+                                </div>
+                              ) : (
+                                <span className="text-gray-400">No dates set</span>
+                              )
+                            ) : (
+                              pkg.maxPeople
+                            )}
+                          </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {pkg.byBus ? (
+                              pkg.dates && pkg.dates.length > 0 ? (
+                                <div>
+                                  <div>{pkg.dates.map((date: any, index: number) => {
+                                    const bookingsForThisDate = pkg.bookings?.filter((booking: any) => 
+                                      booking.startDate && booking.endDate &&
+                                      new Date(date.startDate).toDateString() === new Date(booking.startDate).toDateString()
+                                    ) || [];
+                                    const totalBookedForDate = bookingsForThisDate.reduce((sum: number, booking: any) => sum + booking.adults, 0);
+                                    return (
+                                      <div key={index} className="mb-1">
+                                        <span className="text-xs text-gray-500">{formatDate(date.startDate)}: </span>
+                                        <span>{totalBookedForDate} ჯავშანი</span>
+                                      </div>
+                                    );
+                                  })}</div>
+                                </div>
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )
+                            ) : (
+                              pkg.bookings?.reduce((sum: number, booking: any) => sum + booking.adults, 0) || 0
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {pkg.byBus ? (
+                              pkg.dates && pkg.dates.length > 0 ? (
+                                <div>
+                                  <div>{pkg.dates.map((date: any, index: number) => {
+                                    const bookingsForThisDate = pkg.bookings?.filter((booking: any) => 
+                                      booking.startDate && booking.endDate &&
+                                      new Date(date.startDate).toDateString() === new Date(booking.startDate).toDateString()
+                                    ) || [];
+                                    const totalBookedForDate = bookingsForThisDate.reduce((sum: number, booking: any) => sum + booking.adults, 0);
+                                    const availableForDate = date.maxPeople - totalBookedForDate;
+                                    return (
+                                      <div key={index} className="mb-1">
+                                        <span className="text-xs text-gray-500">{formatDate(date.startDate)}: </span>
+                                        <span className={availableForDate <= 0 ? "text-red-600 font-medium" : ""}>
+                                          {availableForDate} დარჩა
+                                        </span>
+                                      </div>
+                                    );
+                                  })}</div>
+                                </div>
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )
+                            ) : (
+                              (pkg.maxPeople - (pkg.bookings?.reduce((sum: number, booking: any) => sum + booking.adults, 0) || 0))
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex justify-end space-x-2">
@@ -350,7 +464,14 @@ export default function AdminPage() {
                             {booking.package?.title || "N/A"}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {new Date(booking.date).toLocaleDateString()}
+                            {booking.startDate && booking.endDate ? (
+                              <div>
+                                <div>{formatDate(booking.startDate)}</div>
+                                <div className="text-gray-500">to {formatDate(booking.endDate)}</div>
+                              </div>
+                            ) : (
+                              formatDate(booking.date || '')
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <div className="flex items-center space-x-1">
