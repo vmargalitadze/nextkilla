@@ -7,7 +7,8 @@
     "contact": "Contact"
   },
   "newDest": {
-    "title": "New Destinations"
+    "title": "New Destinations",
+    "viewDetails": "View Details"
   },
   "top": {
     "title": "Top Destinations",
@@ -80,7 +81,8 @@
     "exploreNow": "Explore Now"
   },
   "category": {
-    "title": "Categories"
+    "title": "Categories",
+    "viewDetails": "View Details"
   },
   "companyFilter": {
     "search": "Search",

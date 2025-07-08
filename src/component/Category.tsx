@@ -167,7 +167,7 @@ const Category = () => {
                                                         href={`/travels?category=${category}`}
                                                         className="w-[50%] text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
                                                     >
-                                                        View Details
+                                                        {t("viewDetails")}
                                                     </Link>
                                                 </div>
                                             </div>

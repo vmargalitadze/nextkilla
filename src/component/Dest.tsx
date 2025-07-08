@@ -9,7 +9,6 @@ import { useTranslations } from "next-intl";
 import "swiper/css";
 import "swiper/css/pagination";
 
-
 interface Package {
   id: number;
   title: string;
@@ -46,16 +45,13 @@ interface DestProps {
   locale?: string;
 }
 
-function Dest({ locale = 'en' }: DestProps) {
+function Dest({ locale = "en" }: DestProps) {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const t = useTranslations("newDest");
 
   // Map app locale to date locale
- console.log(locale);
- 
-
-
+  console.log(locale);
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -74,8 +70,7 @@ function Dest({ locale = 'en' }: DestProps) {
     fetchPackages();
   }, []);
 
-
-    if (loading) {
+  if (loading) {
     return (
       <div className="max-w-7xl pt-15 mx-auto">
         <div className="mb-7 text-center">
@@ -89,114 +84,116 @@ function Dest({ locale = 'en' }: DestProps) {
       </div>
     );
   }
- 
- 
+
   return (
     <>
-      <div className="max-w-7xl pt-15  mx-auto">
-        <div className="mb-7 text-center">
-          <h3 className="capitalize font-[Salsa,cursive] text-[30px] md:text-[40px] md:text-6xl">
-            {t("title")}
-          </h3>
-        </div>
+      <div className="container mx-auto">
+        <div className="max-w-7xl pt-15  mx-auto">
+          <div className="mb-7 text-center">
+            <h3 className="capitalize font-[Salsa,cursive] text-[30px] md:text-[40px] md:text-6xl">
+              {t("title")}
+            </h3>
+          </div>
 
-      <Swiper
-        slidesPerView={1}
-        spaceBetween={16}
-        pagination={{ clickable: true }}
-        breakpoints={{
-          640: { slidesPerView: 1 },
-          768: { slidesPerView: 2 },
-          1024: { slidesPerView: 4 },
-        }}
-        modules={[Pagination]}
-        className="partner-swiper"
-      >
-        {packages.map((package_, idx) => (
-          <SwiperSlide key={package_.id}>
-            <div
-              className=" mb-5 mt-16 rounded-lg shadow-lg overflow-hidden flex flex-col"
-              style={{
-                animationDelay: `${idx * 0.1}s`,
-                animationName: "fadeInUp",
-                animationDuration: "0.6s",
-                animationFillMode: "both",
-              }}
-            >
-              <div className="relative w-full h-[300px]">
-                {package_.gallery && package_.gallery.length > 0 ? (
-                  <Image
-                    src={package_.gallery[0].url}
-                    alt={package_.title}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-400">No image</span>
+          <Swiper
+            slidesPerView={1}
+            spaceBetween={16}
+            pagination={{ clickable: true }}
+            breakpoints={{
+              640: { slidesPerView: 1 },
+              768: { slidesPerView: 2 },
+              1024: { slidesPerView: 4 },
+            }}
+            modules={[Pagination]}
+            className="partner-swiper"
+          >
+            {packages.map((package_, idx) => (
+              <SwiperSlide key={package_.id}>
+                <div
+                  className=" mb-20  mt-16 rounded-lg shadow-lg overflow-hidden flex flex-col"
+                  style={{
+                    animationDelay: `${idx * 0.1}s`,
+                    animationName: "fadeInUp",
+                    animationDuration: "0.6s",
+                    animationFillMode: "both",
+                  }}
+                >
+                  <div className="relative w-full h-[300px]">
+                    {package_.gallery && package_.gallery.length > 0 ? (
+                      <Image
+                        src={package_.gallery[0].url}
+                        alt={package_.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-400">No image</span>
+                      </div>
+                    )}
+                    {package_.popular && (
+                      <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+                        Popular
+                      </div>
+                    )}
+                    {/* Transport type indicator */}
+                    <div className="absolute top-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm font-medium">
+                      {package_.byBus ? "🚌" : package_.byPlane ? "✈️" : ""}
+                    </div>
                   </div>
-                )}
-                {package_.popular && (
-                  <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
-                    Popular
-                  </div>
-                )}
-                {/* Transport type indicator */}
-                <div className="absolute top-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm font-medium">
-                  {package_.byBus ? "🚌" : package_.byPlane ? "✈️" : ""}
-                </div>
-              </div>
-              <div className="p-6 flex flex-col flex-1">
-                <div className="flex flex-col lg:flex-row justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 lg:mb-0">
-                    {package_.title}
-                  </h3>
-                  <div className="text-right">
-                    {package_.salePrice ? (
-                      <div>
-                        <span className="text-lg font-bold text-red-600">
-                          ₾{package_.salePrice}
-                        </span>
-                        <span className="text-sm text-gray-500 line-through ml-2">
-                          ₾{package_.price}
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="flex flex-col lg:flex-row justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 lg:mb-0">
+                        {package_.title}
+                      </h3>
+                      <div className="text-right">
+                        {package_.salePrice ? (
+                          <div>
+                            <span className="text-lg font-bold text-red-600">
+                              ₾{package_.salePrice}
+                            </span>
+                            <span className="text-sm text-gray-500 line-through ml-2">
+                              ₾{package_.price}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-lg font-bold text-gray-900">
+                            ₾{package_.price}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      {package_.description}
+                    </p>
+
+                    <div className="flex items-center text-sm text-gray-500 mb-4">
+                      <span className="mr-4">
+                        {package_.location?.name || ""}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-auto">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-500">
+                          {package_.byBus ? "🚌" : "✈️"} {package_.category}
                         </span>
                       </div>
-                    ) : (
-                      <span className="text-lg font-bold text-gray-900">
-                        ₾{package_.price}
-                      </span>
-                    )}
+                      <Link
+                        href={`/product/${package_.id}`}
+                        className="w-[50%] text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
+                      >
+                        {t("viewDetails")}
+                      </Link>
+                    </div>
                   </div>
                 </div>
-
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                  {package_.description}
-                </p>
-
-                <div className="flex items-center text-sm text-gray-500 mb-4">
-                  <span className="mr-4">{package_.location?.name || ""}</span>
-                
-                </div>
-
-                <div className="flex items-center justify-between mt-auto">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-500">
-                      {package_.byBus ? "🚌" : "✈️"} {package_.category}
-                    </span>
-                  </div>
-                  <Link
-                    href={`/product/${package_.id}`}
-                    className="w-[50%] text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      </div>
     </>
   );
 }

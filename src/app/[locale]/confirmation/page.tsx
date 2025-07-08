@@ -161,7 +161,8 @@ export default function ConfirmationPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="container mx-auto">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Success Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -197,7 +198,10 @@ export default function ConfirmationPage() {
                   <p className="text-gray-600 mt-1">{bookingData.package.description}</p>
                   <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
                     <span>📍 {bookingData.package.location.name}, {bookingData.package.location.city}, {bookingData.package.location.country}</span>
-                    <span>⏱️ {bookingData.package.duration}</span>
+                    <span>⏱️ {bookingData.startDate && bookingData.endDate
+                      ? `${formatDate(bookingData.startDate)} - ${formatDate(bookingData.endDate)}`
+                      : bookingData.package.duration}
+                    </span>
                     <span>👥 {bookingData.package.maxPeople} people</span>
                   </div>
                 </div>
@@ -256,10 +260,9 @@ export default function ConfirmationPage() {
                 <div>
                   <label className="text-sm font-medium text-gray-600">{t("travelDate")}</label>
                   <p className="text-gray-900">
-                    {bookingData.startDate && bookingData.endDate 
+                    {bookingData.startDate && bookingData.endDate
                       ? `${formatDate(bookingData.startDate)} - ${formatDate(bookingData.endDate)}`
-                      : bookingData.date || bookingData.package.duration
-                    }
+                      : bookingData.date || bookingData.package.duration}
                   </p>
                 </div>
                 <div>
@@ -337,7 +340,7 @@ export default function ConfirmationPage() {
         <div className="flex justify-center mt-8 space-x-4">
           <button
             onClick={() => router.push('/')}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            className="text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
           >
             {t("backToHome")}
           </button>
@@ -348,6 +351,8 @@ export default function ConfirmationPage() {
             {t("printConfirmation")}
           </button>
         </div>
+      </div>
+        
       </div>
     </div>
   );

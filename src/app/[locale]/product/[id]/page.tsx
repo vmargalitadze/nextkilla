@@ -28,7 +28,7 @@ interface PackageData {
   locationId: number;
   gallery?: Array<{ url: string }>;
   tourPlan?: Array<{ dayNumber: number; title: string; activities: string[] }>;
-  dates?: Array<{ id: number; startDate: Date; endDate: Date }>;
+  dates?: Array<{ id: number; startDate: Date; endDate: Date; maxPeople: number }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -153,6 +153,10 @@ export default function PackageDetails() {
     }
   };
 
+  // Calculate maxPeople for display
+  const displayMaxPeople = packageData.dates && packageData.dates.length > 0
+    ? Math.max(...packageData.dates.map((d) => d.maxPeople || 0))
+    : packageData.maxPeople;
 
 
   return (
@@ -222,7 +226,7 @@ export default function PackageDetails() {
                       <div className="flex items-center gap-2">
                         <Users className="w-5 h-5 text-red-400" />
                         <span className="text-gray-600">
-                          {t("maxPeople")}: {packageData.maxPeople}
+                          {t("maxPeople")}: {displayMaxPeople}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -417,7 +421,7 @@ export default function PackageDetails() {
                       <button 
                         onClick={handleBooking}
                         disabled={bookingLoading}
-                        className="explore-btn disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
                       >
                         <span>{bookingLoading ? t("processing") : t("bookNow")}</span>
                       </button>
@@ -450,15 +454,10 @@ export default function PackageDetails() {
                           )}
                         </span>
                       </div>
-                      {/* Debug info - remove this after testing */}
-                      {packageData.byPlane && (
-                        <div className="text-xs text-gray-400 mt-1">
-                          Debug: byPlane={packageData.byPlane}, startDate={packageData.startDate ? 'set' : 'null'}, endDate={packageData.endDate ? 'set' : 'null'}, duration={packageData.duration}
-                        </div>
-                      )}
+               
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600">{t("maxPeople")}:</span>
-                        <span className="text-sm font-medium">{packageData.maxPeople}</span>
+                        <span className="text-sm font-medium">{displayMaxPeople}</span>
                       </div>
                     </div>
                   </div>

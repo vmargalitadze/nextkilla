@@ -656,7 +656,7 @@ export default function BookingPage() {
             <button
               type="submit"
               disabled={submitting || !selectedPackage || availability?.isFullyBooked || formData.adults > (availability?.availableSpots || 0)}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-200 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+             className="w-[30%] mx-auto text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
             >
               {submitting ? (
                 <span className="flex items-center">
