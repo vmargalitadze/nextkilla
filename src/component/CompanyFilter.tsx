@@ -140,7 +140,7 @@ function CompanyFilter() {
                         className="form-select w-full py-2 px-3 ps-10 h-10 bg-white  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
                         disabled={loading}
                       >
-                        <option value="">All Categories</option>
+                        <option value="">{t("allCategories")}</option>
                         {availableCategories.map((cat) => (
                           <option key={cat} value={cat}>
                             {cat}
@@ -160,7 +160,7 @@ function CompanyFilter() {
                         className="form-select w-full py-2 px-3 ps-10 h-10 bg-white  rounded-md outline-none border border-gray-100 dark:border-gray-800 focus:ring-0"
                         disabled={loading}
                       >
-                        <option value="">All Locations</option>
+                        <option value="">{t("allLocations")}</option>
                         {availableLocations.map((loc) => (
                           <option key={loc} value={loc}>
                             {loc}
@@ -170,12 +170,12 @@ function CompanyFilter() {
                     </div>
                   </div>
 
-                  <div className="">
+                  <div className="mt-7.5">
                     <button 
                       onClick={handleSearch}
-                      className="explore-btn cursor-pointer group"
+                      className="text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
                     >
-                      <span>Search Packages</span>
+                      <span>{t("search")}</span>
                     </button>
                   </div>
                 </div>

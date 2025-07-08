@@ -137,7 +137,7 @@ const Category = () => {
                                 .filter(item => item.packageCount > 0) // Only show categories with packages
                                 .map(({ category, packageCount, index }) => (
                                     <SwiperSlide key={index}>
-                                        <div className="mb-5 rounded-lg shadow-lg overflow-hidden flex flex-col">
+                                        <div className="mb-16 rounded-lg shadow-lg overflow-hidden flex flex-col">
                                             <div className="relative w-full h-[300px]">
                                                 <Image
                                                     src={categoryImages[category as keyof typeof categoryImages] || "/category/photo-1532254497630-c74966e79621.jpg"}

@@ -93,8 +93,10 @@
     "selectPersons": "Select persons",
     "searchButton": "Search",
     "category": "Category",
-    "location": "Location"
-  },
+    "location": "Location",
+    "allCategories": "All Categories",
+    "allLocations": "All Locations"
+    },
   "packageDetails": {
     "reviews": "reviews",
     "maxPeople": "Max People",
