@@ -54,6 +54,24 @@ export async function POST(
       where: { packageId },
     });
 
+    // Validate dates before creating
+    for (const date of dates) {
+      if (!date.startDate || !date.endDate) {
+        return NextResponse.json({ error: "Start date and end date are required" }, { status: 400 });
+      }
+      
+      if (date.maxPeople < 1) {
+        return NextResponse.json({ error: "Max people must be at least 1" }, { status: 400 });
+      }
+      
+      const startDate = new Date(date.startDate);
+      const endDate = new Date(date.endDate);
+      
+      if (endDate <= startDate) {
+        return NextResponse.json({ error: "End date must be after start date" }, { status: 400 });
+      }
+    }
+
     // Create new dates
     const createdDates = await Promise.all(
       dates.map((date) =>

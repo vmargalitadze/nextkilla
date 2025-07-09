@@ -28,6 +28,8 @@ export default function PackageDateForm({ packageId, onClose, onSuccess }: Packa
       if (response.ok) {
         const data = await response.json();
         setDates(data.dates || []);
+      } else {
+        console.error("Failed to load package dates:", response.statusText);
       }
     } catch (error) {
       console.error("Failed to load package dates:", error);
@@ -57,13 +59,33 @@ export default function PackageDateForm({ packageId, onClose, onSuccess }: Packa
     setLoading(true);
     setError("");
 
+    // Validate dates
+    const validDates = dates.filter(date => 
+      date.startDate && date.endDate && date.maxPeople > 0
+    );
+
+    if (validDates.length === 0) {
+      setError("Please add at least one valid date");
+      setLoading(false);
+      return;
+    }
+
+    // Validate that end date is after start date
+    for (const date of validDates) {
+      if (new Date(date.endDate) <= new Date(date.startDate)) {
+        setError("End date must be after start date");
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const response = await fetch(`/api/packages/${packageId}/dates`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ dates }),
+        body: JSON.stringify({ dates: validDates }),
       });
 
       if (response.ok) {
@@ -74,8 +96,7 @@ export default function PackageDateForm({ packageId, onClose, onSuccess }: Packa
         setError(data.error || "Failed to save dates");
       }
     } catch (error) {
-      console.log(error);
-      
+      console.error("Failed to save dates:", error);
       setError("Failed to save dates");
     } finally {
       setLoading(false);
@@ -97,62 +118,69 @@ export default function PackageDateForm({ packageId, onClose, onSuccess }: Packa
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
+            {dates.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <p>No dates added yet. Click Add Date to get started.</p>
+              </div>
+            )}
             {dates.map((date, index) => (
-              <div key={index} className="flex gap-4 items-end">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    value={date.startDate}
-                    onChange={(e) => updateDate(index, "startDate", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
-                    required
-                  />
+              <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <div className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Start Date
+                    </label>
+                    <input
+                      type="date"
+                      value={date.startDate}
+                      onChange={(e) => updateDate(index, "startDate", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+                      required
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      End Date
+                    </label>
+                    <input
+                      type="date"
+                      value={date.endDate}
+                      onChange={(e) => updateDate(index, "endDate", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+                      required
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Max People
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={date.maxPeople}
+                      onChange={(e) => updateDate(index, "maxPeople", parseInt(e.target.value) || 1)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeDate(index)}
+                    className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                  >
+                    Remove
+                  </button>
                 </div>
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End Date
-                  </label>
-                  <input
-                    type="date"
-                    value={date.endDate}
-                    onChange={(e) => updateDate(index, "endDate", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
-                    required
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Max People
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="100"
-                    value={date.maxPeople}
-                    onChange={(e) => updateDate(index, "maxPeople", parseInt(e.target.value) || 1)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
-                    required
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeDate(index)}
-                  className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                >
-                  Remove
-                </button>
               </div>
             ))}
 
             <button
               type="button"
               onClick={addDate}
-              className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+              className="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors font-medium"
             >
-              Add Date
+              + Add Date
             </button>
           </div>
 

@@ -14,6 +14,7 @@ import LocationForm from "@/component/admin/LocationForm";
 import GalleryImageForm from "@/component/admin/GalleryImageForm";
 import DiscountForm from "@/component/admin/DiscountForm";
 import PackageDateForm from "@/component/admin/PackageDateForm";
+import RuleForm from "@/component/admin/RuleForm";
 import { 
   Package, 
   Calendar, 
@@ -24,7 +25,8 @@ import {
   Tag,
   MapPin,
   Image,
-  Percent
+  Percent,
+  Shield
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -172,7 +174,8 @@ export default function AdminPage() {
     { id: "categories", label: t("tabs.categories"), icon: Tag, color: "indigo" },
     { id: "locations", label: t("tabs.locations"), icon: MapPin, color: "teal" },
     { id: "gallery", label: t("tabs.galleryImages"), icon: Image, color: "purple" },
-    { id: "discounts", label: t("tabs.discounts"), icon: Percent, color: "pink" }
+    { id: "discounts", label: t("tabs.discounts"), icon: Percent, color: "pink" },
+    { id: "rules", label: "Rules", icon: Shield, color: "orange" }
   ];
 
   if (loading) {
@@ -406,15 +409,13 @@ export default function AdminPage() {
                               >
                                 <Edit className="w-4 h-4" />
                               </button>
-                              {pkg.byBus && (
-                                <button
-                                  onClick={() => setShowDateForm(pkg.id)}
-                                  className="text-green-600 hover:text-green-900"
-                                  title={t("packages.manageDates")}
-                                >
-                                  <Calendar className="w-4 h-4" />
-                                </button>
-                              )}
+                              <button
+                                onClick={() => setShowDateForm(pkg.id)}
+                                className="text-green-600 hover:text-green-900"
+                                title={t("packages.manageDates")}
+                              >
+                                <Calendar className="w-4 h-4" />
+                              </button>
                               <button
                                 onClick={() => handleDelete("packages", pkg.id)}
                                 className="text-red-600 hover:text-red-900"
@@ -670,6 +671,58 @@ export default function AdminPage() {
               </div>
             )}
 
+            {/* Rules Tab */}
+            {activeTab === "rules" && (
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">Rules</h2>
+                  <button
+                    onClick={() => setShowForm({ type: "rule" })}
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Rule</span>
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rules</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {data.packages.map((pkg: any) => (
+                        <tr key={pkg.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">{pkg.title}</div>
+                              <div className="text-sm text-gray-500">{pkg.category}</div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {pkg.rules?.length || 0} rules
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex justify-end space-x-2">
+                              <button
+                                onClick={() => setShowForm({ type: "rule", data: pkg })}
+                                className="text-orange-600 hover:text-orange-900"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
             {/* Discounts Tab */}
             {activeTab === "discounts" && (
               <div>
@@ -775,6 +828,13 @@ export default function AdminPage() {
           )}
           {showForm.type === "discount" && (
             <DiscountForm
+              onSuccess={handleFormSuccess}
+              onCancel={() => setShowForm(null)}
+            />
+          )}
+          {showForm.type === "rule" && (
+            <RuleForm
+              packageId={showForm.data?.id}
               onSuccess={handleFormSuccess}
               onCancel={() => setShowForm(null)}
             />

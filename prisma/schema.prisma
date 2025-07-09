@@ -40,6 +40,7 @@ model Package {
   gallery          GalleryImage[]
   includedItems    IncludedItem[]
   notIncludedItems NotIncludedItem[]
+  rules            Rule[]
   location         Location          @relation(fields: [locationId], references: [id])
   tourPlan         TourDay[]
   dates        PackageDate[]
@@ -62,7 +63,7 @@ model GalleryImage {
   packageId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  package   Package  @relation(fields: [packageId], references: [id])
+  package   Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
 }
 
 model Booking {
@@ -79,7 +80,7 @@ model Booking {
   endDate    DateTime
   startDate  DateTime
   discount   Discount? @relation(fields: [discountId], references: [id])
-  package    Package   @relation(fields: [packageId], references: [id])
+  package    Package   @relation(fields: [packageId], references: [id], onDelete: Cascade)
 }
 
 model Discount {
@@ -115,6 +116,15 @@ model IncludedItem {
 }
 
 model NotIncludedItem {
+  id        Int      @id @default(autoincrement())
+  text      String
+  packageId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  package   Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+}
+
+model Rule {
   id        Int      @id @default(autoincrement())
   text      String
   packageId Int

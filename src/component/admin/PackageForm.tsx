@@ -9,13 +9,15 @@ import { getAllLocations } from "@/lib/actions/locations";
 import { getTourDaysByPackage, deleteTourDay, createTourDay } from "@/lib/actions/tourDays";
 import { getIncludedItemsByPackage, deleteIncludedItem, createIncludedItem } from "@/lib/actions/includedItems";
 import { getNotIncludedItemsByPackage, deleteNotIncludedItem, createNotIncludedItem } from "@/lib/actions/notIncludedItems";
+import { getRulesByPackage, deleteRule, createRule } from "@/lib/actions/rules";
 
 import CloudinaryUploader from "../CloudinaryUploader";
 import TourDayForm from "./TourDayForm";
 import IncludedItemForm from "./IncludedItemForm";
 import NotIncludedItemForm from "./NotIncludedItemForm";
+import RuleForm from "./RuleForm";
 import DateRangePicker from "./DateRangePicker";
-import { X, Save, Loader2, Calendar, Plus, Edit, Trash2, Check } from "lucide-react";
+import { X, Save, Loader2, Calendar, Plus, Edit, Trash2, Check, Shield } from "lucide-react";
 
 interface PackageFormProps {
   package?: any;
@@ -44,6 +46,7 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
   // Temporary storage for new items (for packages being created)
   const [tempIncludedItems, setTempIncludedItems] = useState<string[]>([]);
   const [tempNotIncludedItems, setTempNotIncludedItems] = useState<string[]>([]);
+  const [tempRules, setTempRules] = useState<string[]>([]);
   const [tempTourDays, setTempTourDays] = useState<Array<{dayNumber: number, title: string, activities: string[]}>>([]);
   const [showTempTourDayForm, setShowTempTourDayForm] = useState(false);
   const [tempTourDayForm, setTempTourDayForm] = useState({
@@ -52,8 +55,10 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
   });
   const [showTempIncludedItemForm, setShowTempIncludedItemForm] = useState(false);
   const [showTempNotIncludedItemForm, setShowTempNotIncludedItemForm] = useState(false);
+  const [showTempRuleForm, setShowTempRuleForm] = useState(false);
   const [tempIncludedItemForm, setTempIncludedItemForm] = useState("");
   const [tempNotIncludedItemForm, setTempNotIncludedItemForm] = useState("");
+  const [tempRuleForm, setTempRuleForm] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -64,8 +69,10 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
   const [selectedTourDay, setSelectedTourDay] = useState<any>(null);
   const [includedItems, setIncludedItems] = useState<any[]>([]);
   const [notIncludedItems, setNotIncludedItems] = useState<any[]>([]);
+  const [rules, setRules] = useState<any[]>([]);
   const [showIncludedItemForm, setShowIncludedItemForm] = useState(false);
   const [showNotIncludedItemForm, setShowNotIncludedItemForm] = useState(false);
+  const [showRuleForm, setShowRuleForm] = useState(false);
   const [selectedIncludedItem, setSelectedIncludedItem] = useState<any>(null);
   const [selectedNotIncludedItem, setSelectedNotIncludedItem] = useState<any>(null);
   
@@ -128,14 +135,28 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
     }
   }, [packageData?.id]);
 
+  const loadRules = useCallback(async () => {
+    if (!packageData?.id) return;
+    
+    try {
+      const result = await getRulesByPackage(packageData.id);
+      if (result.success && result.data) {
+        setRules(result.data);
+      }
+    } catch (error) {
+      console.error("Error loading rules:", error);
+    }
+  }, [packageData?.id]);
+
   // Load tour days when package data changes
   useEffect(() => {
     if (packageData?.id) {
       loadTourDays();
       loadIncludedItems();
       loadNotIncludedItems();
+      loadRules();
     }
-  }, [packageData?.id, loadTourDays, loadIncludedItems, loadNotIncludedItems]);
+  }, [packageData?.id, loadTourDays, loadIncludedItems, loadNotIncludedItems, loadRules]);
 
   const handleTourDaySuccess = () => {
     setShowTourDayForm(false);
@@ -153,6 +174,11 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
     setShowNotIncludedItemForm(false);
     setSelectedNotIncludedItem(null);
     loadNotIncludedItems();
+  };
+
+  const handleRuleSuccess = () => {
+    setShowRuleForm(false);
+    loadRules();
   };
 
   // Functions for temporary items (new packages)
@@ -198,6 +224,28 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
 
   const removeTempNotIncludedItem = (index: number) => {
     setTempNotIncludedItems(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const addTempRule = () => {
+    setShowTempRuleForm(true);
+    setTempRuleForm("");
+  };
+
+  const handleTempRuleSubmit = () => {
+    if (tempRuleForm.trim()) {
+      setTempRules(prev => [...prev, tempRuleForm.trim()]);
+      setShowTempRuleForm(false);
+      setTempRuleForm("");
+    }
+  };
+
+  const cancelTempRule = () => {
+    setShowTempRuleForm(false);
+    setTempRuleForm("");
+  };
+
+  const removeTempRule = (index: number) => {
+    setTempRules(prev => prev.filter((_, i) => i !== index));
   };
 
   // Functions for temporary tour days (new packages)
@@ -293,6 +341,19 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
     }
   };
 
+  const handleDeleteRule = async (ruleId: number) => {
+    if (confirm("Are you sure you want to delete this rule?")) {
+      try {
+        const result = await deleteRule(ruleId);
+        if (result.success) {
+          loadRules();
+        }
+      } catch (error) {
+        console.error("Error deleting rule:", error);
+      }
+    }
+  };
+
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -341,6 +402,11 @@ export default function PackageForm({ package: packageData, onSuccess, onCancel 
           // Create not included items
           for (const text of tempNotIncludedItems) {
             await createNotIncludedItem({ text, packageId: newPackageId });
+          }
+          
+          // Create rules
+          for (const text of tempRules) {
+            await createRule({ text, packageId: newPackageId });
           }
 
           // Create package dates for bus tours
@@ -1166,6 +1232,133 @@ Welcome dinner at a traditional Turkish restaurant"
             )}
           </div>
 
+          {/* Rules */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Rules
+              </label>
+              {packageData?.id ? (
+                <button
+                  type="button"
+                  onClick={() => setShowRuleForm(true)}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Rule
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={addTempRule}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Rule
+                </button>
+              )}
+            </div>
+
+            {/* Temporary Rule Form for new packages */}
+            {!packageData?.id && showTempRuleForm && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Rule *
+                    </label>
+                    <textarea
+                      value={tempRuleForm}
+                      onChange={(e) => setTempRuleForm(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="e.g., No smoking allowed, Children must be accompanied by adults"
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleTempRuleSubmit}
+                      className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                      Add Rule
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelTempRule}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Show existing rules for existing packages */}
+            {packageData?.id && rules.length > 0 && (
+              <div className="space-y-2">
+                {rules.map((rule: any) => (
+                  <div key={rule.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-orange-500" />
+                      <span className="text-gray-700">{rule.text}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowRuleForm(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-900 p-1"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteRule(rule.id)}
+                        className="text-red-600 hover:text-red-900 p-1"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Show temporary rules for new packages */}
+            {!packageData?.id && tempRules.length > 0 && (
+              <div className="space-y-2">
+                {tempRules.map((text, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-orange-500" />
+                      <span className="text-gray-700">{text}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeTempRule(index)}
+                      className="text-red-600 hover:text-red-900 p-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Show empty state */}
+            {((packageData?.id && rules.length === 0) || (!packageData?.id && tempRules.length === 0)) && (
+              <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
+                <Shield className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-gray-500">No rules added yet</p>
+                <p className="text-sm text-gray-400">Click Add Rule to add package rules</p>
+              </div>
+            )}
+          </div>
+
           {/* Actions */}
           <div className="flex items-center justify-end gap-4 pt-6 border-t">
             <button
@@ -1231,6 +1424,17 @@ Welcome dinner at a traditional Turkish restaurant"
           onCancel={() => {
             setShowNotIncludedItemForm(false);
             setSelectedNotIncludedItem(null);
+          }}
+        />
+      )}
+
+      {/* Rule Form Modal */}
+      {showRuleForm && (
+        <RuleForm
+          packageId={packageData.id}
+          onSuccess={handleRuleSuccess}
+          onCancel={() => {
+            setShowRuleForm(false);
           }}
         />
       )}

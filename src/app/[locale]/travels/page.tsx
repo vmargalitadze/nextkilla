@@ -368,7 +368,7 @@ export default function TravelsPage() {
                     </label>
                   </div>
                 </div>
-#ea8f03
+
                 {/* Search */}
                 <div className="mb-6">
                   <h4 className="font-semibold text-gray-700 mb-3">

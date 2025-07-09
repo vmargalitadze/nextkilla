@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Check, X } from "lucide-react";
+import { Check, X, Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useParams } from "next/navigation";
 import { getPackageById } from "@/lib/actions/packages";
 import { getIncludedItemsByPackage } from "@/lib/actions/includedItems";
 import { getNotIncludedItemsByPackage } from "@/lib/actions/notIncludedItems";
+import { getRulesByPackage } from "@/lib/actions/rules";
 import TourPlanDisplay from "@/component/TourPlanDisplay";
 import { useRouter } from "@/i18n/navigation";
 
@@ -44,6 +45,11 @@ interface NotIncludedItemData {
   text: string;
 }
 
+interface RuleData {
+  id: number;
+  text: string;
+}
+
 export default function PackageDetails() {
   const params = useParams();
   const router = useRouter();
@@ -58,6 +64,7 @@ export default function PackageDetails() {
   const [packageData, setPackageData] = useState<PackageData | null>(null);
   const [includedItems, setIncludedItems] = useState<IncludedItemData[]>([]);
   const [notIncludedItems, setNotIncludedItems] = useState<NotIncludedItemData[]>([]);
+  const [rules, setRules] = useState<RuleData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [bookingLoading, setBookingLoading] = useState(false);
@@ -70,10 +77,11 @@ export default function PackageDetails() {
         setLoading(true);
         const packageId = Number(params.id);
 
-        const [packageResult, includedResult, notIncludedResult] = await Promise.all([
+        const [packageResult, includedResult, notIncludedResult, rulesResult] = await Promise.all([
           getPackageById(packageId),
           getIncludedItemsByPackage(packageId),
-          getNotIncludedItemsByPackage(packageId)
+          getNotIncludedItemsByPackage(packageId),
+          getRulesByPackage(packageId)
         ]);
 
         if (packageResult.success && packageResult.data) {
@@ -88,6 +96,10 @@ export default function PackageDetails() {
 
         if (notIncludedResult.success && notIncludedResult.data) {
           setNotIncludedItems(notIncludedResult.data);
+        }
+
+        if (rulesResult.success && rulesResult.data) {
+          setRules(rulesResult.data);
         }
       } catch {
         setError("Failed to load package");
@@ -280,6 +292,7 @@ export default function PackageDetails() {
                       {[
                         { id: "overview", label: t("overview") },
                         { id: "tour-plan", label: t("tourPlan") },
+                        { id: "rules", label: "Rules" },
                         { id: "gallery", label: t("gallery") },
                       ].map((tab) => (
                         <button
@@ -338,6 +351,29 @@ export default function PackageDetails() {
 
                     {activeTab === "tour-plan" && (
                       <TourPlanDisplay packageId={packageData.id} />
+                    )}
+
+                    {activeTab === "rules" && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">
+                          Package Rules
+                        </h3>
+                        {rules.length > 0 ? (
+                          <ul className="space-y-3">
+                            {rules.map((rule) => (
+                              <li key={rule.id} className="flex items-start gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                                <Shield className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                                <span className="text-gray-700">{rule.text}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <div className="text-center py-8">
+                            <Shield className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                            <p className="text-gray-500">No rules specified for this package</p>
+                          </div>
+                        )}
+                      </div>
                     )}
 
                     {activeTab === "gallery" && (

@@ -108,9 +108,9 @@ function Dest({ locale = "en" }: DestProps) {
             className="partner-swiper"
           >
             {packages.map((package_, idx) => (
-              <SwiperSlide key={package_.id}>
+              <SwiperSlide key={package_.id} className="h-full">
                 <div
-                  className=" mb-20  mt-16 rounded-lg shadow-lg overflow-hidden flex flex-col"
+                  className="h-full mb-20 mt-16 rounded-lg shadow-lg overflow-hidden flex flex-col"
                   style={{
                     animationDelay: `${idx * 0.1}s`,
                     animationName: "fadeInUp",
@@ -131,35 +131,17 @@ function Dest({ locale = "en" }: DestProps) {
                         <span className="text-gray-400">No image</span>
                       </div>
                     )}
-                    {package_.popular && (
-                      <div className="absolute font-[Quicksand,sans-serif] top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
-                        Popular
-                      </div>
-                    )}
-                    {/* Transport type indicator */}
                    
                   </div>
-                  <div className="p-6 flex font-[Quicksand,sans-serif] flex-col flex-1">
+
+                  <div className="p-6 flex flex-col flex-1  font-[Quicksand,sans-serif]">
+                    <div className="h-[200px]">
                     <div className="flex flex-col lg:flex-row justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2 lg:mb-0">
+                      <h3 className="text-[16px] font-semibold text-gray-900 mb-2 lg:mb-0">
                         {package_.title}
                       </h3>
-                      <div className="text-right">
-                        {package_.salePrice ? (
-                          <div>
-                            <span className="text-lg font-bold text-red-600">
-                              ₾{package_.salePrice}
-                            </span>
-                            <span className="text-sm text-gray-500 line-through ml-2">
-                              ₾{package_.price}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-lg font-bold text-gray-900">
-                            ₾{package_.price}
-                          </span>
-                        )}
-                      </div>
+                     
+                     
                     </div>
 
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">
@@ -175,15 +157,33 @@ function Dest({ locale = "en" }: DestProps) {
                     <div className="flex items-center justify-between mt-auto">
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-gray-500">
-                        {package_.byBus ? <Image src="/icons/bus.png" alt="Bus icon" width={20} height={20} /> : package_.byPlane ? <Image src="/icons/plane.png" alt="Bus icon" width={20} height={20} /> : ""}
+                          {package_.byBus ? (
+                            <Image
+                              src="/icons/bus.png"
+                              alt="Bus icon"
+                              width={20}
+                              height={20}
+                            />
+                          ) : package_.byPlane ? (
+                            <Image
+                              src="/icons/plane.png"
+                              alt="Plane icon"
+                              width={20}
+                              height={20}
+                            />
+                          ) : (
+                            ""
+                          )}
                         </span>
                       </div>
                       <Link
                         href={`/product/${package_.id}`}
-                        className="w-[50%] text-[18px] font-bold  bg-[#51a9ff] cursor-pointer text-white py-2 px-4 rounded-lg  transition-colors"
+                        className="w-[50%] text-[18px] font-bold bg-[#51a9ff] cursor-pointer text-white py-2 px-4 rounded-lg transition-colors"
                       >
                         {t("viewDetails")}
                       </Link>
+                    </div>
+
                     </div>
                   </div>
                 </div>
