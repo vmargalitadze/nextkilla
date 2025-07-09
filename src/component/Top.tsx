@@ -86,7 +86,7 @@ const Top: React.FC<TopProps> = () => {
 
   return (
     <>
-    { popularPackages.length  &&  (
+    { popularPackages.length > 0 && (
       <div className="max-w-7xl pt-15  mx-auto">
         <div className="">
           <div className="mb-7 text-center">
@@ -121,9 +121,7 @@ const Top: React.FC<TopProps> = () => {
               [...Array(4)].map((_, idx) => (
                 <SwiperSlide key={idx}>
                   <div className="bg-white mb-24 rounded-lg shadow-lg overflow-hidden flex flex-col">
-                    <div className="relative w-full h-[500px]">
-                      <div className="w-full h-full bg-gray-200 animate-pulse"></div>
-                    </div>
+                    
                     <div className="p-6 flex rounded-lg flex-col flex-1">
                       <div className="flex flex-col lg:flex-row justify-between mb-3">
                         <div className="h-6 bg-gray-200 rounded animate-pulse w-24"></div>
@@ -160,9 +158,7 @@ const Top: React.FC<TopProps> = () => {
                       </div>
                     )}
                     {/* Transport type indicator */}
-                    <div className="absolute top-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm font-medium">
-                      {pkg.byBus ? "🚌" : pkg.byPlane ? "✈️" : ""}
-                    </div>
+                   
                   </div>
                   <div className="p-6 flex flex-col flex-1">
                     <div className="flex flex-col lg:flex-row justify-between mb-3">
@@ -198,9 +194,7 @@ const Top: React.FC<TopProps> = () => {
 
                     <div className="flex items-center justify-between mt-auto">
                       <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-500">
-                          {pkg.byBus ? "🚌" : "✈️"} {pkg.category}
-                        </span>
+                       
                       </div>
                       <Link
                         href={`/product/${pkg.id}`}

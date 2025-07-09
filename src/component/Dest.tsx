@@ -51,7 +51,6 @@ function Dest({ locale = "en" }: DestProps) {
   const t = useTranslations("newDest");
 
   // Map app locale to date locale
-  console.log(locale);
 
   useEffect(() => {
     const fetchPackages = async () => {
