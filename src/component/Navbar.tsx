@@ -44,7 +44,7 @@ export default function Navbar() {
           <Link
             href="/"
             className={`mr-4 block cursor-pointer py-1.5 font-bold text-2xl transition-colors duration-300 ${
-              scrolled ? "text-white" : "text-red-400"
+              scrolled ? "text-white" : "text-[#EA8F03]"
             }`}
           >
             <Image
@@ -97,7 +97,7 @@ export default function Navbar() {
           >
             <button
               onClick={toggleMobileMenu}
-              className="absolute top-6 right-6 text-slate-300 hover:text-red-500 z-10"
+              className="absolute top-6 right-6 text-slate-300 hover:text-[#EA8F03] z-10"
             >
               {/* Close icon */}
               <svg

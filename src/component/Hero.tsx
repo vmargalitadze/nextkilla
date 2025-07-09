@@ -63,7 +63,7 @@ export default function Hero() {
                 : "opacity-0"
               }`}
             >
-              <h1 className="font-[Salsa,cursive] text-red-400 text-4xl md:text-6xl mb-5">
+              <h1 className="font-[Salsa,cursive] text-[#EA8F03] text-4xl md:text-6xl mb-5">
                 {slide.title}
               </h1>
               <p className="text-lg font-medium leading-snug mb-6">{slide.text}</p>
