@@ -260,6 +260,7 @@ export default function TravelsPage() {
       </>
     );
   }
+  
 
   // Get page title based on filters
   const getPageTitle = () => {
@@ -310,7 +311,6 @@ export default function TravelsPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               {getPageTitle()}
             </h1>
-           
           </div>
 
           <div className="flex font-[Quicksand,sans-serif] gap-8">
@@ -347,7 +347,10 @@ export default function TravelsPage() {
                         onChange={() => handleTransportChange("bus")}
                         className="text-red-400 focus:ring-red-400"
                       />
-                      <span className="text-gray-600">{t("travels.busTours")}</span>
+                      <Image src="/icons/bus.png" alt="Bus icon" width={20} height={20} />
+                      <span className="text-gray-600">
+                        {t("travels.busTours")}
+                      </span>
                     </label>
                     <label className="flex items-center space-x-2 cursor-pointer">
                       <input
@@ -358,11 +361,14 @@ export default function TravelsPage() {
                         onChange={() => handleTransportChange("plane")}
                         className="text-red-400 focus:ring-red-400"
                       />
-                      <span className="text-gray-600">{t("travels.planeTours")}</span>
+                      <Image src="/icons/plane.png" alt="Plane icon" width={20} height={20} />
+                      <span className="text-gray-600">
+                        {t("travels.planeTours")}
+                      </span>
                     </label>
                   </div>
                 </div>
-
+#ea8f03
                 {/* Search */}
                 <div className="mb-6">
                   <h4 className="font-semibold text-gray-700 mb-3">
@@ -405,7 +411,9 @@ export default function TravelsPage() {
                       onChange={(e) => setShowPopularOnly(e.target.checked)}
                       className="text-red-400 focus:ring-red-400"
                     />
-                    <span className="text-gray-600">{t("travels.popularOnly")}</span>
+                    <span className="text-gray-600">
+                      {t("travels.popularOnly")}
+                    </span>
                   </label>
                 </div>
 
@@ -591,7 +599,7 @@ export default function TravelsPage() {
                 <div className="mb-6">
                   <button
                     type="button"
-                    className="w-full bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
+                    className="w-full bg-[#51a9ff] text-[18px] font-bold  cursor-pointer text-white py-2 px-4 rounded-lg "
                     onClick={() => {
                       setSelectedCategory("");
                       setSelectedCountry("");
@@ -617,9 +625,7 @@ export default function TravelsPage() {
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     {t("travels.noPackages")}
                   </h3>
-                  <p className="text-gray-600">
-                    {t("travels.tryAdjusting")}
-                  </p>
+                  <p className="text-gray-600">{t("travels.tryAdjusting")}</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -647,9 +653,8 @@ export default function TravelsPage() {
                           </div>
                         )}
                         {/* Transport type indicator */}
-                        <div className="absolute top-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm font-medium">
-                          {pkg.byBus ? "🚌" : pkg.byPlane ? "✈️" : ""}
-                        </div>
+                        
+                        
                       </div>
                       <div className="p-6 font-[Quicksand,sans-serif] flex flex-col flex-1">
                         <div className="flex flex-col lg:flex-row justify-between mb-3">
@@ -686,14 +691,14 @@ export default function TravelsPage() {
                         <div className="flex items-center justify-between mt-auto">
                           <div className="flex items-center space-x-2">
                             <span className="text-sm text-gray-500">
-                              {pkg.byBus ? "🚌" : "✈️"} {pkg.category}
+                            {pkg.byBus ? <Image src="/icons/bus.png" alt="Bus icon" width={20} height={20} /> : pkg.byPlane ? <Image src="/icons/plane.png" alt="Bus icon" width={20} height={20} /> : ""}
                             </span>
                           </div>
                           <Link
                             href={`/product/${pkg.id}`}
-                              className="w-[50%] text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
+                            className="w-[50%] text-[18px] font-bold  bg-[#51a9ff] cursor-pointer text-white py-2 px-4 rounded-lg  transition-colors"
                           >
-                           {t("travels.viewDetails")}
+                            {t("travels.viewDetails")}
                           </Link>
                         </div>
                       </div>

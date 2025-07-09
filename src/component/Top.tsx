@@ -46,17 +46,14 @@ interface TopProps {
   locale?: string;
 }
 
-const Top: React.FC<TopProps> = ({ locale = 'en' }) => {
+const Top: React.FC<TopProps> = () => {
   const t = useTranslations("top");
   const [popularPackages, setPopularPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Map app locale to date locale
-  const dateLocale = locale === 'ge' ? 'ka-GE' : 'en-US';
+
   
-  // Debug logging
-  console.log('Top component - locale prop:', locale);
-  console.log('Top component - dateLocale:', dateLocale);
+
 
   useEffect(() => {
     const fetchPopularPackages = async () => {
@@ -89,6 +86,7 @@ const Top: React.FC<TopProps> = ({ locale = 'en' }) => {
 
   return (
     <>
+    { popularPackages.length  &&  (
       <div className="max-w-7xl pt-15  mx-auto">
         <div className="">
           <div className="mb-7 text-center">
@@ -206,7 +204,7 @@ const Top: React.FC<TopProps> = ({ locale = 'en' }) => {
                       </div>
                       <Link
                         href={`/product/${pkg.id}`}
-                        className="w-[50%] text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
+                        className="w-[50%] text-[18px] font-bold  bg-[#51a9ff] cursor-pointer text-white py-2 px-4 rounded-lg  transition-colors"
                       >
                         View Details
                       </Link>
@@ -219,6 +217,7 @@ const Top: React.FC<TopProps> = ({ locale = 'en' }) => {
           </Swiper>
         </div>
       </div>
+      )}
     </>
   );
 };

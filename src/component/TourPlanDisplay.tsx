@@ -77,7 +77,7 @@ export default function TourPlanDisplay({ packageId }: TourPlanDisplayProps) {
     <div className="space-y-6">
       {tourDays.map((day) => (
         <div key={day.id} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-red-400 text-white rounded-full flex items-center justify-center font-bold">
+          <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-[#ea8f03] text-white rounded-full flex items-center justify-center font-bold">
             {day.dayNumber.toString().padStart(2, '0')}
           </div>
           <div className="flex-1">
@@ -91,7 +91,7 @@ export default function TourPlanDisplay({ packageId }: TourPlanDisplayProps) {
                     key={idx}
                     className="flex items-center gap-2"
                   >
-                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-[#ea8f03] rounded-full"></div>
                     <span className="text-gray-600">
                       {activity}
                     </span>

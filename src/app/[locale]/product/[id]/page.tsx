@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { MapPin, Calendar, Users, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useParams } from "next/navigation";
@@ -11,6 +11,7 @@ import { getIncludedItemsByPackage } from "@/lib/actions/includedItems";
 import { getNotIncludedItemsByPackage } from "@/lib/actions/notIncludedItems";
 import TourPlanDisplay from "@/component/TourPlanDisplay";
 import { useRouter } from "@/i18n/navigation";
+
 
 interface PackageData {
   id: number;
@@ -207,7 +208,7 @@ export default function PackageDetails() {
 
                     <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-6">
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-red-400" />
+                      <Image src="/icons/calendar.png" alt="Bus icon" width={20} height={20} />
                         <span className="text-gray-600">
                           {packageData.byBus && packageData.dates && packageData.dates.length > 0 ? (
                             `${packageData.dates.length} ${locale === 'ge' ? 'თარიღი' : 'dates'}`
@@ -219,13 +220,13 @@ export default function PackageDetails() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Users className="w-5 h-5 text-red-400" />
+                      <Image src="/icons/users.png" alt="Bus icon" width={20} height={20} />
                         <span className="text-gray-600">
                           {t("maxPeople")}: {displayMaxPeople}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-5 h-5 text-red-400" />
+                      <Image src="/icons/map.png" alt="Bus icon" width={20} height={20} />
                         <span className="text-gray-600">
                           {packageData.location?.name} - {packageData.location?.city}, {packageData.location?.country}
                         </span>
@@ -285,7 +286,7 @@ export default function PackageDetails() {
                           key={tab.id}
                           onClick={() => setActiveTab(tab.id)}
                           className={`py-3 px-2 sm:py-4 sm:px-1 border-b-2 font-medium text-[16px] whitespace-nowrap ${activeTab === tab.id
-                              ? "border-red-400 text-red-400"
+                              ? "border-[#ea8f03] text-[#ea8f03]"
                               : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                             }`}
                         >
@@ -323,7 +324,7 @@ export default function PackageDetails() {
                             <ul className="space-y-2">
                               {notIncludedItems.map((item) => (
                                 <li key={item.id} className="flex items-center gap-2">
-                                  <X className="w-4 h-4 text-red-500 flex-shrink-0" />
+                                  <X className="w-4 h-4 text-bg-[#ea8f03] flex-shrink-0" />
                                   <span className="text-gray-700">{item.text}</span>
                                 </li>
                               ))}
@@ -394,7 +395,7 @@ export default function PackageDetails() {
                               <span className="w-8 text-center">{adults}</span>
                               <button
                                 onClick={() => setAdults(adults + 1)}
-                                className="w-6 h-6 bg-red-400 text-white rounded-full flex items-center justify-center text-[14px] leading-tight"
+                                className="w-6 h-6 bg-[#ea8f03] text-white rounded-full flex items-center justify-center text-[14px] leading-tight"
                               >
                                 +
                               </button>
@@ -416,7 +417,7 @@ export default function PackageDetails() {
                       <button 
                         onClick={handleBooking}
                         disabled={bookingLoading}
-                      className="w-full text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
+                      className="w-full text-[18px] font-bold  bg-[#51a9ff] cursor-pointer text-white py-2 px-4 rounded-lg "
                       >
                         <span>{bookingLoading ? t("processing") : t("bookNow")}</span>
                       </button>

@@ -345,13 +345,13 @@ export default function ConfirmationPage() {
         <div className="flex justify-center mt-8 space-x-4">
           <button
             onClick={() => router.push('/')}
-            className="text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
+            className=" text-[18px] font-bold  bg-[#51a9ff] cursor-pointer text-white py-2 px-4 rounded-lg "
           >
             {t("backToHome")}
           </button>
           <button
             onClick={() => window.print()}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            className="bg-gray-600 text-[18px] font-bold  hover:bg-gray-700 text-white px-6 py-3 rounded-lg  transition-colors"
           >
             {t("printConfirmation")}
           </button>

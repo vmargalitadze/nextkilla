@@ -137,9 +137,7 @@ function Dest({ locale = "en" }: DestProps) {
                       </div>
                     )}
                     {/* Transport type indicator */}
-                    <div className="absolute top-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm font-medium">
-                      {package_.byBus ? "🚌" : package_.byPlane ? "✈️" : ""}
-                    </div>
+                   
                   </div>
                   <div className="p-6 flex font-[Quicksand,sans-serif] flex-col flex-1">
                     <div className="flex flex-col lg:flex-row justify-between mb-3">
@@ -177,12 +175,12 @@ function Dest({ locale = "en" }: DestProps) {
                     <div className="flex items-center justify-between mt-auto">
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-gray-500">
-                          {package_.byBus ? "🚌" : "✈️"} {package_.category}
+                        {package_.byBus ? <Image src="/icons/bus.png" alt="Bus icon" width={20} height={20} /> : package_.byPlane ? <Image src="/icons/plane.png" alt="Bus icon" width={20} height={20} /> : ""}
                         </span>
                       </div>
                       <Link
                         href={`/product/${package_.id}`}
-                        className="w-[50%] text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
+                        className="w-[50%] text-[18px] font-bold  bg-[#51a9ff] cursor-pointer text-white py-2 px-4 rounded-lg  transition-colors"
                       >
                         {t("viewDetails")}
                       </Link>

@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { getAllPackages, deletePackage } from "@/lib/actions/packages";
 import { getAllBookings, deleteBooking } from "@/lib/actions/bookings";
 import { getAllCategories } from "@/lib/actions/categories";
@@ -27,6 +28,7 @@ import {
 } from "lucide-react";
 
 export default function AdminPage() {
+  const t = useTranslations("admin");
   const [activeTab, setActiveTab] = useState("packages");
   const [showForm, setShowForm] = useState<{ type: string; data?: any } | null>(null);
   const [showDateForm, setShowDateForm] = useState<number | null>(null);
@@ -165,12 +167,12 @@ export default function AdminPage() {
 
 
   const tabs = [
-    { id: "packages", label: "Packages", icon: Package, color: "blue" },
-    { id: "bookings", label: "Bookings", icon: Calendar, color: "green" },
-    { id: "categories", label: "Categories", icon: Tag, color: "indigo" },
-    { id: "locations", label: "Locations", icon: MapPin, color: "teal" },
-    { id: "gallery", label: "Gallery Images", icon: Image, color: "purple" },
-    { id: "discounts", label: "Discounts", icon: Percent, color: "pink" }
+    { id: "packages", label: t("tabs.packages"), icon: Package, color: "blue" },
+    { id: "bookings", label: t("tabs.bookings"), icon: Calendar, color: "green" },
+    { id: "categories", label: t("tabs.categories"), icon: Tag, color: "indigo" },
+    { id: "locations", label: t("tabs.locations"), icon: MapPin, color: "teal" },
+    { id: "gallery", label: t("tabs.galleryImages"), icon: Image, color: "purple" },
+    { id: "discounts", label: t("tabs.discounts"), icon: Percent, color: "pink" }
   ];
 
   if (loading) {
@@ -178,7 +180,7 @@ export default function AdminPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading admin dashboard...</p>
+          <p className="mt-4 text-gray-600">{t("loading")}</p>
         </div>
       </div>
     );
@@ -191,12 +193,12 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600 mt-1">Manage your travel business</p>
+              <h1 className="text-3xl font-bold text-gray-900">{t("dashboard")}</h1>
+              <p className="text-gray-600 mt-1">{t("manageBusiness")}</p>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm text-gray-600">Total Revenue</p>
+                <p className="text-sm text-gray-600">{t("totalRevenue")}</p>
                 <p className="text-2xl font-bold text-green-600">
                   ₾{stats.totalRevenue.toLocaleString()}
                 </p>
@@ -216,7 +218,7 @@ export default function AdminPage() {
                 <Package className="w-6 h-6 text-blue-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Packages</p>
+                <p className="text-sm font-medium text-gray-600">{t("totalPackages")}</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalPackages}</p>
               </div>
             </div>
@@ -228,7 +230,7 @@ export default function AdminPage() {
                 <Calendar className="w-6 h-6 text-green-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Bookings</p>
+                <p className="text-sm font-medium text-gray-600">{t("totalBookings")}</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalBookings}</p>
               </div>
             </div>
@@ -267,27 +269,27 @@ export default function AdminPage() {
             {activeTab === "packages" && (
               <div>
                 <div className="flex  justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Travel Packages</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{t("packages.title")}</h2>
                   <button
                     onClick={() => setShowForm({ type: "package" })}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Add Package</span>
+                    <span>{t("packages.addPackage")}</span>
                   </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sale Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Max People</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booked</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("packages.tableHeaders.package")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("packages.tableHeaders.price")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("packages.tableHeaders.salePrice")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("packages.tableHeaders.duration")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("packages.tableHeaders.maxPeople")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("packages.tableHeaders.booked")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("packages.tableHeaders.available")}</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t("packages.tableHeaders.actions")}</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -336,7 +338,7 @@ export default function AdminPage() {
                                
                                 </div>
                               ) : (
-                                <span className="text-gray-400">No dates set</span>
+                                <span className="text-gray-400">{t("packages.noDatesSet")}</span>
                               )
                             ) : (
                               pkg.maxPeople
@@ -400,7 +402,7 @@ export default function AdminPage() {
                               <button
                                 onClick={() => setShowForm({ type: "package", data: pkg })}
                                 className="text-blue-600 hover:text-blue-900"
-                                title="Edit Package"
+                                title={t("packages.editPackage")}
                               >
                                 <Edit className="w-4 h-4" />
                               </button>
@@ -408,7 +410,7 @@ export default function AdminPage() {
                                 <button
                                   onClick={() => setShowDateForm(pkg.id)}
                                   className="text-green-600 hover:text-green-900"
-                                  title="Manage Dates"
+                                  title={t("packages.manageDates")}
                                 >
                                   <Calendar className="w-4 h-4" />
                                 </button>
@@ -416,7 +418,7 @@ export default function AdminPage() {
                               <button
                                 onClick={() => handleDelete("packages", pkg.id)}
                                 className="text-red-600 hover:text-red-900"
-                                title="Delete Package"
+                                title={t("packages.deletePackage")}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -434,20 +436,20 @@ export default function AdminPage() {
             {activeTab === "bookings" && (
               <div>
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Bookings</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{t("bookings.title")}</h2>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Number</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Travelers</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone Number</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("bookings.tableHeaders.customer")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("bookings.tableHeaders.idNumber")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("bookings.tableHeaders.package")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("bookings.tableHeaders.date")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("bookings.tableHeaders.travelers")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("bookings.tableHeaders.totalPrice")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("bookings.tableHeaders.phoneNumber")}</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t("bookings.tableHeaders.actions")}</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -469,7 +471,7 @@ export default function AdminPage() {
                             {booking.startDate && booking.endDate ? (
                               <div>
                                 <div>{formatDate(booking.startDate)}</div>
-                                <div className="text-gray-500">to {formatDate(booking.endDate)}</div>
+                                <div className="text-gray-500">{t("bookings.to")} {formatDate(booking.endDate)}</div>
                               </div>
                             ) : (
                               formatDate(booking.date || '')
@@ -511,22 +513,22 @@ export default function AdminPage() {
             {activeTab === "categories" && (
               <div>
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Categories</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{t("categories.title")}</h2>
                   <button
                     onClick={() => setShowForm({ type: "category" })}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
                   >
                     <Tag className="w-4 h-4" />
-                    <span>View Categories</span>
+                    <span>{t("categories.viewCategories")}</span>
                   </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category Name</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Packages</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("categories.tableHeaders.categoryName")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("categories.tableHeaders.packages")}</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{t("categories.tableHeaders.status")}</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -536,11 +538,11 @@ export default function AdminPage() {
                             <div className="text-sm font-medium text-gray-900">{category}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {data.packages.filter((pkg: any) => pkg.category === category).length} packages
+                            {data.packages.filter((pkg: any) => pkg.category === category).length} {t("categories.packages")}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              Available
+                              {t("categories.available")}
                             </span>
                           </td>
                         </tr>
@@ -555,25 +557,25 @@ export default function AdminPage() {
             {activeTab === "locations" && (
               <div>
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Locations</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{t("locations.title")}</h2>
                   <button
                     onClick={() => setShowForm({ type: "location" })}
                     className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Add Location</span>
+                    <span>{t("locations.addLocation")}</span>
                   </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Packages</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("locations.tableHeaders.location")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("locations.tableHeaders.city")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("locations.tableHeaders.country")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("locations.tableHeaders.image")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("locations.tableHeaders.packages")}</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t("locations.tableHeaders.actions")}</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -590,7 +592,7 @@ export default function AdminPage() {
                           </td>
                          
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {location.packages?.length || 0} packages
+                            {location.packages?.length || 0} {t("locations.packages")}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex justify-end space-x-2">
@@ -620,22 +622,22 @@ export default function AdminPage() {
             {activeTab === "gallery" && (
               <div>
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Gallery Images</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{t("gallery.title")}</h2>
                   <button
                     onClick={() => setShowForm({ type: "gallery" })}
                     className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Add Image</span>
+                    <span>{t("gallery.addImage")}</span>
                   </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gallery Images</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("gallery.tableHeaders.package")}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("gallery.tableHeaders.galleryImages")}</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t("gallery.tableHeaders.actions")}</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -648,7 +650,7 @@ export default function AdminPage() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {pkg.gallery?.length || 0} images
+                            {pkg.gallery?.length || 0} {t("gallery.images")}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex justify-end space-x-2">

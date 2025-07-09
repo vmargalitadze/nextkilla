@@ -173,7 +173,7 @@ function CompanyFilter() {
                   <div className="mt-7.5">
                     <button 
                       onClick={handleSearch}
-                      className="text-[16px] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
+                      className="text-[18px] font-bold  bg-[#51a9ff] cursor-pointer text-white py-2 px-4 rounded-lg  transition-colors"
                     >
                       <span>{t("search")}</span>
                     </button>

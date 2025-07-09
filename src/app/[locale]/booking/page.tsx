@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-
+import Image from "next/image";
 
 import { getAllPackages } from "@/lib/actions/packages";
 import { getPackageAvailability, getBusTourAvailability } from "@/lib/actions/bookings";
@@ -409,7 +409,7 @@ export default function BookingPage() {
           {selectedPackage && selectedPackage.byBus && selectedPackage.dates && selectedPackage.dates.length > 0 && (
             <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-                <span className="mr-3">📅</span>
+                <span className="mr-3">   <Image src="/icons/calendar.png" alt="Bus icon" width={20} height={20} /></span>
                 {t("selectDate")}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -441,14 +441,14 @@ export default function BookingPage() {
                       <div className="font-semibold text-gray-900 mb-1">
                         {formatDateDisplay(date.startDate)}
                       </div>
-                      <div className="text-[16px] text-gray-500 mb-2">
+                      <div className="text-[18px] text-gray-500 mb-2">
                         to {formatDateDisplay(date.endDate)}
                       </div>
-                      <div className={`text-[16px] font-medium ${
+                      <div className={`text-[18px] font-medium ${
                         isFullyBooked ? 'text-red-600' : 'text-blue-600'
                       }`}>
                         {isFullyBooked ? (
-                          <span>🚫 Fully Booked</span>
+                          <span>   <Image src="/icons/booked.png" alt="Bus icon" width={20} height={20} /> Fully Booked</span>
                         ) : (
                           <span>👥 {availableSpots} spots available</span>
                         )}
@@ -458,8 +458,8 @@ export default function BookingPage() {
                 })}
               </div>
               {!selectedDate && (
-                <p className="text-red-500 text-[16px] mt-3 flex items-center">
-                  <span className="mr-1">⚠️</span>
+                <p className="text-red-500 text-[18px] mt-3 flex items-center">
+                  <span className="mr-1">   <Image src="/icons/error.png" alt="Bus icon" width={20} height={20} /></span>
                   {t("pleaseSelectDate")}
                 </p>
               )}
@@ -469,12 +469,12 @@ export default function BookingPage() {
           {/* Traveler Information */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-              <span className="mr-3">👤</span>
+              <span className="mr-3">   <Image src="/icons/users.png" alt="Bus icon" width={30} height={30} /></span>
               {t("travelerInfo")}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-[16px] font-medium text-gray-700 mb-2">
+                <label className="block text-[18px] font-medium text-gray-700 mb-2">
                   {t("fullName")} *
                 </label>
                 <input
@@ -488,15 +488,15 @@ export default function BookingPage() {
                   aria-describedby={getFieldError("name") ? "name-error" : undefined}
                 />
                 {getFieldError("name") && (
-                  <p id="name-error" className="text-red-500 text-[16px] mt-2 flex items-center">
-                    <span className="mr-1">⚠️</span>
+                  <p id="name-error" className="text-red-500 text-[18px] mt-2 flex items-center">
+                    <span className="mr-1">   <Image src="/icons/error.png" alt="Bus icon" width={20} height={20} /></span>
                     {getFieldError("name")}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-[16px] font-medium text-gray-700 mb-2">
+                <label className="block text-[18px] font-medium text-gray-700 mb-2">
                   {t("emailAddress")} *
                 </label>
                 <input
@@ -510,15 +510,15 @@ export default function BookingPage() {
                   aria-describedby={getFieldError("email") ? "email-error" : undefined}
                 />
                 {getFieldError("email") && (
-                    <p id="email-error" className="text-red-500 text-[16px] mt-2 flex items-center">
-                    <span className="mr-1">⚠️</span>
+                    <p id="email-error" className="text-red-500 text-[18px] mt-2 flex items-center">
+                    <span className="mr-1">   <Image src="/icons/error.png" alt="Bus icon" width={20} height={20} /></span>
                     {getFieldError("email")}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-[16px] font-medium text-gray-700 mb-2">
+                  <label className="block text-[18px] font-medium text-gray-700 mb-2">
                   {t("phoneNumber")}
                 </label>
                 <input
@@ -531,15 +531,15 @@ export default function BookingPage() {
                   aria-describedby={getFieldError("phone") ? "phone-error" : undefined}
                 />
                 {getFieldError("phone") && (
-                  <p id="phone-error" className="text-red-500 text-[16px] mt-2 flex items-center">
-                    <span className="mr-1">⚠️</span>
+                  <p id="phone-error" className="text-red-500 text-[18px] mt-2 flex items-center">
+                    <span className="mr-1">   <Image src="/icons/error.png" alt="Bus icon" width={20} height={20} /></span>
                     {getFieldError("phone")}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-[16px] font-medium text-gray-700 mb-2">
+                  <label className="block text-[18px] font-medium text-gray-700 mb-2">
                   {t("personalIdNumber")} *
                 </label>
                 <input
@@ -555,8 +555,8 @@ export default function BookingPage() {
                 />
                 <p id="id-help" className="text-[14px] text-gray-500 mt-1">{t("idNumberHelp")}</p>
                 {getFieldError("idNumber") && (
-                  <p id="id-error" className="text-red-500 text-[16px] mt-2 flex items-center">
-                    <span className="mr-1">⚠️</span>
+                  <p id="id-error" className="text-red-500 text-[18px] mt-2 flex items-center">
+                    <span className="mr-1">   <Image src="/icons/error.png" alt="Bus icon" width={20} height={20} /></span>
                     {getFieldError("idNumber")}
                   </p>
                 )}
@@ -567,12 +567,12 @@ export default function BookingPage() {
           {/* Travel Details */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
-              <span className="mr-3">🎒</span>
+              <span className="mr-3">   <Image src="/icons/baggage.png" alt="Bus icon" width={30} height={30} /></span>
               {t("travelDetails")}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-[16px] font-medium text-gray-700 mb-2">
+                <label className="block text-[18px] font-medium text-gray-700 mb-2">
                   {t("numberOfAdults")} *
                 </label>
                 <input
@@ -588,8 +588,8 @@ export default function BookingPage() {
                   aria-describedby={getFieldError("adults") ? "adults-error" : undefined}
                 />
                 {getFieldError("adults") && (
-                  <p id="adults-error" className="text-red-500 text-[16px] mt-2 flex items-center">
-                    <span className="mr-1">⚠️</span>
+                  <p id="adults-error" className="text-red-500 text-[18px] mt-2 flex items-center">
+                    <span className="mr-1">   <Image src="/icons/error.png" alt="Bus icon" width={30} height={30} /></span>
                     {getFieldError("adults")}
                   </p>
                 )}
@@ -598,7 +598,7 @@ export default function BookingPage() {
               {selectedPackage && (
                 <div className="flex items-end">
                   <div className="w-full">
-                    <label className="block text-[16px] font-medium text-gray-700 mb-2">
+                    <label className="block text-[18px] font-medium text-gray-700 mb-2">
                       {t("totalTravelers")}
                     </label>
                     <div className={`px-4 py-3 border rounded-lg ${
@@ -627,14 +627,14 @@ export default function BookingPage() {
                       </span>
                     </div>
                     {availability?.isFullyBooked && (
-                      <p className="text-red-500 text-[16px] mt-2 flex items-center">
-                        <span className="mr-1">🚫</span>
+                      <p className="text-red-500 text-[18px] mt-2 flex items-center">
+                        <span className="mr-1">   <Image src="/icons/booked.png" alt="Bus icon" width={20} height={20} /></span>
                         This tour is fully booked
                       </p>
                     )}
                     {!availability?.isFullyBooked && formData.adults > (availability?.availableSpots || 0) && (
-                      <p className="text-yellow-600 text-[16px] mt-2 flex items-center">
-                        <span className="mr-1">⚠️</span>
+                      <p className="text-yellow-600 text-[18px] mt-2 flex items-center">
+                        <span className="mr-1">   <Image src="/icons/error.png" alt="Bus icon" width={20} height={20} /></span>
                         Only {availability?.availableSpots} spots available
                       </p>
                     )}
@@ -648,7 +648,7 @@ export default function BookingPage() {
           {selectedPackage && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-200">
               <h3 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
-                <span className="mr-3">💰</span>
+                <span className="mr-3">   <Image src="/icons/price.png" alt="Bus icon" width={30} height={30} /></span>
                 {t("priceSummary")}
               </h3>
               <div className="space-y-4">
@@ -657,7 +657,7 @@ export default function BookingPage() {
                   <span className="font-semibold">₾{(selectedPackage.price * formData.adults).toFixed(2)}</span>
                 </div>
                 <div className="border-t border-blue-200 pt-4 flex justify-between items-center">
-                  <span className="text-lg font-bold text-gray-900">{t("totalPrice")}</span>
+                  <span className="text-2xl font-bold text-gray-900">{t("totalPrice")}</span>
                   <span className="text-2xl font-bold text-blue-600">₾{formData.totalPrice.toFixed(2)}</span>
                 </div>
               </div>
@@ -669,7 +669,7 @@ export default function BookingPage() {
             <button
               type="submit"
               disabled={submitting || !selectedPackage || availability?.isFullyBooked || formData.adults > (availability?.availableSpots || 0)}
-             className="w-[30%] mx-auto text-[18px] font-[Quicksand,sans-serif] bg-red-400 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-red-500 transition-colors"
+             className="w-[30%] mx-auto text-[18px] font-bold  bg-[#51a9ff] cursor-pointer text-white py-2 px-4 rounded-lg "
             >
               {submitting ? (
                 <span className="flex items-center">
