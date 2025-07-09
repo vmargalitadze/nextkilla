@@ -26,7 +26,7 @@ export default function Home() {
 
       <Category />
       <Top locale={locale} />
-      <Dest locale={locale} />
+      <Dest  />
       <Company />
       <SideLogo />
     </>

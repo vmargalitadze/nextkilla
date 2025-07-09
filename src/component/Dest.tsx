@@ -41,16 +41,12 @@ interface Package {
   }>;
 }
 
-interface DestProps {
-  locale?: string;
-}
 
-function Dest({ locale = "en" }: DestProps) {
+
+function Dest() {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const t = useTranslations("newDest");
-
-  // Map app locale to date locale
 
   useEffect(() => {
     const fetchPackages = async () => {
