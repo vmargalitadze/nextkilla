@@ -260,7 +260,7 @@ export default function TravelsPage() {
       </>
     );
   }
-  
+
 
   // Get page title based on filters
   const getPageTitle = () => {
@@ -632,30 +632,44 @@ export default function TravelsPage() {
                   {filteredPackages.map((pkg) => (
                     <div
                       key={pkg.id}
-                      className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col"
+                      className="bg-white  rounded-lg shadow-lg overflow-hidden flex flex-col"
                     >
-                      <div className="relative w-full h-[300px]">
-                        {pkg.gallery && pkg.gallery.length > 0 ? (
-                          <Image
-                            src={pkg.gallery[0].url}
-                            alt={pkg.title}
-                            fill
-                            className="object-cover"
-                          />
+                      <div className="relative w-full h-[300px] group overflow-hidden">
+                        {pkg.gallery?.[0]?.url ? (
+                          <>
+                            <Image
+                              src={pkg.gallery[0].url}
+                              alt={pkg.title}
+                              fill
+                              className="object-contain "
+                            
+                              priority={false}
+                              loading="lazy"
+                            />
+                            {/* Popular badge */}
+                            {pkg.popular && (
+                              <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg">
+                                Popular
+                              </div>
+                            )}
+                            {/* Transport type indicator */}
+                           
+                          
+                          </>
                         ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <span className="text-gray-400">No image</span>
+                          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <div className="text-center">
+                              <div className="w-16 h-16 mx-auto mb-2 bg-gray-300 rounded-full flex items-center justify-center">
+                                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              </div>
+                              <span className="text-gray-500 text-sm">No image available</span>
+                            </div>
                           </div>
                         )}
-                        {pkg.popular && (
-                          <div className="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
-                            Popular
-                          </div>
-                        )}
-                        {/* Transport type indicator */}
-                        
-                        
                       </div>
+
                       <div className="p-6 font-[Quicksand,sans-serif] flex flex-col flex-1">
                         <div className="flex flex-col lg:flex-row justify-between mb-3">
                           <h3 className="text-lg font-semibold text-gray-900 mb-2 lg:mb-0">
@@ -691,7 +705,7 @@ export default function TravelsPage() {
                         <div className="flex items-center justify-between mt-auto">
                           <div className="flex items-center space-x-2">
                             <span className="text-sm text-gray-500">
-                            {pkg.byBus ? <Image src="/icons/bus.png" alt="Bus icon" width={20} height={20} /> : pkg.byPlane ? <Image src="/icons/plane.png" alt="Bus icon" width={20} height={20} /> : ""}
+                              {pkg.byBus ? <Image src="/icons/bus.png" alt="Bus icon" width={20} height={20} /> : pkg.byPlane ? <Image src="/icons/plane.png" alt="Bus icon" width={20} height={20} /> : ""}
                             </span>
                           </div>
                           <Link

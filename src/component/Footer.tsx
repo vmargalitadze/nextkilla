@@ -2,7 +2,7 @@
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, } from "lucide-react";
+import { Facebook,  Instagram, Linkedin, Mail, Phone, MapPin, } from "lucide-react";
 
 const Footer = () => {
     const t = useTranslations("footer");
@@ -27,7 +27,7 @@ const Footer = () => {
                                     height={50}
                                     className="rounded-full"
                                 />
-                                <h3 className="text-xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+                                <h3 className="text-xl font-bold text-[#EA8F03]  ">
                                     {t("company_name")}
                                 </h3>
                             </div>
@@ -37,16 +37,14 @@ const Footer = () => {
 
                             {/* Social Media */}
                             <div className="flex space-x-4 mt-auto">
-                                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-orange-500 transition-colors duration-300">
+                                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-[#EA8F03] transition-colors duration-300">
                                     <Facebook className="w-5 h-5" />
                                 </a>
-                                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-orange-500 transition-colors duration-300">
-                                    <Twitter className="w-5 h-5" />
-                                </a>
-                                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-orange-500 transition-colors duration-300">
+                                
+                                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-[#EA8F03] transition-colors duration-300">
                                     <Instagram className="w-5 h-5" />
                                 </a>
-                                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-orange-500 transition-colors duration-300">
+                                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-[#EA8F03] transition-colors duration-300">
                                     <Linkedin className="w-5 h-5" />
                                 </a>
                             </div>
@@ -60,19 +58,19 @@ const Footer = () => {
                             </h4>
                             <ul className="space-y-3">
                                 <li className="flex items-start space-x-3">
-                                    <MapPin className="w-5 h-5 text-orange-400 mt-1 flex-shrink-0" />
+                                    <MapPin className="w-5 h-5 text-[#EA8F03] mt-1 flex-shrink-0" />
                                     <span className="text-gray-300 text-sm leading-relaxed">
                                         {t("address")}
                                     </span>
                                 </li>
                                 <li className="flex items-center space-x-3">
-                                    <Phone className="w-5 h-5 text-orange-400 flex-shrink-0" />
+                                    <Phone className="w-5 h-5 text-[#EA8F03] flex-shrink-0" />
                                     <span className="text-gray-300 text-sm">
                                         {t("phone")}
                                     </span>
                                 </li>
                                 <li className="flex items-center space-x-3">
-                                    <Mail className="w-5 h-5 text-orange-400 flex-shrink-0" />
+                                    <Mail className="w-5 h-5 text-[#EA8F03] flex-shrink-0" />
                                     <span className="text-gray-300 text-sm">
                                         {t("email")}
                                     </span>

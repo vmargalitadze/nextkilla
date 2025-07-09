@@ -26,7 +26,6 @@ export default function Navbar() {
 
     { name: t("travels"), href: "/travels" },
 
-    { name: t("contact"), href: "/contact" },
   ];
 
   return (

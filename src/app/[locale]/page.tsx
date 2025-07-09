@@ -5,10 +5,11 @@ import Category from "@/component/Category";
 import Company from "@/component/Company";
 import CompanyFilter from "@/component/CompanyFilter";
 import Dest from "@/component/Dest";
-import Footer from "@/component/Footer";
+
 import Hero from "@/component/Hero";
 import Top from "@/component/Top";
 import TransportModes from "@/component/TransportModes";
+import SideLogo from "@/component/SideLogo";
 
 export default function Home() {
   const params = useParams();
@@ -22,12 +23,12 @@ export default function Home() {
       <CompanyFilter />
       <TransportModes />
       {/* <Info /> */}
-    
+
       <Category />
       <Top locale={locale} />
       <Dest locale={locale} />
       <Company />
-      <Footer />
+      <SideLogo />
     </>
   );
 }

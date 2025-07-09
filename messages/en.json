@@ -64,9 +64,9 @@
     "tours": "Tours",
     "contact": "Contact",
     "contact_info": "Contact Info",
-    "address": "2055 Niagara Falls Blvd, Amherst NY 14228, United States",
-    "phone": "+1 (555) 123-4567",
-    "email": "info@kilatravel.com",
+    "address": "თბილისი ვაჟა ფშაველას 55",
+    "phone": "+995 571191673",
+    "email": "Kila.travel2018@gmail.com",
     "newsletter": "Newsletter",
     "newsletter_desc": "Subscribe to our newsletter for travel tips and exclusive offers.",
     "email_placeholder": "Enter your email",
@@ -82,7 +82,9 @@
   },
   "category": {
     "title": "Categories",
-    "viewDetails": " Details"
+    "viewDetails": " Details",
+    "upcomingTrips": "Upcoming Trips",
+    "upcomingTripsSubtitle": "Discover upcoming adventures near you, sorted by nearest location"
   },
   "companyFilter": {
     "search": "Search",

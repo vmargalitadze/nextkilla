@@ -110,7 +110,7 @@ function Dest({ locale = "en" }: DestProps) {
             {packages.map((package_, idx) => (
               <SwiperSlide key={package_.id} className="h-full">
                 <div
-                  className="h-full mb-20 mt-16 rounded-lg shadow-lg overflow-hidden flex flex-col"
+                  className="h-full mb-20 mt-10 rounded-lg shadow-lg overflow-hidden flex flex-col"
                   style={{
                     animationDelay: `${idx * 0.1}s`,
                     animationName: "fadeInUp",
@@ -131,58 +131,56 @@ function Dest({ locale = "en" }: DestProps) {
                         <span className="text-gray-400">No image</span>
                       </div>
                     )}
-                   
+
                   </div>
 
                   <div className="p-6 flex flex-col flex-1  font-[Quicksand,sans-serif]">
                     <div className="h-[200px]">
-                    <div className="flex flex-col lg:flex-row justify-between mb-3">
-                      <h3 className="text-[16px] font-semibold text-gray-900 mb-2 lg:mb-0">
-                        {package_.title}
-                      </h3>
-                     
-                     
-                    </div>
+                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-3">
+                        <h3 className="text-[14px] font-bold line-clamp-2 mb-5 font-semibold text-gray-900 mb-2 lg:mb-0 min-h-[40px]">
+                          {package_.title}
+                        </h3>
+                      </div>
 
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {package_.description}
-                    </p>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {package_.description}
+                      </p>
 
-                    <div className="flex items-center text-sm text-gray-500 mb-4">
-                      <span className="mr-4">
-                        {package_.location?.name || ""}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-auto">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-500">
-                          {package_.byBus ? (
-                            <Image
-                              src="/icons/bus.png"
-                              alt="Bus icon"
-                              width={20}
-                              height={20}
-                            />
-                          ) : package_.byPlane ? (
-                            <Image
-                              src="/icons/plane.png"
-                              alt="Plane icon"
-                              width={20}
-                              height={20}
-                            />
-                          ) : (
-                            ""
-                          )}
+                      <div className="flex items-center text-sm text-gray-500 mb-4">
+                        <span className="mr-4">
+                          {package_.location?.name || ""}
                         </span>
                       </div>
-                      <Link
-                        href={`/product/${package_.id}`}
-                        className="w-[50%] text-[18px] font-bold bg-[#51a9ff] cursor-pointer text-white py-2 px-4 rounded-lg transition-colors"
-                      >
-                        {t("viewDetails")}
-                      </Link>
-                    </div>
+
+                      <div className="flex items-center justify-between mt-auto">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-500">
+                            {package_.byBus ? (
+                              <Image
+                                src="/icons/bus.png"
+                                alt="Bus icon"
+                                width={20}
+                                height={20}
+                              />
+                            ) : package_.byPlane ? (
+                              <Image
+                                src="/icons/plane.png"
+                                alt="Plane icon"
+                                width={20}
+                                height={20}
+                              />
+                            ) : (
+                              ""
+                            )}
+                          </span>
+                        </div>
+                        <Link
+                          href={`/product/${package_.id}`}
+                          className="w-[50%] text-[18px] font-bold bg-[#51a9ff] cursor-pointer text-white py-2 px-4 rounded-lg transition-colors"
+                        >
+                          {t("viewDetails")}
+                        </Link>
+                      </div>
 
                     </div>
                   </div>
